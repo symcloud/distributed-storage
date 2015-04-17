@@ -1,0 +1,10 @@
+{
+    "name": "symcloud/distributed-storage",
+    "authors": [
+        {
+            "name": "Johannes Wachter",
+            "email": "johannes.wachter@massiveart.at"
+        }
+    ],
+    "require": {}
+}
