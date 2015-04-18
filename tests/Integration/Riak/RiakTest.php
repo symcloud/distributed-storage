@@ -28,6 +28,7 @@ class RiakTest extends ProphecyTestCase
 
     /**
      * @dataProvider adapterProvider
+     *
      * @param BlobAdapterInterface $adapter
      * @param Riak $riak
      * @param Bucket $blobBucket
@@ -57,12 +58,58 @@ class RiakTest extends ProphecyTestCase
 
     /**
      * @dataProvider adapterProvider
+     *
+     * @param BlobAdapterInterface $adapter
+     * @param Riak $riak
+     * @param Bucket $blobBucket
+     * @param FactoryInterface $factory
+     */
+    public function testStoreBlobAlreadyExists(
+        BlobAdapterInterface $adapter,
+        Riak $riak,
+        Bucket $blobBucket,
+        FactoryInterface $factory
+    ) {
+        $this->clearBucket($blobBucket, $riak);
+
+        $blob = $factory->createBlob('This is my data');
+        $this->storeObject($blob->getHash(), $blob->getData(), $blobBucket, $riak);
+
+        // no exception expected
+        $adapter->storeBlob($blob);
+    }
+
+    /**
+     * @dataProvider adapterProvider
+     * @expectedException \Symcloud\Component\BlobStorage\Exception\BlobNotFoundException
+     *
      * @param BlobAdapterInterface $adapter
      * @param Riak $riak
      * @param Bucket $blobBucket
      * @param FactoryInterface $factory
      */
     public function testFetchBlob(
+        BlobAdapterInterface $adapter,
+        Riak $riak,
+        Bucket $blobBucket,
+        FactoryInterface $factory
+    ) {
+        $this->clearBucket($blobBucket, $riak);
+
+        $blob = $factory->createBlob('This is my data');
+        $adapter->fetchBlob($blob->getHash());
+    }
+
+    /**
+     * @dataProvider adapterProvider
+     * @
+     *
+     * @param BlobAdapterInterface $adapter
+     * @param Riak $riak
+     * @param Bucket $blobBucket
+     * @param FactoryInterface $factory
+     */
+    public function testFetchBlobNotExists(
         BlobAdapterInterface $adapter,
         Riak $riak,
         Bucket $blobBucket,
