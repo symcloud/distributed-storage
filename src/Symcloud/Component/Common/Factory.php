@@ -3,6 +3,7 @@
 namespace Symcloud\Component\Common;
 
 use Symcloud\Component\BlobStorage\Model\BlobModel;
+use Symcloud\Component\FileStorage\Model\FileModel;
 
 class Factory implements FactoryInterface
 {
@@ -47,5 +48,23 @@ class Factory implements FactoryInterface
     public function createHash($data)
     {
         return hash_hmac($this->algorithm, $data, $this->key);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createFileHash($filePath)
+    {
+        return hash_hmac_file($this->algorithm, $filePath, $this->key);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createFile($hash, $blobs = array())
+    {
+        $file = new FileModel();
+        $file->setHash($hash);
+        $file->setBlobs($blobs);
     }
 }
