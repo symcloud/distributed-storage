@@ -4,7 +4,6 @@ namespace Symcloud\Component\BlobStorage;
 
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\Common\FactoryInterface;
-use Symcloud\Component\Database\AdapterInterface;
 
 class BlobManager
 {
@@ -14,7 +13,7 @@ class BlobManager
     private $factory;
 
     /**
-     * @var AdapterInterface
+     * @var BlobAdapterInterface
      */
     private $databaseAdapter;
 
@@ -26,7 +25,7 @@ class BlobManager
     {
         $blob = $this->factory->createBlob($data);
 
-        return $this->databaseAdapter->saveBlob($blob);
+        return $this->databaseAdapter->storeBlob($blob);
     }
 
     public function downloadBlob($hash)

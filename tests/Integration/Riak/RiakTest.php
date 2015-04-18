@@ -6,19 +6,20 @@ use Basho\Riak;
 use Basho\Riak\Bucket;
 use Basho\Riak\Node\Builder;
 use Prophecy\PhpUnit\ProphecyTestCase;
+use Symcloud\Component\BlobStorage\BlobAdapterInterface;
 use Symcloud\Component\Common\Factory;
 use Symcloud\Component\Common\FactoryInterface;
-use Symcloud\Component\Database\AdapterInterface;
 use Symcloud\Riak\RiakAdapter;
 
 class RiakTest extends ProphecyTestCase
 {
     public function adapterProvider()
     {
+        $factory = new Factory('md5', 'ThisIsMySecretValue');
+
         $riak = $this->getRiak();
         $blobBucket = $this->getBlobBucket();
-        $adapter = new RiakAdapter($riak, $blobBucket);
-        $factory = new Factory('md5', 'ThisIsMySecretValue');
+        $adapter = new RiakAdapter($riak, $blobBucket, $factory);
 
         return array(
             array($adapter, $riak, $blobBucket, $factory)
@@ -27,34 +28,55 @@ class RiakTest extends ProphecyTestCase
 
     /**
      * @dataProvider adapterProvider
-     * @param AdapterInterface $adapter
+     * @param BlobAdapterInterface $adapter
      * @param Riak $riak
      * @param Bucket $blobBucket
      * @param FactoryInterface $factory
      */
-    public function testSaveBlob(AdapterInterface $adapter, Riak $riak, Bucket $blobBucket, FactoryInterface $factory)
-    {
+    public function testStoreBlob(
+        BlobAdapterInterface $adapter,
+        Riak $riak,
+        Bucket $blobBucket,
+        FactoryInterface $factory
+    ) {
+        $this->clearBucket($blobBucket, $riak);
 
-        $this->assertTrue($this->clearBucket($blobBucket, $riak));
-
-        $blob = $factory->createBlob('This are my data');
-
-        $adapter->saveBlob($blob);
+        $blob = $factory->createBlob('This is my data');
+        $adapter->storeBlob($blob);
 
         $response = $this->fetchBucketKeys($blobBucket, $riak);
-
         $this->assertTrue($response->isSuccess());
         $this->assertFalse($response->isNotFound());
         $this->assertEquals($blob->getHash(), $response->getObject()->getData()->keys[0]);
 
-        $response = (new Riak\Command\Builder\FetchObject($riak))
-            ->atLocation(new Riak\Location($blob->getHash(), $blobBucket))
-            ->build()
-            ->execute();
-
+        $response = $this->fetchObject($blob->getHash(), $blobBucket, $riak);
         $this->assertTrue($response->isSuccess());
         $this->assertFalse($response->isNotFound());
         $this->assertEquals($blob->getData(), $response->getObject()->getData());
+    }
+
+    /**
+     * @dataProvider adapterProvider
+     * @param BlobAdapterInterface $adapter
+     * @param Riak $riak
+     * @param Bucket $blobBucket
+     * @param FactoryInterface $factory
+     */
+    public function testFetchBlob(
+        BlobAdapterInterface $adapter,
+        Riak $riak,
+        Bucket $blobBucket,
+        FactoryInterface $factory
+    ) {
+        $this->clearBucket($blobBucket, $riak);
+
+        $blob = $factory->createBlob('This is my data');
+        $this->storeObject($blob->getHash(), $blob->getData(), $blobBucket, $riak);
+
+        $result = $adapter->fetchBlob($blob->getHash());
+
+        $this->assertEquals($blob->getHash(), $result->getHash());
+        $this->assertEquals($blob->getData(), $result->getData());
     }
 
     private function getRiak()
@@ -72,13 +94,11 @@ class RiakTest extends ProphecyTestCase
 
     private function clearBucket(Bucket $bucket, Riak $riak)
     {
-        $deleteObject = (new Riak\Command\Builder\DeleteObject($riak))
-            ->atLocation(new Riak\Location('...', $bucket));
+        $response = $this->fetchBucketKeys($bucket, $riak);
 
-        $response = (new Riak\Command\Bucket\Delete($deleteObject))
-            ->execute();
-
-        return $response->isSuccess();
+        foreach ($response->getObject()->getData()->keys as $key) {
+            $this->deleteObject($key, $bucket, $riak);
+        }
     }
 
     private function fetchBucketKeys(Bucket $bucket, Riak $riak)
@@ -87,6 +107,31 @@ class RiakTest extends ProphecyTestCase
             ->inBucket($bucket);
 
         return (new Riak\Command\Bucket\Keys($fetchObject))
+            ->execute();
+    }
+
+    private function fetchObject($key, Bucket $bucket, Riak $riak)
+    {
+        return (new Riak\Command\Builder\FetchObject($riak))
+            ->atLocation(new Riak\Location($key, $bucket))
+            ->build()
+            ->execute();
+    }
+
+    private function storeObject($key, $data, Bucket $bucket, Riak $riak)
+    {
+        return (new Riak\Command\Builder\StoreObject($riak))
+            ->atLocation(new Riak\Location($key, $bucket))
+            ->buildJsonObject($data)
+            ->build()
+            ->execute();
+    }
+
+    private function deleteObject($key, Bucket $bucket, Riak $riak)
+    {
+        return (new Riak\Command\Builder\DeleteObject($riak))
+            ->atLocation(new Riak\Location($key, $bucket))
+            ->build()
             ->execute();
     }
 }

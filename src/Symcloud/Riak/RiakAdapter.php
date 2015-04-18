@@ -4,9 +4,11 @@ namespace Symcloud\Riak;
 
 use Basho\Riak;
 use Basho\Riak\Bucket;
-use Symcloud\Component\Database\AdapterInterface;
+use Symcloud\Component\BlobStorage\BlobAdapterInterface;
+use Symcloud\Component\BlobStorage\Exception\BlobNotFoundException;
+use Symcloud\Component\Common\FactoryInterface;
 
-class RiakAdapter implements AdapterInterface
+class RiakAdapter implements BlobAdapterInterface
 {
     /**
      * @var Riak
@@ -19,22 +21,29 @@ class RiakAdapter implements AdapterInterface
     private $blobBucket;
 
     /**
+     * @var FactoryInterface
+     */
+    private $factory;
+
+    /**
      * RiakAdapter constructor.
      * @param Riak $riak
      * @param Bucket $blobBucket
+     * @param FactoryInterface $factory
      */
-    public function __construct(Riak $riak, Bucket $blobBucket)
+    public function __construct(Riak $riak, Bucket $blobBucket, FactoryInterface $factory)
     {
         $this->riak = $riak;
         $this->blobBucket = $blobBucket;
+        $this->factory = $factory;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function saveBlob($blob)
+    public function storeBlob($blob)
     {
-        $response = $this->loadObject($blob->getHash());
+        $response = $this->fetchObject($blob->getHash());
 
         if ($response->isNotFound()) {
             $this->saveObject($blob->getHash(), $blob->getData(), $this->blobBucket);
@@ -43,7 +52,21 @@ class RiakAdapter implements AdapterInterface
         return $blob;
     }
 
-    private function loadObject($key)
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchBlob($hash)
+    {
+        $response = $this->fetchObject($hash);
+
+        if ($response->isNotFound()) {
+            throw new BlobNotFoundException($hash);
+        }
+
+        return $this->factory->createBlob($response->getObject()->getData(), $hash);
+    }
+
+    private function fetchObject($key)
     {
         return (new Riak\Command\Builder\FetchObject($this->riak))
             ->atLocation(new Riak\Location($key, $this->blobBucket))
