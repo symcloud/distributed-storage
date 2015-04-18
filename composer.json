@@ -6,5 +6,7 @@
             "email": "johannes.wachter@massiveart.at"
         }
     ],
-    "require": {}
+    "require": {
+        "basho/riak": "~2.0"
+    }
 }
