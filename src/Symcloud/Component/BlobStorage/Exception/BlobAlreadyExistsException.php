@@ -2,7 +2,7 @@
 
 namespace Symcloud\Component\BlobStorage\Exception;
 
-class BlobNotFoundException extends \Exception
+class BlobAlreadyExistsException extends \Exception
 {
     /**
      * @var string

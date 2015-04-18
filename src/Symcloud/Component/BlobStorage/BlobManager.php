@@ -15,7 +15,7 @@ class BlobManager
     /**
      * @var BlobAdapterInterface
      */
-    private $databaseAdapter;
+    private $adapter;
 
     /**
      * @param $data
@@ -25,11 +25,15 @@ class BlobManager
     {
         $blob = $this->factory->createBlob($data);
 
-        return $this->databaseAdapter->storeBlob($blob);
+        if (!$this->adapter->blobExists($blob->getHash())) {
+            $this->adapter->storeBlob($blob);
+        }
+
+        return $blob;
     }
 
     public function downloadBlob($hash)
     {
-
+        return $this->adapter->fetchBlob($hash);
     }
 }

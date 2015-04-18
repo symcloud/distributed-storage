@@ -19,4 +19,10 @@ interface BlobAdapterInterface
      * @throws BlobNotFoundException
      */
     public function fetchBlob($hash);
+
+    /**
+     * @param string $hash
+     * @return boolean
+     */
+    public function blobExists($hash);
 }

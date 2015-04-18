@@ -79,6 +79,47 @@ class RiakTest extends ProphecyTestCase
         $this->assertEquals($blob->getData(), $result->getData());
     }
 
+    /**
+     * @dataProvider adapterProvider
+     * @param BlobAdapterInterface $adapter
+     * @param Riak $riak
+     * @param Bucket $blobBucket
+     * @param FactoryInterface $factory
+     */
+    public function testBlobExists(
+        BlobAdapterInterface $adapter,
+        Riak $riak,
+        Bucket $blobBucket,
+        FactoryInterface $factory
+    ) {
+        $this->clearBucket($blobBucket, $riak);
+
+        $blob = $factory->createBlob('This is my data');
+        $this->storeObject($blob->getHash(), $blob->getData(), $blobBucket, $riak);
+
+        $this->assertTrue($adapter->blobExists($blob->getHash()));
+    }
+
+    /**
+     * @dataProvider adapterProvider
+     * @param BlobAdapterInterface $adapter
+     * @param Riak $riak
+     * @param Bucket $blobBucket
+     * @param FactoryInterface $factory
+     */
+    public function testBlobNotExists(
+        BlobAdapterInterface $adapter,
+        Riak $riak,
+        Bucket $blobBucket,
+        FactoryInterface $factory
+    ) {
+        $this->clearBucket($blobBucket, $riak);
+
+        $blob = $factory->createBlob('This is my data');
+
+        $this->assertFalse($adapter->blobExists($blob->getHash()));
+    }
+
     private function getRiak()
     {
         $nodes = (new Builder())

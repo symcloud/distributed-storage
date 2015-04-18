@@ -43,13 +43,19 @@ class RiakAdapter implements BlobAdapterInterface
      */
     public function storeBlob($blob)
     {
-        $response = $this->fetchObject($blob->getHash());
-
-        if ($response->isNotFound()) {
-            $this->saveObject($blob->getHash(), $blob->getData(), $this->blobBucket);
-        }
+        $this->storeObject($blob->getHash(), $blob->getData(), $this->blobBucket);
 
         return $blob;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function blobExists($hash)
+    {
+        $response = $this->fetchObject($hash);
+
+        return $response->isSuccess();
     }
 
     /**
@@ -74,7 +80,7 @@ class RiakAdapter implements BlobAdapterInterface
             ->execute();
     }
 
-    private function saveObject($key, $data, Bucket $bucket)
+    private function storeObject($key, $data, Bucket $bucket)
     {
         $response = (new Riak\Command\Builder\StoreObject($this->riak))
             ->atLocation(new Riak\Location($key, $bucket))
