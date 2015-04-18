@@ -7,7 +7,8 @@
         }
     ],
     "require": {
-        "basho/riak": "~2.0"
+        "basho/riak": "~2.0",
+        "phpunit/phpunit": "~4.6"
     },
     "require-dev": {
         "phpspec/prophecy-phpunit": "~1.1"

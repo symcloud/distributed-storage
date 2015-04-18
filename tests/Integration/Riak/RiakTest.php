@@ -19,7 +19,7 @@ class RiakTest extends ProphecyTestCase
 
         $riak = $this->getRiak();
         $blobBucket = $this->getBlobBucket();
-        $adapter = new RiakAdapter($riak, $blobBucket, $factory);
+        $adapter = new RiakAdapter($riak, $blobBucket);
 
         return array(
             array($adapter, $riak, $blobBucket, $factory)
@@ -43,7 +43,7 @@ class RiakTest extends ProphecyTestCase
         $this->clearBucket($blobBucket, $riak);
 
         $blob = $factory->createBlob('This is my data');
-        $adapter->storeBlob($blob);
+        $this->assertTrue($adapter->storeBlob($blob->getHash(), $blob->getData()));
 
         $response = $this->fetchBucketKeys($blobBucket, $riak);
         $this->assertTrue($response->isSuccess());
@@ -76,7 +76,7 @@ class RiakTest extends ProphecyTestCase
         $this->storeObject($blob->getHash(), $blob->getData(), $blobBucket, $riak);
 
         // no exception expected
-        $adapter->storeBlob($blob);
+        $this->assertTrue($adapter->storeBlob($blob->getHash(), $blob->getData()));
     }
 
     /**
@@ -122,8 +122,7 @@ class RiakTest extends ProphecyTestCase
 
         $result = $adapter->fetchBlob($blob->getHash());
 
-        $this->assertEquals($blob->getHash(), $result->getHash());
-        $this->assertEquals($blob->getData(), $result->getData());
+        $this->assertEquals($blob->getData(), $result);
     }
 
     /**

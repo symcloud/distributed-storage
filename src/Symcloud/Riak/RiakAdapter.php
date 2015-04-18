@@ -21,31 +21,22 @@ class RiakAdapter implements BlobAdapterInterface
     private $blobBucket;
 
     /**
-     * @var FactoryInterface
-     */
-    private $factory;
-
-    /**
      * RiakAdapter constructor.
      * @param Riak $riak
      * @param Bucket $blobBucket
-     * @param FactoryInterface $factory
      */
-    public function __construct(Riak $riak, Bucket $blobBucket, FactoryInterface $factory)
+    public function __construct(Riak $riak, Bucket $blobBucket)
     {
         $this->riak = $riak;
         $this->blobBucket = $blobBucket;
-        $this->factory = $factory;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function storeBlob($blob)
+    public function storeBlob($hash, $data)
     {
-        $this->storeObject($blob->getHash(), $blob->getData(), $this->blobBucket);
-
-        return $blob;
+        return $this->storeObject($hash, $data, $this->blobBucket)->isSuccess();
     }
 
     /**
@@ -69,7 +60,7 @@ class RiakAdapter implements BlobAdapterInterface
             throw new BlobNotFoundException($hash);
         }
 
-        return $this->factory->createBlob($response->getObject()->getData(), $hash);
+        return $response->getObject()->getData();
     }
 
     private function fetchObject($key)

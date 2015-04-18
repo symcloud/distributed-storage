@@ -3,19 +3,19 @@
 namespace Symcloud\Component\BlobStorage;
 
 use Symcloud\Component\BlobStorage\Exception\BlobNotFoundException;
-use Symcloud\Component\BlobStorage\Model\BlobInterface;
 
 interface BlobAdapterInterface
 {
     /**
-     * @param BlobInterface $blob
-     * @return BlobInterface
+     * @param $hash
+     * @param $data
+     * @return boolean
      */
-    public function storeBlob($blob);
+    public function storeBlob($hash, $data);
 
     /**
      * @param string $hash
-     * @return BlobInterface
+     * @return string
      * @throws BlobNotFoundException
      */
     public function fetchBlob($hash);

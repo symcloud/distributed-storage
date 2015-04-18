@@ -5,7 +5,7 @@ namespace Symcloud\Component\BlobStorage;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\Common\FactoryInterface;
 
-class BlobManager
+class BlobManager implements BlobManagerInterface
 {
     /**
      * @var FactoryInterface
@@ -18,6 +18,17 @@ class BlobManager
     private $adapter;
 
     /**
+     * BlobManager constructor.
+     * @param FactoryInterface $factory
+     * @param BlobAdapterInterface $adapter
+     */
+    public function __construct(FactoryInterface $factory, BlobAdapterInterface $adapter)
+    {
+        $this->factory = $factory;
+        $this->adapter = $adapter;
+    }
+
+    /**
      * @param $data
      * @return BlobInterface
      */
@@ -26,14 +37,18 @@ class BlobManager
         $blob = $this->factory->createBlob($data);
 
         if (!$this->adapter->blobExists($blob->getHash())) {
-            $this->adapter->storeBlob($blob);
+            $this->adapter->storeBlob($blob->getHash(), $blob->getData());
         }
 
         return $blob;
     }
 
+    /**
+     * @param string $hash
+     * @return BlobInterface
+     */
     public function downloadBlob($hash)
     {
-        return $this->adapter->fetchBlob($hash);
+        return $this->factory->createBlob($this->adapter->fetchBlob($hash), $hash);
     }
 }
