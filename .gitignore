@@ -36,7 +36,6 @@
 # Composer PHAR
 /composer.phar
 
-
 # IDEs
 .idea/*
 *.iml
@@ -45,3 +44,5 @@
 # System files
 .DS_Store
 
+# composer
+composer.lock
