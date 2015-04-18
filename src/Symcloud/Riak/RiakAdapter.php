@@ -6,7 +6,6 @@ use Basho\Riak;
 use Basho\Riak\Bucket;
 use Symcloud\Component\BlobStorage\BlobAdapterInterface;
 use Symcloud\Component\BlobStorage\Exception\BlobNotFoundException;
-use Symcloud\Component\Common\FactoryInterface;
 
 class RiakAdapter implements BlobAdapterInterface
 {
