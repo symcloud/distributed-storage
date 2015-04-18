@@ -31,6 +31,6 @@ class BlobManager
 
     public function downloadBlob($hash)
     {
-        
+
     }
 }

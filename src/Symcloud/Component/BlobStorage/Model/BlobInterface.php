@@ -9,7 +9,7 @@ interface BlobInterface
     public function getData();
 
     /**
-     * @param string $data
+     * @return string
      */
-    public function setData($data);
+    public function getHash();
 }

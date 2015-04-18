@@ -8,5 +8,14 @@
     ],
     "require": {
         "basho/riak": "~2.0"
+    },
+    "require-dev": {
+        "phpspec/prophecy-phpunit": "~1.1"
+    },
+    "autoload": {
+        "psr-0": {
+            "Symcloud\\": "src/",
+            "Basho\\": "src/"
+        }
     }
 }

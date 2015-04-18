@@ -15,7 +15,7 @@ class BlobModel implements BlobInterface
     private $data;
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function getHash()
     {
@@ -31,7 +31,7 @@ class BlobModel implements BlobInterface
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function getData()
     {

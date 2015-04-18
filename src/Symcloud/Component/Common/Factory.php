@@ -2,7 +2,6 @@
 
 namespace Symcloud\Component\Common;
 
-use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\BlobStorage\Model\BlobModel;
 
 class Factory implements FactoryInterface
@@ -18,6 +17,17 @@ class Factory implements FactoryInterface
      * @var string
      */
     private $key;
+
+    /**
+     * Factory constructor.
+     * @param string $algorithm
+     * @param string $key
+     */
+    public function __construct($algorithm, $key)
+    {
+        $this->algorithm = $algorithm;
+        $this->key = $key;
+    }
 
     /**
      * {@inheritdoc}
