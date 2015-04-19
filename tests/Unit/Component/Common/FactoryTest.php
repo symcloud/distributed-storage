@@ -34,4 +34,19 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($hash, $result->getHash());
         $this->assertEquals($data, $result->getData());
     }
+
+    public function testCreateFile()
+    {
+        // TODO create file test
+    }
+
+    public function testCreateHash()
+    {
+        // TODO create hash test
+    }
+
+    public function testCreateFileHash()
+    {
+        // TODO create file hash test
+    }
 }

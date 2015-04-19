@@ -45,6 +45,18 @@ class Factory implements FactoryInterface
     /**
      * {@inheritdoc}
      */
+    public function createFile($hash, $blobs = array())
+    {
+        $file = new FileModel();
+        $file->setHash($hash);
+        $file->setBlobs($blobs);
+
+        return $file;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function createHash($data)
     {
         return hash_hmac($this->algorithm, $data, $this->key);
@@ -56,17 +68,5 @@ class Factory implements FactoryInterface
     public function createFileHash($filePath)
     {
         return hash_hmac_file($this->algorithm, $filePath, $this->key);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function createFile($hash, $blobs = array())
-    {
-        $file = new FileModel();
-        $file->setHash($hash);
-        $file->setBlobs($blobs);
-
-        return $file;
     }
 }
