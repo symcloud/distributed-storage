@@ -48,7 +48,7 @@ class RiakFileAdapterTest extends BaseIntegrationTest
         $response = $this->fetchBucketKeys($fileBucket, $riak);
         $this->assertTrue($response->isSuccess());
         $this->assertFalse($response->isNotFound());
-        $this->assertEquals($file->getHash(), $response->getObject()->getData()->keys[0]);
+        $this->assertContains($file->getHash(), $response->getObject()->getData()->keys);
 
         $response = $this->fetchObject($file->getHash(), $fileBucket, $riak);
         $this->assertTrue($response->isSuccess());

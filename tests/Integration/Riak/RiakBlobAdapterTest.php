@@ -47,7 +47,7 @@ class RiakBlobAdapterTest extends BaseIntegrationTest
         $response = $this->fetchBucketKeys($blobBucket, $riak);
         $this->assertTrue($response->isSuccess());
         $this->assertFalse($response->isNotFound());
-        $this->assertEquals($blob->getHash(), $response->getObject()->getData()->keys[0]);
+        $this->assertContains($blob->getHash(), $response->getObject()->getData()->keys);
 
         $response = $this->fetchObject($blob->getHash(), $blobBucket, $riak);
         $this->assertTrue($response->isSuccess());
