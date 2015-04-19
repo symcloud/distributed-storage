@@ -61,6 +61,11 @@ class FileStorageTest extends BaseIntegrationTest
         $this->assertEquals(array($blob1->getHash(), $blob2->getHash()), $this->fetchObject($fileHash, $fileBucket, $riak)->getObject()->getData());
     }
 
+    public function testDownload()
+    {
+        // TODO download test
+    }
+
     private function generateTestFile($length)
     {
         $data = $this->generateString($length);
