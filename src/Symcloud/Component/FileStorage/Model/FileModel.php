@@ -7,7 +7,7 @@ use Symcloud\Component\BlobStorage\Model\BlobInterface;
 class FileModel implements FileInterface
 {
     /**
-     * @var BlobInterface
+     * @var BlobInterface[]
      */
     private $blobs;
 
@@ -25,9 +25,9 @@ class FileModel implements FileInterface
     }
 
     /**
-     * @param mixed $blobs
+     * @param BlobInterface[] $blobs
      */
-    public function setBlobs($blobs)
+    public function setBlobs(array $blobs)
     {
         $this->blobs = $blobs;
     }
@@ -46,5 +46,13 @@ class FileModel implements FileInterface
     public function setHash($hash)
     {
         $this->hash = $hash;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getContent($length = -1, $offset = 0)
+    {
+        throw new \Exception('Not implemented');
     }
 }
