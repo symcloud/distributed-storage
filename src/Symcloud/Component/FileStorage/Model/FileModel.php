@@ -17,7 +17,7 @@ class FileModel implements FileInterface
     private $hash;
 
     /**
-     * @return mixed
+     * @return BlobInterface[]
      */
     public function getBlobs()
     {
@@ -53,6 +53,15 @@ class FileModel implements FileInterface
      */
     public function getContent($length = -1, $offset = 0)
     {
-        throw new \Exception('Not implemented');
+        if ($length !== -1 || $offset !== 0) {
+            throw new \Exception('Not implemented');
+        }
+
+        $content = '';
+        foreach ($this->getBlobs() as $blob) {
+            $content .= $blob->getData();
+        }
+
+        return $content;
     }
 }
