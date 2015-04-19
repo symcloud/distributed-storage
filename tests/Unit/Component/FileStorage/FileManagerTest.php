@@ -9,6 +9,7 @@ use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use Symcloud\Component\BlobStorage\BlobManagerInterface;
 use Symcloud\Component\BlobStorage\Model\BlobModel;
 use Symcloud\Component\Common\FactoryInterface;
+use Symcloud\Component\FileStorage\Exception\FileNotFoundException;
 use Symcloud\Component\FileStorage\FileAdapterInterface;
 use Symcloud\Component\FileStorage\FileManager;
 use Symcloud\Component\FileStorage\FileSplitter;
@@ -119,6 +120,94 @@ class FileManagerTest extends ProphecyTestCase
 
         $this->assertEquals($file->getHash(), $result->getHash());
         $this->assertEquals($file->getBlobs(), $result->getBlobs());
+    }
+
+    public function testDownload()
+    {
+        $data = $this->generateString(200);
+        $fileName = tempnam('', 'splitter-test-file');
+        file_put_contents($fileName, $data);
+
+        $fileHash = 'my-hash';
+
+        $blob1 = new BlobModel();
+        $blob1->setHash('hash1');
+        $blob1->setData(substr($data, 0, 100));
+
+        $blob2 = new BlobModel();
+        $blob2->setHash('hash2');
+        $blob2->setData(substr($data, 100, 100));
+
+        $file = new FileModel();
+        $file->setHash($fileHash);
+        $file->setBlobs(array($blob1, $blob2));
+
+        $fileSplitter = new FileSplitter(100);
+        $blobManager = $this->prophesize(BlobManagerInterface::class);
+        $factory = $this->prophesize(FactoryInterface::class);
+        $adapter = $this->prophesize(FileAdapterInterface::class);
+        $proxyFactory = new LazyLoadingValueHolderFactory();
+
+        $blobManager->uploadBlob()->should(new NoCallsPrediction());
+        $blobManager->downloadBlob()->should(new NoCallsPrediction());
+
+        $factory->createBlob()->should(new NoCallsPrediction());
+        $factory->createHash()->should(new NoCallsPrediction());
+        $factory->createFileHash()->should(new NoCallsPrediction());
+        $factory->createFile($fileHash, Argument::size(2))->willReturn($file);
+
+        $adapter->storeFile()->should(new NoCallsPrediction());
+        $adapter->fileExists()->should(new NoCallsPrediction());
+        $adapter->fetchFile($fileHash)->willReturn(array($blob1->getHash(), $blob2->getHash()));
+
+        $manager = new FileManager(
+            $fileSplitter,
+            $blobManager->reveal(),
+            $factory->reveal(),
+            $adapter->reveal(),
+            $proxyFactory
+        );
+
+        $result = $manager->download($fileHash);
+
+        $this->assertEquals($file->getHash(), $result->getHash());
+        $this->assertEquals($file->getBlobs(), $result->getBlobs());
+    }
+
+    /**
+     * @expectedException \Symcloud\Component\FileStorage\Exception\FileNotFoundException
+     */
+    public function testDownloadNotExists()
+    {
+        $fileHash = 'my-hash';
+
+        $fileSplitter = new FileSplitter(100);
+        $blobManager = $this->prophesize(BlobManagerInterface::class);
+        $factory = $this->prophesize(FactoryInterface::class);
+        $adapter = $this->prophesize(FileAdapterInterface::class);
+        $proxyFactory = new LazyLoadingValueHolderFactory();
+
+        $blobManager->uploadBlob()->should(new NoCallsPrediction());
+        $blobManager->downloadBlob()->should(new NoCallsPrediction());
+
+        $factory->createBlob()->should(new NoCallsPrediction());
+        $factory->createHash()->should(new NoCallsPrediction());
+        $factory->createFileHash()->should(new NoCallsPrediction());
+        $factory->createFile()->should(new NoCallsPrediction());
+
+        $adapter->storeFile()->should(new NoCallsPrediction());
+        $adapter->fileExists()->should(new NoCallsPrediction());
+        $adapter->fetchFile($fileHash)->willThrow(new FileNotFoundException($fileHash));
+
+        $manager = new FileManager(
+            $fileSplitter,
+            $blobManager->reveal(),
+            $factory->reveal(),
+            $adapter->reveal(),
+            $proxyFactory
+        );
+
+        $manager->download($fileHash);
     }
 
     private function generateString($length)

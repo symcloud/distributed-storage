@@ -7,6 +7,7 @@ use Prophecy\Prediction\CallPrediction;
 use Prophecy\Prediction\NoCallsPrediction;
 use Symcloud\Component\BlobStorage\BlobAdapterInterface;
 use Symcloud\Component\BlobStorage\BlobManager;
+use Symcloud\Component\BlobStorage\Exception\BlobNotFoundException;
 use Symcloud\Component\BlobStorage\Model\BlobModel;
 use Symcloud\Component\Common\FactoryInterface;
 
@@ -76,7 +77,7 @@ class BlobManagerTest extends ProphecyTestCase
         $factory = $this->prophesize(FactoryInterface::class);
         $adapter = $this->prophesize(BlobAdapterInterface::class);
 
-        $factory->createBlob($data,$hash)->should(new CallPrediction())->willReturn($blob);
+        $factory->createBlob($data, $hash)->should(new CallPrediction())->willReturn($blob);
 
         $adapter->fetchBlob($hash)->should(new CallPrediction())->willReturn($data);
         $adapter->storeBlob($hash)->should(new NoCallsPrediction());
@@ -88,5 +89,31 @@ class BlobManagerTest extends ProphecyTestCase
 
         $this->assertEquals($blob->getHash(), $result->getHash());
         $this->assertEquals($blob->getData(), $result->getData());
+    }
+
+    /**
+     * @expectedException \Symcloud\Component\BlobStorage\Exception\BlobNotFoundException
+     */
+    public function testDownloadNotExists()
+    {
+        $data = 'This is my data';
+        $hash = 'my-hash';
+
+        $blob = new BlobModel();
+        $blob->setHash($hash);
+        $blob->setData($data);
+
+        $factory = $this->prophesize(FactoryInterface::class);
+        $adapter = $this->prophesize(BlobAdapterInterface::class);
+
+        $factory->createBlob($data, $hash)->should(new NoCallsPrediction());
+
+        $adapter->fetchBlob($hash)->willThrow(new BlobNotFoundException($hash));
+        $adapter->storeBlob($hash)->should(new NoCallsPrediction());
+        $adapter->blobExists($hash)->should(new NoCallsPrediction());
+
+        $manager = new BlobManager($factory->reveal(), $adapter->reveal());
+
+        $manager->downloadBlob('my-hash');
     }
 }

@@ -102,7 +102,6 @@ class RiakBlobAdapterTest extends ProphecyTestCase
 
     /**
      * @dataProvider adapterProvider
-     * @
      *
      * @param BlobAdapterInterface $adapter
      * @param Riak $riak
@@ -127,6 +126,7 @@ class RiakBlobAdapterTest extends ProphecyTestCase
 
     /**
      * @dataProvider adapterProvider
+     *
      * @param BlobAdapterInterface $adapter
      * @param Riak $riak
      * @param Bucket $blobBucket
@@ -148,6 +148,7 @@ class RiakBlobAdapterTest extends ProphecyTestCase
 
     /**
      * @dataProvider adapterProvider
+     *
      * @param BlobAdapterInterface $adapter
      * @param Riak $riak
      * @param Bucket $blobBucket
