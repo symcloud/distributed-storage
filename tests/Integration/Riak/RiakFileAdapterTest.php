@@ -5,13 +5,13 @@ namespace Integration\Riak;
 use Basho\Riak;
 use Basho\Riak\Bucket;
 use Basho\Riak\Node\Builder;
-use Prophecy\PhpUnit\ProphecyTestCase;
+use Integration\BaseIntegrationTest;
 use Symcloud\Component\Common\Factory;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\FileStorage\FileAdapterInterface;
 use Symcloud\Riak\RiakFileAdapter;
 
-class RiakFileAdapterTest extends ProphecyTestCase
+class RiakFileAdapterTest extends BaseIntegrationTest
 {
     public function adapterProvider()
     {
@@ -163,61 +163,5 @@ class RiakFileAdapterTest extends ProphecyTestCase
         $file = $factory->createFile('my-hash', array('hash1', 'hash2'));
 
         $this->assertFalse($adapter->fileExists($file->getHash()));
-    }
-
-    private function getRiak()
-    {
-        $nodes = (new Builder())
-            ->buildLocalhost([8098]);
-
-        return new Riak($nodes);
-    }
-
-    private function getFileBucket()
-    {
-        return new Riak\Bucket('test-files');
-    }
-
-    private function clearBucket(Bucket $bucket, Riak $riak)
-    {
-        $response = $this->fetchBucketKeys($bucket, $riak);
-
-        foreach ($response->getObject()->getData()->keys as $key) {
-            $this->deleteObject($key, $bucket, $riak);
-        }
-    }
-
-    private function fetchBucketKeys(Bucket $bucket, Riak $riak)
-    {
-        $fetchObject = (new Riak\Command\Builder\FetchObject($riak))
-            ->inBucket($bucket);
-
-        return (new Riak\Command\Bucket\Keys($fetchObject))
-            ->execute();
-    }
-
-    private function fetchObject($key, Bucket $bucket, Riak $riak)
-    {
-        return (new Riak\Command\Builder\FetchObject($riak))
-            ->atLocation(new Riak\Location($key, $bucket))
-            ->build()
-            ->execute();
-    }
-
-    private function storeObject($key, $data, Bucket $bucket, Riak $riak)
-    {
-        return (new Riak\Command\Builder\StoreObject($riak))
-            ->atLocation(new Riak\Location($key, $bucket))
-            ->buildJsonObject($data)
-            ->build()
-            ->execute();
-    }
-
-    private function deleteObject($key, Bucket $bucket, Riak $riak)
-    {
-        return (new Riak\Command\Builder\DeleteObject($riak))
-            ->atLocation(new Riak\Location($key, $bucket))
-            ->build()
-            ->execute();
     }
 }
