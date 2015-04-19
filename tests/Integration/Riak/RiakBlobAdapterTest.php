@@ -9,9 +9,9 @@ use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\BlobStorage\BlobAdapterInterface;
 use Symcloud\Component\Common\Factory;
 use Symcloud\Component\Common\FactoryInterface;
-use Symcloud\Riak\RiakAdapter;
+use Symcloud\Riak\RiakBlobAdapter;
 
-class RiakTest extends ProphecyTestCase
+class RiakBlobAdapterTest extends ProphecyTestCase
 {
     public function adapterProvider()
     {
@@ -19,7 +19,7 @@ class RiakTest extends ProphecyTestCase
 
         $riak = $this->getRiak();
         $blobBucket = $this->getBlobBucket();
-        $adapter = new RiakAdapter($riak, $blobBucket);
+        $adapter = new RiakBlobAdapter($riak, $blobBucket);
 
         return array(
             array($adapter, $riak, $blobBucket, $factory)

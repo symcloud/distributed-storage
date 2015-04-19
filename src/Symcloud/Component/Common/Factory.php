@@ -66,5 +66,7 @@ class Factory implements FactoryInterface
         $file = new FileModel();
         $file->setHash($hash);
         $file->setBlobs($blobs);
+
+        return $file;
     }
 }

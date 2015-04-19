@@ -1,8 +1,10 @@
 <?php
 
-namespace Symcloud\Component\BlobStorage\Exception;
 
-class BlobAlreadyExistsException extends \Exception
+namespace Symcloud\Component\FileStorage\Exception;
+
+
+class FileNotFoundException extends \Exception
 {
     /**
      * @var string
@@ -10,8 +12,8 @@ class BlobAlreadyExistsException extends \Exception
     private $hash;
 
     /**
-     * BlobNotFoundException constructor.
-     * @param $hash
+     * FileNotFoundException constructor.
+     * @param string $hash
      */
     public function __construct($hash)
     {
@@ -19,7 +21,7 @@ class BlobAlreadyExistsException extends \Exception
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getHash()
     {

@@ -7,12 +7,8 @@ use Basho\Riak\Bucket;
 use Symcloud\Component\BlobStorage\BlobAdapterInterface;
 use Symcloud\Component\BlobStorage\Exception\BlobNotFoundException;
 
-class RiakAdapter implements BlobAdapterInterface
+class RiakBlobAdapter extends RiakBaseAdapter implements BlobAdapterInterface
 {
-    /**
-     * @var Riak
-     */
-    private $riak;
 
     /**
      * @var Bucket
@@ -20,13 +16,14 @@ class RiakAdapter implements BlobAdapterInterface
     private $blobBucket;
 
     /**
-     * RiakAdapter constructor.
+     * RiakBlobAdapter constructor.
      * @param Riak $riak
      * @param Bucket $blobBucket
      */
     public function __construct(Riak $riak, Bucket $blobBucket)
     {
-        $this->riak = $riak;
+        parent::__construct($riak);
+
         $this->blobBucket = $blobBucket;
     }
 
@@ -43,7 +40,7 @@ class RiakAdapter implements BlobAdapterInterface
      */
     public function blobExists($hash)
     {
-        $response = $this->fetchObject($hash);
+        $response = $this->fetchObject($hash, $this->blobBucket);
 
         return $response->isSuccess();
     }
@@ -53,31 +50,12 @@ class RiakAdapter implements BlobAdapterInterface
      */
     public function fetchBlob($hash)
     {
-        $response = $this->fetchObject($hash);
+        $response = $this->fetchObject($hash, $this->blobBucket);
 
         if ($response->isNotFound()) {
             throw new BlobNotFoundException($hash);
         }
 
         return $response->getObject()->getData();
-    }
-
-    private function fetchObject($key)
-    {
-        return (new Riak\Command\Builder\FetchObject($this->riak))
-            ->atLocation(new Riak\Location($key, $this->blobBucket))
-            ->build()
-            ->execute();
-    }
-
-    private function storeObject($key, $data, Bucket $bucket)
-    {
-        $response = (new Riak\Command\Builder\StoreObject($this->riak))
-            ->atLocation(new Riak\Location($key, $bucket))
-            ->buildJsonObject($data)
-            ->build()
-            ->execute();
-
-        return $response;
     }
 }
