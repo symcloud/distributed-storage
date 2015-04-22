@@ -75,11 +75,21 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateHash()
     {
-        // TODO create hash test
+        $factory = new Factory($this->algo, $this->secret);
+
+        $hash = $factory->createHash($this->data);
+        $this->assertEquals(hash_hmac($this->algo, $this->data, $this->secret), $hash);
     }
 
     public function testCreateFileHash()
     {
         // TODO create file hash test
+        $fileName = tempnam('', 'test-file');
+        file_put_contents($fileName, $this->data);
+
+        $factory = new Factory($this->algo, $this->secret);
+
+        $hash = $factory->createFileHash($fileName);
+        $this->assertEquals(hash_hmac($this->algo, $this->data, $this->secret), $hash);
     }
 }
