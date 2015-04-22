@@ -134,7 +134,6 @@ class FileStorageTest extends BaseIntegrationTest
         Riak $riak,
         FactoryInterface $factory
     ) {
-        // TODO download test
         $this->storeObject($blobs[0]->getHash(), $blobs[0]->getData(), $blobBucket, $riak);
         $this->storeObject($blobs[1]->getHash(), $blobs[1]->getData(), $blobBucket, $riak);
         $this->storeObject($fileHash, array($blobs[0]->getHash(), $blobs[1]->getHash()), $fileBucket, $riak);
