@@ -18,6 +18,8 @@ The used data-model is inspired by the data-model of git. See information about 
  directories inside an other directory tree
 * [ACL](https://github.com/symcloud/distributed-storage/blob/master/doc/acl.md): enables security layer for files and
  directories based on a external user provider
+* [Local cache](https://github.com/symcloud/distributed-storage/blob/master/doc/cache.md): enables local cache for each
+ user to extend speed of response
 
 ## Architecture
 
