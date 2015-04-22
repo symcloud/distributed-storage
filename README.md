@@ -10,4 +10,4 @@ This library is currently under heavy development and the interfaces can change 
 
 ## Documentation
 
-See [docs/intro.md](https://github.com/symcloud/distributed-storage/blob/master/doc/intro.md)
+See [docs/intro.md](https://github.com/symcloud/distributed-storage/blob/master/doc/README.md)
