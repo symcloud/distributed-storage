@@ -1,6 +1,8 @@
 # Distributed-Storage
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/symcloud/distributed-storage/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/symcloud/distributed-storage/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/symcloud/distributed-storage/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/symcloud/distributed-storage/?branch=master)
+[![Build Status](https://travis-ci.org/symcloud/distributed-storage.svg?branch=master)](https://travis-ci.org/symcloud/distributed-storage)
 
 Storage System of symcloud application
 
