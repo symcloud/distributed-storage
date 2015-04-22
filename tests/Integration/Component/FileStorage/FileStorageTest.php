@@ -53,7 +53,11 @@ class FileStorageTest extends BaseIntegrationTest
 
         $this->assertContains($result->getBlobs()[0]->getHash(), $blobKeys);
         $this->assertContains($result->getBlobs()[1]->getHash(), $blobKeys);
+        $this->assertNotContains($result->getBlobs()[0]->getHash(), $fileKeys);
+        $this->assertNotContains($result->getBlobs()[1]->getHash(), $fileKeys);
+
         $this->assertContains($result->getHash(), $fileKeys);
+        $this->assertNotContains($result->getHash(), $blobKeys);
 
         $this->assertEquals($blob1->getData(), $this->fetchObject($blob1->getHash(), $blobBucket, $riak)->getObject()->getData());
         $this->assertEquals($blob2->getData(), $this->fetchObject($blob2->getHash(), $blobBucket, $riak)->getObject()->getData());
@@ -64,25 +68,5 @@ class FileStorageTest extends BaseIntegrationTest
     public function testDownload()
     {
         // TODO download test
-    }
-
-    private function generateTestFile($length)
-    {
-        $data = $this->generateString($length);
-        $fileName = tempnam('', 'test-file');
-        file_put_contents($fileName, $data);
-
-        return array($data, $fileName);
-    }
-
-    private function generateString($length)
-    {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $randstring = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randstring .= $characters[rand(0, strlen($characters) - 1)];
-        }
-
-        return $randstring;
     }
 }
