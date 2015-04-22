@@ -2,42 +2,75 @@
 
 namespace Unit\Component\Common;
 
+use Symcloud\Component\BlobStorage\Model\BlobModel;
 use Symcloud\Component\Common\Factory;
 
 class FactoryTest extends \PHPUnit_Framework_TestCase
 {
+    private $algo = 'md5';
+    private $secret = 'ThisIsMySecret';
+    private $data = 'This is my data';
+
     public function testCreateBlob()
     {
-        $algo = 'md5';
-        $secret = 'ThisIsMySecret';
-        $data = 'This is my data';
+        $factory = new Factory($this->algo, $this->secret);
 
-        $factory = new Factory($algo, $secret);
+        $result = $factory->createBlob($this->data);
 
-        $result = $factory->createBlob($data);
-
-        $this->assertEquals(hash_hmac($algo, $data, $secret), $result->getHash());
-        $this->assertEquals($data, $result->getData());
+        $this->assertEquals(hash_hmac($this->algo, $this->data, $this->secret), $result->getHash());
+        $this->assertEquals($this->data, $result->getData());
     }
 
     public function testCreateBlobWithHash()
     {
-        $algo = 'md5';
-        $secret = 'ThisIsMySecret';
-        $data = 'This is my data';
         $hash = 'my-hash';
 
-        $factory = new Factory($algo, $secret);
+        $factory = new Factory($this->algo, $this->secret);
 
-        $result = $factory->createBlob($data, $hash);
+        $result = $factory->createBlob($this->data, $hash);
 
         $this->assertEquals($hash, $result->getHash());
-        $this->assertEquals($data, $result->getData());
+        $this->assertEquals($this->data, $result->getData());
     }
 
-    public function testCreateFile()
+    public function testCreateFileSingleBlob()
     {
-        // TODO create file test
+        $blobHash = 'my-blob-hash';
+        $fileHash = 'my-file-hash';
+
+        $blob = new BlobModel();
+        $blob->setHash($blobHash);
+        $blob->setData($this->data);
+
+        $factory = new Factory($this->algo, $this->secret);
+        $result = $factory->createFile($fileHash, array($blob));
+
+        $this->assertEquals($fileHash, $result->getHash());
+        $this->assertEquals(array($blob), $result->getBlobs());
+        $this->assertEquals($this->data, $result->getContent());
+    }
+
+    public function testCreateFileMultipleBlob()
+    {
+        $blobHashs = array(
+            'my-blob-hash-1',
+            'my-blob-hash-2'
+        );
+        $fileHash = 'my-file-hash';
+
+        /** @var BlobModel[] $blobs */
+        $blobs = array(new BlobModel(), new BlobModel());
+        $blobs[0]->setHash($blobHashs[0]);
+        $blobs[0]->setData($this->data);
+        $blobs[1]->setHash($blobHashs[1]);
+        $blobs[1]->setData(strrev($this->data));
+
+        $factory = new Factory($this->algo, $this->secret);
+        $result = $factory->createFile($fileHash, $blobs);
+
+        $this->assertEquals($fileHash, $result->getHash());
+        $this->assertEquals($blobs, $result->getBlobs());
+        $this->assertEquals($this->data . strrev($this->data), $result->getContent());
     }
 
     public function testCreateHash()
