@@ -18,3 +18,16 @@ The used data-model is inspired by the data-model of git. See information about 
  directories inside an other directory tree
 * [ACL](https://github.com/symcloud/distributed-storage/blob/master/doc/acl.md): enables security layer for files and
  directories based on a external user provider
+
+## Architecture
+
+The architecture of the library is layer-based which can be replaced for your use. 
+
+![Architecture](architecture.png)
+
+### Adapter
+
+To store the information and data of the files this library uses adapter to decouple the library from a database. The 
+Default implementation is build ontop of the open-source distributed database [riak](http://basho.com/riak/) and uses
+the [riak-php-client](https://github.com/basho/riak-php-client) to communicate to the database. More information about
+[adapter here ...](https://github.com/symcloud/distributed-storage/blob/master/doc/adapter.md)
