@@ -47,11 +47,13 @@ class FileStorageTest extends BaseIntegrationTest
         $manager = new FileManager($fileSplitter, $blobManager, $factory, $fileAdapter, $proxyFactory);
 
         return array(
-            array($manager, $fileName, $data, $fileHash, $blobs, $fileBucket, $blobBucket, $riak)
+            array($manager, $fileName, $data, $fileHash, $blobs, $fileBucket, $blobBucket, $riak, $factory)
         );
     }
 
     /**
+     * @dataProvider storageProvider
+     *
      * @param FileManagerInterface $manager
      * @param string $fileName
      * @param string $data
@@ -70,8 +72,8 @@ class FileStorageTest extends BaseIntegrationTest
         $blobs,
         Bucket $fileBucket,
         Bucket $blobBucket,
-        FactoryInterface $factory,
-        Riak $riak
+        Riak $riak,
+        FactoryInterface $factory
     ) {
         $result = $manager->upload($fileName);
 
@@ -108,8 +110,57 @@ class FileStorageTest extends BaseIntegrationTest
         );
     }
 
-    public function testDownload()
-    {
+    /**
+     * @dataProvider storageProvider
+     *
+     * @param FileManagerInterface $manager
+     * @param string $fileName
+     * @param string $data
+     * @param string $fileHash
+     * @param BlobInterface[] $blobs
+     * @param Bucket $fileBucket
+     * @param Bucket $blobBucket
+     * @param FactoryInterface $factory
+     * @param Riak $riak
+     */
+    public function testDownload(
+        FileManagerInterface $manager,
+        $fileName,
+        $data,
+        $fileHash,
+        $blobs,
+        Bucket $fileBucket,
+        Bucket $blobBucket,
+        Riak $riak,
+        FactoryInterface $factory
+    ) {
         // TODO download test
+        $this->storeObject($blobs[0]->getHash(), $blobs[0]->getData(), $blobBucket, $riak);
+        $this->storeObject($blobs[1]->getHash(), $blobs[1]->getData(), $blobBucket, $riak);
+        $this->storeObject($fileHash, array($blobs[0]->getHash(), $blobs[1]->getHash()), $fileBucket, $riak);
+
+        $result = $manager->download($fileHash);
+
+        $this->assertEquals($result->getHash(), $result->getHash());
+        $this->assertEquals($result->getContent(), $data);
+
+        $this->assertCount(count($blobs), $result->getBlobs());
+
+        $this->assertEquals($blobs[0]->getHash(), $result->getBlobs()[0]->getHash());
+        $this->assertEquals($blobs[1]->getHash(), $result->getBlobs()[1]->getHash());
+
+        $this->assertEquals($blobs[0]->getData(), $result->getBlobs()[0]->getData());
+        $this->assertEquals($blobs[1]->getData(), $result->getBlobs()[1]->getData());
+
+        $fileKeys = $this->fetchBucketKeys($fileBucket, $riak)->getObject()->getData()->keys;
+        $blobKeys = $this->fetchBucketKeys($blobBucket, $riak)->getObject()->getData()->keys;
+
+        $this->assertContains($result->getBlobs()[0]->getHash(), $blobKeys);
+        $this->assertContains($result->getBlobs()[1]->getHash(), $blobKeys);
+        $this->assertNotContains($result->getBlobs()[0]->getHash(), $fileKeys);
+        $this->assertNotContains($result->getBlobs()[1]->getHash(), $fileKeys);
+
+        $this->assertContains($result->getHash(), $fileKeys);
+        $this->assertNotContains($result->getHash(), $blobKeys);
     }
 }
