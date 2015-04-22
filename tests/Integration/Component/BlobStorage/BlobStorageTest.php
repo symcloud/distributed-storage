@@ -7,6 +7,7 @@ use Basho\Riak\Bucket;
 use Integration\BaseIntegrationTest;
 use Symcloud\Component\BlobStorage\BlobManager;
 use Symcloud\Component\BlobStorage\BlobManagerInterface;
+use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Riak\RiakBlobAdapter;
 
@@ -24,8 +25,10 @@ class BlobStorageTest extends BaseIntegrationTest
         $length = 200;
         $data = $this->generateString($length);
 
+        $expectedBlob = $factory->createBlob($data);
+
         return array(
-            array($blobStorage, $data, $blobBucket, $riak, $factory)
+            array($blobStorage, $expectedBlob, $blobBucket, $riak)
         );
     }
 
@@ -33,34 +36,51 @@ class BlobStorageTest extends BaseIntegrationTest
      * @dataProvider storageProvider
      *
      * @param BlobManagerInterface $blobStorage
-     * @param $data
+     * @param BlobInterface $expectedBlob
      * @param Bucket $blobBucket
      * @param Riak $riak
-     * @param FactoryInterface $factory
      */
     public function testUpload(
         BlobManagerInterface $blobStorage,
-        $data,
+        BlobInterface $expectedBlob,
         Bucket $blobBucket,
-        Riak $riak,
-        FactoryInterface $factory
+        Riak $riak
     ) {
-        $expectedBlob = $factory->createBlob($data);
-
-        $blob = $blobStorage->uploadBlob($data);
+        $blob = $blobStorage->uploadBlob($expectedBlob->getData());
 
         $this->assertEquals($expectedBlob->getHash(), $blob->getHash());
         $this->assertEquals($expectedBlob->getData(), $blob->getData());
 
         $riakResponse = $this->fetchObject($blob->getHash(), $blobBucket, $riak);
-        $this->assertEquals($data, $riakResponse->getObject()->getData());
+        $this->assertEquals($expectedBlob->getData(), $riakResponse->getObject()->getData());
 
         $blobKeys = $this->fetchBucketKeys($blobBucket, $riak)->getObject()->getData()->keys;
         $this->assertContains($blob->getHash(), $blobKeys);
     }
 
-    public function testDownload()
-    {
+    /**
+     * @dataProvider storageProvider
+     *
+     * @param BlobManagerInterface $blobStorage
+     * @param BlobInterface $expectedBlob
+     * @param Bucket $blobBucket
+     * @param Riak $riak
+     */
+    public function testDownload(
+        BlobManagerInterface $blobStorage,
+        BlobInterface $expectedBlob,
+        Bucket $blobBucket,
+        Riak $riak
+    ) {
         // TODO download test
+        $this->storeObject($expectedBlob->getHash(), $expectedBlob->getData(), $blobBucket, $riak);
+
+        $blob = $blobStorage->downloadBlob($expectedBlob->getHash());
+
+        $this->assertEquals($expectedBlob->getHash(), $blob->getHash());
+        $this->assertEquals($expectedBlob->getData(), $blob->getData());
+        
+        $blobKeys = $this->fetchBucketKeys($blobBucket, $riak)->getObject()->getData()->keys;
+        $this->assertContains($blob->getHash(), $blobKeys);
     }
 }
