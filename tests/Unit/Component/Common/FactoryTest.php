@@ -83,7 +83,6 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateFileHash()
     {
-        // TODO create file hash test
         $fileName = tempnam('', 'test-file');
         file_put_contents($fileName, $this->data);
 
