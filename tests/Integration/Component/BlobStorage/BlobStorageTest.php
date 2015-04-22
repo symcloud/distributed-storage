@@ -8,7 +8,6 @@ use Integration\BaseIntegrationTest;
 use Symcloud\Component\BlobStorage\BlobManager;
 use Symcloud\Component\BlobStorage\BlobManagerInterface;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
-use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Riak\RiakBlobAdapter;
 
 class BlobStorageTest extends BaseIntegrationTest
@@ -18,6 +17,8 @@ class BlobStorageTest extends BaseIntegrationTest
         $factory = $this->getFactory();
         $riak = $this->getRiak();
         $blobBucket = $this->getBlobBucket();
+
+        $this->clearBucket($blobBucket, $riak);
 
         $blobAdapter = new RiakBlobAdapter($riak, $blobBucket);
         $blobStorage = new BlobManager($factory, $blobAdapter);
@@ -79,7 +80,7 @@ class BlobStorageTest extends BaseIntegrationTest
 
         $this->assertEquals($expectedBlob->getHash(), $blob->getHash());
         $this->assertEquals($expectedBlob->getData(), $blob->getData());
-        
+
         $blobKeys = $this->fetchBucketKeys($blobBucket, $riak)->getObject()->getData()->keys;
         $this->assertContains($blob->getHash(), $blobKeys);
     }
