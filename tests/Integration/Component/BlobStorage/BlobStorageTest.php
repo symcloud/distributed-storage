@@ -73,7 +73,6 @@ class BlobStorageTest extends BaseIntegrationTest
         Bucket $blobBucket,
         Riak $riak
     ) {
-        // TODO download test
         $this->storeObject($expectedBlob->getHash(), $expectedBlob->getData(), $blobBucket, $riak);
 
         $blob = $blobStorage->downloadBlob($expectedBlob->getHash());
