@@ -2,18 +2,23 @@
 
 namespace Integration\Component\FileStorage;
 
+use Basho\Riak;
+use Basho\Riak\Bucket;
 use Basho\Riak\Node\Builder;
 use Integration\BaseIntegrationTest;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use Symcloud\Component\BlobStorage\BlobManager;
+use Symcloud\Component\BlobStorage\Model\BlobInterface;
+use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\FileStorage\FileManager;
+use Symcloud\Component\FileStorage\FileManagerInterface;
 use Symcloud\Component\FileStorage\FileSplitter;
 use Symcloud\Riak\RiakBlobAdapter;
 use Symcloud\Riak\RiakFileAdapter;
 
 class FileStorageTest extends BaseIntegrationTest
 {
-    public function testUpload()
+    public function storageProvider()
     {
         $riak = $this->getRiak();
         $blobBucket = $this->getBlobBucket();
@@ -33,19 +38,48 @@ class FileStorageTest extends BaseIntegrationTest
         $proxyFactory = new LazyLoadingValueHolderFactory();
 
         list($data, $fileName) = $this->generateTestFile(200);
-        $blob1 = $factory->createBlob(substr($data, 0, 100));
-        $blob2 = $factory->createBlob(substr($data, 100, 100));
+        $blobs = array(
+            $factory->createBlob(substr($data, 0, 100)),
+            $factory->createBlob(substr($data, 100, 100))
+        );
         $fileHash = $factory->createFileHash($fileName);
 
         $manager = new FileManager($fileSplitter, $blobManager, $factory, $fileAdapter, $proxyFactory);
 
+        return array(
+            array($manager, $fileName, $data, $fileHash, $blobs, $fileBucket, $blobBucket, $riak)
+        );
+    }
+
+    /**
+     * @param FileManagerInterface $manager
+     * @param string $fileName
+     * @param string $data
+     * @param string $fileHash
+     * @param BlobInterface[] $blobs
+     * @param Bucket $fileBucket
+     * @param Bucket $blobBucket
+     * @param FactoryInterface $factory
+     * @param Riak $riak
+     */
+    public function testUpload(
+        FileManagerInterface $manager,
+        $fileName,
+        $data,
+        $fileHash,
+        $blobs,
+        Bucket $fileBucket,
+        Bucket $blobBucket,
+        FactoryInterface $factory,
+        Riak $riak
+    ) {
         $result = $manager->upload($fileName);
 
         $this->assertEquals($factory->createHash($data), $result->getHash());
-        $this->assertEquals($blob1->getHash(), $result->getBlobs()[0]->getHash());
-        $this->assertEquals($blob1->getData(), $result->getBlobs()[0]->getData());
-        $this->assertEquals($blob2->getHash(), $result->getBlobs()[1]->getHash());
-        $this->assertEquals($blob2->getData(), $result->getBlobs()[1]->getData());
+        $this->assertEquals($blobs[0]->getHash(), $result->getBlobs()[0]->getHash());
+        $this->assertEquals($blobs[0]->getData(), $result->getBlobs()[0]->getData());
+        $this->assertEquals($blobs[1]->getHash(), $result->getBlobs()[1]->getHash());
+        $this->assertEquals($blobs[1]->getData(), $result->getBlobs()[1]->getData());
         $this->assertEquals($data, $result->getContent());
 
         $fileKeys = $this->fetchBucketKeys($fileBucket, $riak)->getObject()->getData()->keys;
@@ -59,10 +93,19 @@ class FileStorageTest extends BaseIntegrationTest
         $this->assertContains($result->getHash(), $fileKeys);
         $this->assertNotContains($result->getHash(), $blobKeys);
 
-        $this->assertEquals($blob1->getData(), $this->fetchObject($blob1->getHash(), $blobBucket, $riak)->getObject()->getData());
-        $this->assertEquals($blob2->getData(), $this->fetchObject($blob2->getHash(), $blobBucket, $riak)->getObject()->getData());
+        $this->assertEquals(
+            $blobs[0]->getData(),
+            $this->fetchObject($blobs[0]->getHash(), $blobBucket, $riak)->getObject()->getData()
+        );
+        $this->assertEquals(
+            $blobs[1]->getData(),
+            $this->fetchObject($blobs[1]->getHash(), $blobBucket, $riak)->getObject()->getData()
+        );
 
-        $this->assertEquals(array($blob1->getHash(), $blob2->getHash()), $this->fetchObject($fileHash, $fileBucket, $riak)->getObject()->getData());
+        $this->assertEquals(
+            array($blobs[0]->getHash(), $blobs[1]->getHash()),
+            $this->fetchObject($fileHash, $fileBucket, $riak)->getObject()->getData()
+        );
     }
 
     public function testDownload()

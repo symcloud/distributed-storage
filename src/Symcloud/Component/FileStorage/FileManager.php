@@ -7,7 +7,7 @@ use Symcloud\Component\BlobStorage\BlobManagerInterface;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\Common\FactoryInterface;
 
-class FileManager
+class FileManager implements FileManagerInterface
 {
     /**
      * @var FileSplitterInterface
@@ -56,7 +56,9 @@ class FileManager
         $this->proxyFactory = $proxyFactory;
     }
 
-
+    /**
+     * {@inheritdoc}
+     */
     public function upload($filePath)
     {
         $fileHash = $this->factory->createFileHash($filePath);
@@ -86,6 +88,9 @@ class FileManager
         return $file;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function download($fileHash)
     {
         $blobKeys = $this->adapter->fetchFile($fileHash);
