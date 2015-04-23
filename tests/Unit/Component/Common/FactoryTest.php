@@ -43,7 +43,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $blob->setData($this->data);
 
         $factory = new Factory($this->algo, $this->secret);
-        $result = $factory->createFile($fileHash, array($blob));
+        $result = $factory->createBlobFile($fileHash, array($blob));
 
         $this->assertEquals($fileHash, $result->getHash());
         $this->assertEquals(array($blob), $result->getBlobs());
@@ -66,7 +66,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $blobs[1]->setData(strrev($this->data));
 
         $factory = new Factory($this->algo, $this->secret);
-        $result = $factory->createFile($fileHash, $blobs);
+        $result = $factory->createBlobFile($fileHash, $blobs);
 
         $this->assertEquals($fileHash, $result->getHash());
         $this->assertEquals($blobs, $result->getBlobs());

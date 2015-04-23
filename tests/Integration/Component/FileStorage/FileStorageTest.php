@@ -10,11 +10,11 @@ use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use Symcloud\Component\BlobStorage\BlobManager;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\Common\FactoryInterface;
-use Symcloud\Component\FileStorage\FileManager;
-use Symcloud\Component\FileStorage\FileManagerInterface;
+use Symcloud\Component\FileStorage\BlobBlobFileManager;
+use Symcloud\Component\FileStorage\BlobFileManagerInterface;
 use Symcloud\Component\FileStorage\FileSplitter;
 use Symcloud\Riak\RiakBlobAdapter;
-use Symcloud\Riak\RiakFileAdapter;
+use Symcloud\Riak\RiakBlobFileAdapter;
 
 class FileStorageTest extends BaseIntegrationTest
 {
@@ -33,7 +33,7 @@ class FileStorageTest extends BaseIntegrationTest
         $fileSplitter = new FileSplitter(100);
         $blobManager = new BlobManager($factory, $blobAdapter);
 
-        $fileAdapter = new RiakFileAdapter($riak, $fileBucket);
+        $fileAdapter = new RiakBlobFileAdapter($riak, $fileBucket);
 
         $proxyFactory = new LazyLoadingValueHolderFactory();
 
@@ -44,7 +44,7 @@ class FileStorageTest extends BaseIntegrationTest
         );
         $fileHash = $factory->createFileHash($fileName);
 
-        $manager = new FileManager($fileSplitter, $blobManager, $factory, $fileAdapter, $proxyFactory);
+        $manager = new BlobBlobFileManager($fileSplitter, $blobManager, $factory, $fileAdapter, $proxyFactory);
 
         return array(
             array($manager, $fileName, $data, $fileHash, $blobs, $fileBucket, $blobBucket, $riak, $factory)
@@ -54,7 +54,7 @@ class FileStorageTest extends BaseIntegrationTest
     /**
      * @dataProvider storageProvider
      *
-     * @param FileManagerInterface $manager
+     * @param BlobFileManagerInterface $manager
      * @param string $fileName
      * @param string $data
      * @param string $fileHash
@@ -65,7 +65,7 @@ class FileStorageTest extends BaseIntegrationTest
      * @param Riak $riak
      */
     public function testUpload(
-        FileManagerInterface $manager,
+        BlobFileManagerInterface $manager,
         $fileName,
         $data,
         $fileHash,
@@ -113,7 +113,7 @@ class FileStorageTest extends BaseIntegrationTest
     /**
      * @dataProvider storageProvider
      *
-     * @param FileManagerInterface $manager
+     * @param BlobFileManagerInterface $manager
      * @param string $fileName
      * @param string $data
      * @param string $fileHash
@@ -124,7 +124,7 @@ class FileStorageTest extends BaseIntegrationTest
      * @param Riak $riak
      */
     public function testDownload(
-        FileManagerInterface $manager,
+        BlobFileManagerInterface $manager,
         $fileName,
         $data,
         $fileHash,

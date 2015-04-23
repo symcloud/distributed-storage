@@ -8,8 +8,8 @@ use Basho\Riak\Node\Builder;
 use Integration\BaseIntegrationTest;
 use Symcloud\Component\Common\Factory;
 use Symcloud\Component\Common\FactoryInterface;
-use Symcloud\Component\FileStorage\FileAdapterInterface;
-use Symcloud\Riak\RiakFileAdapter;
+use Symcloud\Component\FileStorage\BlobFileAdapterInterface;
+use Symcloud\Riak\RiakBlobFileAdapter;
 
 class RiakFileAdapterTest extends BaseIntegrationTest
 {
@@ -19,7 +19,7 @@ class RiakFileAdapterTest extends BaseIntegrationTest
 
         $riak = $this->getRiak();
         $fileBucket = $this->getFileBucket();
-        $adapter = new RiakFileAdapter($riak, $fileBucket);
+        $adapter = new RiakBlobFileAdapter($riak, $fileBucket);
 
         return array(
             array($adapter, $riak, $fileBucket, $factory)
@@ -29,20 +29,20 @@ class RiakFileAdapterTest extends BaseIntegrationTest
     /**
      * @dataProvider adapterProvider
      *
-     * @param FileAdapterInterface $adapter
+     * @param BlobFileAdapterInterface $adapter
      * @param Riak $riak
      * @param Bucket $fileBucket
      * @param FactoryInterface $factory
      */
     public function testStoreFile(
-        FileAdapterInterface $adapter,
+        BlobFileAdapterInterface $adapter,
         Riak $riak,
         Bucket $fileBucket,
         FactoryInterface $factory
     ) {
         $this->clearBucket($fileBucket, $riak);
 
-        $file = $factory->createFile('my-hash', array('hash1', 'hash2'));
+        $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
         $this->assertTrue($adapter->storeFile($file->getHash(), $file->getBlobs()));
 
         $response = $this->fetchBucketKeys($fileBucket, $riak);
@@ -59,20 +59,20 @@ class RiakFileAdapterTest extends BaseIntegrationTest
     /**
      * @dataProvider adapterProvider
      *
-     * @param FileAdapterInterface $adapter
+     * @param BlobFileAdapterInterface $adapter
      * @param Riak $riak
      * @param Bucket $fileBucket
      * @param FactoryInterface $factory
      */
     public function testStoreFileAlreadyExists(
-        FileAdapterInterface $adapter,
+        BlobFileAdapterInterface $adapter,
         Riak $riak,
         Bucket $fileBucket,
         FactoryInterface $factory
     ) {
         $this->clearBucket($fileBucket, $riak);
 
-        $file = $factory->createFile('my-hash', array('hash1', 'hash2'));
+        $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
         $this->storeObject($file->getHash(), $file->getBlobs(), $fileBucket, $riak);
 
         // no exception expected
@@ -83,40 +83,40 @@ class RiakFileAdapterTest extends BaseIntegrationTest
      * @dataProvider adapterProvider
      * @expectedException \Symcloud\Component\FileStorage\Exception\FileNotFoundException
      *
-     * @param FileAdapterInterface $adapter
+     * @param BlobFileAdapterInterface $adapter
      * @param Riak $riak
      * @param Bucket $fileBucket
      * @param FactoryInterface $factory
      */
     public function testFetchFile(
-        FileAdapterInterface $adapter,
+        BlobFileAdapterInterface $adapter,
         Riak $riak,
         Bucket $fileBucket,
         FactoryInterface $factory
     ) {
         $this->clearBucket($fileBucket, $riak);
 
-        $file = $factory->createFile('my-hash', array('hash1', 'hash2'));
+        $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
         $adapter->fetchFile($file->getHash());
     }
 
     /**
      * @dataProvider adapterProvider
      *
-     * @param FileAdapterInterface $adapter
+     * @param BlobFileAdapterInterface $adapter
      * @param Riak $riak
      * @param Bucket $fileBucket
      * @param FactoryInterface $factory
      */
     public function testFetchFileNotExists(
-        FileAdapterInterface $adapter,
+        BlobFileAdapterInterface $adapter,
         Riak $riak,
         Bucket $fileBucket,
         FactoryInterface $factory
     ) {
         $this->clearBucket($fileBucket, $riak);
 
-        $file = $factory->createFile('my-hash', array('hash1', 'hash2'));
+        $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
         $this->storeObject($file->getHash(), $file->getBlobs(), $fileBucket, $riak);
 
         $result = $adapter->fetchFile($file->getHash());
@@ -126,20 +126,20 @@ class RiakFileAdapterTest extends BaseIntegrationTest
 
     /**
      * @dataProvider adapterProvider
-     * @param FileAdapterInterface $adapter
+     * @param BlobFileAdapterInterface $adapter
      * @param Riak $riak
      * @param Bucket $fileBucket
      * @param FactoryInterface $factory
      */
     public function testFileExists(
-        FileAdapterInterface $adapter,
+        BlobFileAdapterInterface $adapter,
         Riak $riak,
         Bucket $fileBucket,
         FactoryInterface $factory
     ) {
         $this->clearBucket($fileBucket, $riak);
 
-        $file = $factory->createFile('my-hash', array('hash1', 'hash2'));
+        $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
         $this->storeObject($file->getHash(), $file->getBlobs(), $fileBucket, $riak);
 
         $this->assertTrue($adapter->fileExists($file->getHash()));
@@ -147,20 +147,20 @@ class RiakFileAdapterTest extends BaseIntegrationTest
 
     /**
      * @dataProvider adapterProvider
-     * @param FileAdapterInterface $adapter
+     * @param BlobFileAdapterInterface $adapter
      * @param Riak $riak
      * @param Bucket $fileBucket
      * @param FactoryInterface $factory
      */
     public function testFileNotExists(
-        FileAdapterInterface $adapter,
+        BlobFileAdapterInterface $adapter,
         Riak $riak,
         Bucket $fileBucket,
         FactoryInterface $factory
     ) {
         $this->clearBucket($fileBucket, $riak);
 
-        $file = $factory->createFile('my-hash', array('hash1', 'hash2'));
+        $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
 
         $this->assertFalse($adapter->fileExists($file->getHash()));
     }

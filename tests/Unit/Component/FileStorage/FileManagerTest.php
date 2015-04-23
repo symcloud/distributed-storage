@@ -10,10 +10,10 @@ use Symcloud\Component\BlobStorage\BlobManagerInterface;
 use Symcloud\Component\BlobStorage\Model\BlobModel;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\FileStorage\Exception\FileNotFoundException;
-use Symcloud\Component\FileStorage\FileAdapterInterface;
-use Symcloud\Component\FileStorage\FileManager;
+use Symcloud\Component\FileStorage\BlobFileAdapterInterface;
+use Symcloud\Component\FileStorage\BlobBlobFileManager;
 use Symcloud\Component\FileStorage\FileSplitter;
-use Symcloud\Component\FileStorage\Model\FileModel;
+use Symcloud\Component\FileStorage\Model\BlobFileModel;
 
 class FileManagerTest extends ProphecyTestCase
 {
@@ -33,14 +33,14 @@ class FileManagerTest extends ProphecyTestCase
         $blob2->setHash('hash2');
         $blob2->setData(substr($data, 100, 100));
 
-        $file = new FileModel();
+        $file = new BlobFileModel();
         $file->setHash($fileHash);
         $file->setBlobs(array($blob1, $blob2));
 
         $fileSplitter = new FileSplitter(100);
         $blobManager = $this->prophesize(BlobManagerInterface::class);
         $factory = $this->prophesize(FactoryInterface::class);
-        $adapter = $this->prophesize(FileAdapterInterface::class);
+        $adapter = $this->prophesize(BlobFileAdapterInterface::class);
         $proxyFactory = new LazyLoadingValueHolderFactory();
 
         $blobManager->uploadBlob($blob1->getData())->willReturn($blob1);
@@ -50,13 +50,13 @@ class FileManagerTest extends ProphecyTestCase
         $factory->createBlob()->should(new NoCallsPrediction());
         $factory->createHash()->should(new NoCallsPrediction());
         $factory->createFileHash($fileName)->willReturn($fileHash);
-        $factory->createFile($fileHash, Argument::size(2))->willReturn($file);
+        $factory->createBlobFile($fileHash, Argument::size(2))->willReturn($file);
 
         $adapter->storeFile($fileHash, Argument::size(2))->willReturn(true);
         $adapter->fileExists($fileHash)->willReturn(false);
         $adapter->fetchFile()->should(new NoCallsPrediction());
 
-        $manager = new FileManager(
+        $manager = new BlobBlobFileManager(
             $fileSplitter,
             $blobManager->reveal(),
             $factory->reveal(),
@@ -86,14 +86,14 @@ class FileManagerTest extends ProphecyTestCase
         $blob2->setHash('hash2');
         $blob2->setData(substr($data, 100, 100));
 
-        $file = new FileModel();
+        $file = new BlobFileModel();
         $file->setHash($fileHash);
         $file->setBlobs(array($blob1, $blob2));
 
         $fileSplitter = new FileSplitter(100);
         $blobManager = $this->prophesize(BlobManagerInterface::class);
         $factory = $this->prophesize(FactoryInterface::class);
-        $adapter = $this->prophesize(FileAdapterInterface::class);
+        $adapter = $this->prophesize(BlobFileAdapterInterface::class);
         $proxyFactory = new LazyLoadingValueHolderFactory();
 
         $blobManager->uploadBlob()->should(new NoCallsPrediction());
@@ -102,13 +102,13 @@ class FileManagerTest extends ProphecyTestCase
         $factory->createBlob()->should(new NoCallsPrediction());
         $factory->createHash()->should(new NoCallsPrediction());
         $factory->createFileHash($fileName)->willReturn($fileHash);
-        $factory->createFile($fileHash, Argument::size(2))->willReturn($file);
+        $factory->createBlobFile($fileHash, Argument::size(2))->willReturn($file);
 
         $adapter->storeFile()->should(new NoCallsPrediction());
         $adapter->fileExists($fileHash)->willReturn(true);
         $adapter->fetchFile($fileHash)->willReturn(array($blob1->getHash(), $blob2->getHash()));
 
-        $manager = new FileManager(
+        $manager = new BlobBlobFileManager(
             $fileSplitter,
             $blobManager->reveal(),
             $factory->reveal(),
@@ -138,14 +138,14 @@ class FileManagerTest extends ProphecyTestCase
         $blob2->setHash('hash2');
         $blob2->setData(substr($data, 100, 100));
 
-        $file = new FileModel();
+        $file = new BlobFileModel();
         $file->setHash($fileHash);
         $file->setBlobs(array($blob1, $blob2));
 
         $fileSplitter = new FileSplitter(100);
         $blobManager = $this->prophesize(BlobManagerInterface::class);
         $factory = $this->prophesize(FactoryInterface::class);
-        $adapter = $this->prophesize(FileAdapterInterface::class);
+        $adapter = $this->prophesize(BlobFileAdapterInterface::class);
         $proxyFactory = new LazyLoadingValueHolderFactory();
 
         $blobManager->uploadBlob()->should(new NoCallsPrediction());
@@ -154,13 +154,13 @@ class FileManagerTest extends ProphecyTestCase
         $factory->createBlob()->should(new NoCallsPrediction());
         $factory->createHash()->should(new NoCallsPrediction());
         $factory->createFileHash()->should(new NoCallsPrediction());
-        $factory->createFile($fileHash, Argument::size(2))->willReturn($file);
+        $factory->createBlobFile($fileHash, Argument::size(2))->willReturn($file);
 
         $adapter->storeFile()->should(new NoCallsPrediction());
         $adapter->fileExists()->should(new NoCallsPrediction());
         $adapter->fetchFile($fileHash)->willReturn(array($blob1->getHash(), $blob2->getHash()));
 
-        $manager = new FileManager(
+        $manager = new BlobBlobFileManager(
             $fileSplitter,
             $blobManager->reveal(),
             $factory->reveal(),
@@ -184,7 +184,7 @@ class FileManagerTest extends ProphecyTestCase
         $fileSplitter = new FileSplitter(100);
         $blobManager = $this->prophesize(BlobManagerInterface::class);
         $factory = $this->prophesize(FactoryInterface::class);
-        $adapter = $this->prophesize(FileAdapterInterface::class);
+        $adapter = $this->prophesize(BlobFileAdapterInterface::class);
         $proxyFactory = new LazyLoadingValueHolderFactory();
 
         $blobManager->uploadBlob()->should(new NoCallsPrediction());
@@ -193,13 +193,13 @@ class FileManagerTest extends ProphecyTestCase
         $factory->createBlob()->should(new NoCallsPrediction());
         $factory->createHash()->should(new NoCallsPrediction());
         $factory->createFileHash()->should(new NoCallsPrediction());
-        $factory->createFile()->should(new NoCallsPrediction());
+        $factory->createBlobFile()->should(new NoCallsPrediction());
 
         $adapter->storeFile()->should(new NoCallsPrediction());
         $adapter->fileExists()->should(new NoCallsPrediction());
         $adapter->fetchFile($fileHash)->willThrow(new FileNotFoundException($fileHash));
 
-        $manager = new FileManager(
+        $manager = new BlobBlobFileManager(
             $fileSplitter,
             $blobManager->reveal(),
             $factory->reveal(),
