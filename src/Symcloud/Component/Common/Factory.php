@@ -101,7 +101,7 @@ class Factory implements FactoryInterface
     public function createProxy($className, callable $initializerCallback)
     {
         if ($this->proxyFactory === null) {
-            return $initializerCallback;
+            return $initializerCallback();
         }
 
         return $this->proxyFactory->createProxy(

@@ -9,9 +9,9 @@ use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use Symcloud\Component\BlobStorage\BlobManagerInterface;
 use Symcloud\Component\BlobStorage\Model\BlobModel;
 use Symcloud\Component\Common\FactoryInterface;
-use Symcloud\Component\FileStorage\Exception\FileNotFoundException;
 use Symcloud\Component\FileStorage\BlobFileAdapterInterface;
 use Symcloud\Component\FileStorage\BlobFileManager;
+use Symcloud\Component\FileStorage\Exception\FileNotFoundException;
 use Symcloud\Component\FileStorage\FileSplitter;
 use Symcloud\Component\FileStorage\Model\BlobFileModel;
 
@@ -19,6 +19,8 @@ class BlobFileManagerTest extends ProphecyTestCase
 {
     public function testUpload()
     {
+        $proxyFactory = new LazyLoadingValueHolderFactory();
+
         $data = $this->generateString(200);
         $fileName = tempnam('', 'splitter-test-file');
         file_put_contents($fileName, $data);
@@ -51,6 +53,11 @@ class BlobFileManagerTest extends ProphecyTestCase
         $factory->createHash()->should(new NoCallsPrediction());
         $factory->createFileHash($fileName)->willReturn($fileHash);
         $factory->createBlobFile($fileHash, Argument::size(2))->willReturn($file);
+        $factory->createProxy(Argument::type('string'), Argument::type('callable'))->will(
+            function ($args) use ($proxyFactory) {
+                return $proxyFactory->createProxy($args[0], $args[1]);
+            }
+        );
 
         $adapter->storeFile($fileHash, Argument::size(2))->willReturn(true);
         $adapter->fileExists($fileHash)->willReturn(false);
@@ -72,6 +79,8 @@ class BlobFileManagerTest extends ProphecyTestCase
 
     public function testUploadExisting()
     {
+        $proxyFactory = new LazyLoadingValueHolderFactory();
+
         $data = $this->generateString(200);
         $fileName = tempnam('', 'splitter-test-file');
         file_put_contents($fileName, $data);
@@ -103,6 +112,11 @@ class BlobFileManagerTest extends ProphecyTestCase
         $factory->createHash()->should(new NoCallsPrediction());
         $factory->createFileHash($fileName)->willReturn($fileHash);
         $factory->createBlobFile($fileHash, Argument::size(2))->willReturn($file);
+        $factory->createProxy(Argument::type('string'), Argument::type('callable'))->will(
+            function ($args) use ($proxyFactory) {
+                return $proxyFactory->createProxy($args[0], $args[1]);
+            }
+        );
 
         $adapter->storeFile()->should(new NoCallsPrediction());
         $adapter->fileExists($fileHash)->willReturn(true);
@@ -124,6 +138,8 @@ class BlobFileManagerTest extends ProphecyTestCase
 
     public function testDownload()
     {
+        $proxyFactory = new LazyLoadingValueHolderFactory();
+
         $data = $this->generateString(200);
         $fileName = tempnam('', 'splitter-test-file');
         file_put_contents($fileName, $data);
@@ -155,6 +171,11 @@ class BlobFileManagerTest extends ProphecyTestCase
         $factory->createHash()->should(new NoCallsPrediction());
         $factory->createFileHash()->should(new NoCallsPrediction());
         $factory->createBlobFile($fileHash, Argument::size(2))->willReturn($file);
+        $factory->createProxy(Argument::type('string'), Argument::type('callable'))->will(
+            function ($args) use ($proxyFactory) {
+                return $proxyFactory->createProxy($args[0], $args[1]);
+            }
+        );
 
         $adapter->storeFile()->should(new NoCallsPrediction());
         $adapter->fileExists()->should(new NoCallsPrediction());

@@ -6,13 +6,14 @@ use Basho\Riak;
 use Basho\Riak\Bucket;
 use Basho\Riak\Node\Builder;
 use Prophecy\PhpUnit\ProphecyTestCase;
+use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use Symcloud\Component\Common\Factory;
 
 abstract class BaseIntegrationTest extends ProphecyTestCase
 {
     protected function getFactory()
     {
-        return new Factory('md5', 'ThisIsMySecretValue');
+        return new Factory('md5', 'ThisIsMySecretValue', new LazyLoadingValueHolderFactory());
     }
 
     protected function getRiak()
