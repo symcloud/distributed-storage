@@ -6,7 +6,7 @@ use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\MetadataStorage\Model\FileObjectInterface;
 use Symcloud\Component\MetadataStorage\Model\MetadataInterface;
 
-class File implements FileInterface
+class FileModel implements FileInterface
 {
     /**
      * @var MetadataInterface

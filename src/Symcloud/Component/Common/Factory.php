@@ -3,7 +3,7 @@
 namespace Symcloud\Component\Common;
 
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
-use Symcloud\Component\Access\Model\File;
+use Symcloud\Component\Access\Model\FileModel;
 use Symcloud\Component\BlobStorage\Model\BlobModel;
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\FileStorage\Model\BlobFileModel;
@@ -71,7 +71,7 @@ class Factory implements FactoryInterface
      */
     public function createFile(MetadataInterface $metadata, FileObjectInterface $object, BlobFileInterface $blobFile)
     {
-        $file = new File();
+        $file = new FileModel();
         $file->setMetadata($metadata);
         $file->setObject($object);
         $file->setData($blobFile);

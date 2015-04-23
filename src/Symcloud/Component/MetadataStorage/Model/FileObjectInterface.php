@@ -2,7 +2,7 @@
 
 namespace Symcloud\Component\MetadataStorage\Model;
 
-interface FileObjectInterface
+interface FileObjectInterface extends ObjectInterface
 {
     /**
      * @return string

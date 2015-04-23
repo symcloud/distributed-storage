@@ -78,14 +78,14 @@ class FileManager
         $blobFile = $this->factory->createProxy(
             BlobFileInterface::class,
             function () use ($object) {
-                $this->blobFileManager->downloadByObject($object);
+                return $this->blobFileManager->downloadByObject($object);
             }
         );
 
         $metadata = $this->factory->createProxy(
             MetadataInterface::class,
             function () use ($object) {
-                $this->metadataManager->getByObject($object);
+                return $this->metadataManager->getByObject($object);
             }
         );
 
