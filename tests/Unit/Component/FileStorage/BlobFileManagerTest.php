@@ -11,11 +11,11 @@ use Symcloud\Component\BlobStorage\Model\BlobModel;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\FileStorage\Exception\FileNotFoundException;
 use Symcloud\Component\FileStorage\BlobFileAdapterInterface;
-use Symcloud\Component\FileStorage\BlobBlobFileManager;
+use Symcloud\Component\FileStorage\BlobFileManager;
 use Symcloud\Component\FileStorage\FileSplitter;
 use Symcloud\Component\FileStorage\Model\BlobFileModel;
 
-class FileManagerTest extends ProphecyTestCase
+class BlobFileManagerTest extends ProphecyTestCase
 {
     public function testUpload()
     {
@@ -56,7 +56,7 @@ class FileManagerTest extends ProphecyTestCase
         $adapter->fileExists($fileHash)->willReturn(false);
         $adapter->fetchFile()->should(new NoCallsPrediction());
 
-        $manager = new BlobBlobFileManager(
+        $manager = new BlobFileManager(
             $fileSplitter,
             $blobManager->reveal(),
             $factory->reveal(),
@@ -108,7 +108,7 @@ class FileManagerTest extends ProphecyTestCase
         $adapter->fileExists($fileHash)->willReturn(true);
         $adapter->fetchFile($fileHash)->willReturn(array($blob1->getHash(), $blob2->getHash()));
 
-        $manager = new BlobBlobFileManager(
+        $manager = new BlobFileManager(
             $fileSplitter,
             $blobManager->reveal(),
             $factory->reveal(),
@@ -160,7 +160,7 @@ class FileManagerTest extends ProphecyTestCase
         $adapter->fileExists()->should(new NoCallsPrediction());
         $adapter->fetchFile($fileHash)->willReturn(array($blob1->getHash(), $blob2->getHash()));
 
-        $manager = new BlobBlobFileManager(
+        $manager = new BlobFileManager(
             $fileSplitter,
             $blobManager->reveal(),
             $factory->reveal(),
@@ -199,7 +199,7 @@ class FileManagerTest extends ProphecyTestCase
         $adapter->fileExists()->should(new NoCallsPrediction());
         $adapter->fetchFile($fileHash)->willThrow(new FileNotFoundException($fileHash));
 
-        $manager = new BlobBlobFileManager(
+        $manager = new BlobFileManager(
             $fileSplitter,
             $blobManager->reveal(),
             $factory->reveal(),

@@ -10,7 +10,7 @@ use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use Symcloud\Component\BlobStorage\BlobManager;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\Common\FactoryInterface;
-use Symcloud\Component\FileStorage\BlobBlobFileManager;
+use Symcloud\Component\FileStorage\BlobFileManager;
 use Symcloud\Component\FileStorage\BlobFileManagerInterface;
 use Symcloud\Component\FileStorage\FileSplitter;
 use Symcloud\Riak\RiakBlobAdapter;
@@ -44,7 +44,7 @@ class FileStorageTest extends BaseIntegrationTest
         );
         $fileHash = $factory->createFileHash($fileName);
 
-        $manager = new BlobBlobFileManager($fileSplitter, $blobManager, $factory, $fileAdapter, $proxyFactory);
+        $manager = new BlobFileManager($fileSplitter, $blobManager, $factory, $fileAdapter, $proxyFactory);
 
         return array(
             array($manager, $fileName, $data, $fileHash, $blobs, $fileBucket, $blobBucket, $riak, $factory)

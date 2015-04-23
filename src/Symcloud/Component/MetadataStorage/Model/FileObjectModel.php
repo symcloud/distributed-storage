@@ -2,28 +2,26 @@
 
 namespace Symcloud\Component\MetadataStorage\Model;
 
-use Symcloud\Component\FileStorage\Model\FileInterface;
-
-class FileObjectModel extends ObjectModel
+class FileObjectModel extends ObjectModel implements FileObjectInterface
 {
     /**
-     * @var FileInterface
+     * @var string
      */
-    private $file;
+    private $fileHash;
 
     /**
-     * @return FileInterface
+     * {@inheritdoc}
      */
-    public function getFile()
+    public function getFileHash()
     {
-        return $this->file;
+        return $this->fileHash;
     }
 
     /**
-     * @param FileInterface $file
+     * @param string $fileHash
      */
-    public function setFile($file)
+    public function setFileHash($fileHash)
     {
-        $this->file = $file;
+        $this->fileHash = $fileHash;
     }
 }

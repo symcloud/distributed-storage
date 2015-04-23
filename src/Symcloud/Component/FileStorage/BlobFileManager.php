@@ -6,8 +6,10 @@ use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use Symcloud\Component\BlobStorage\BlobManagerInterface;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\Common\FactoryInterface;
+use Symcloud\Component\FileStorage\Model\BlobFileInterface;
+use Symcloud\Component\MetadataStorage\Model\FileObjectInterface;
 
-class BlobBlobFileManager implements BlobFileManagerInterface
+class BlobFileManager implements BlobFileManagerInterface
 {
     /**
      * @var FileSplitterInterface
@@ -35,7 +37,7 @@ class BlobBlobFileManager implements BlobFileManagerInterface
     private $proxyFactory;
 
     /**
-     * BlobBlobFileManager constructor.
+     * BlobFileManager constructor.
      * @param FileSplitterInterface $fileSplitter
      * @param BlobManagerInterface $blobManager
      * @param FactoryInterface $factory
@@ -103,13 +105,21 @@ class BlobBlobFileManager implements BlobFileManagerInterface
         return $this->factory->createBlobFile($fileHash, $blobs);
     }
 
+    /**
+     * @param FileObjectInterface $object
+     * @return BlobFileInterface
+     */
+    public function downloadByObject(FileObjectInterface $object)
+    {
+        return $this->download($object->getFileHash());
+    }
+
     private function getBlobProxy($hash)
     {
-        return $this->proxyFactory->createProxy(
+        return $this->factory->createProxy(
             BlobInterface::class,
-            function (& $wrappedObject, $proxy, $method, $parameters, & $initializer) use ($hash) {
-                $wrappedObject = $this->blobManager->downloadBlob($hash);
-                $initializer = null;
+            function () use ($hash) {
+                return $this->blobManager->downloadBlob($hash);
             }
         );
     }

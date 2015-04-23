@@ -2,10 +2,13 @@
 
 namespace Symcloud\Component\Common;
 
+use Symcloud\Component\Access\Model\FileInterface;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\BlobStorage\Model\BlobModel;
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\FileStorage\Model\BlobFileModel;
+use Symcloud\Component\MetadataStorage\Model\FileObjectInterface;
+use Symcloud\Component\MetadataStorage\Model\MetadataInterface;
 
 interface FactoryInterface
 {
@@ -34,4 +37,19 @@ interface FactoryInterface
      * @return BlobFileInterface
      */
     public function createBlobFile($hash, $blobs = array());
+
+    /**
+     * @param MetadataInterface $metadata
+     * @param FileObjectInterface $object
+     * @param BlobFileInterface $blobFile
+     * @return FileInterface
+     */
+    public function createFile(MetadataInterface $metadata, FileObjectInterface $object, BlobFileInterface $blobFile);
+
+    /**
+     * @param string $className
+     * @param callable $initializerCallback
+     * @return mixed
+     */
+    public function createProxy($className, callable $initializerCallback);
 }

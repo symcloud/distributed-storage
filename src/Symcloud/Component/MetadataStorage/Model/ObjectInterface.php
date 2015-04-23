@@ -22,4 +22,9 @@ interface ObjectInterface
      * @return int
      */
     public function getDepth();
+
+    /**
+     * @return boolean
+     */
+    public function isFile();
 }

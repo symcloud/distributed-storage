@@ -5,9 +5,9 @@ namespace Symcloud\Riak;
 use Basho\Riak;
 use Basho\Riak\Bucket;
 use Symcloud\Component\FileStorage\Exception\FileNotFoundException;
-use Symcloud\Component\FileStorage\FileAdapterInterface;
+use Symcloud\Component\FileStorage\BlobFileAdapterInterface;
 
-class RiakFileAdapter extends RiakBaseAdapter implements FileAdapterInterface
+class RiakBlobFileAdapter extends RiakBaseAdapter implements BlobFileAdapterInterface
 {
     /**
      * @var Bucket
@@ -15,7 +15,7 @@ class RiakFileAdapter extends RiakBaseAdapter implements FileAdapterInterface
     private $fileBucket;
 
     /**
-     * RiakFileAdapter constructor.
+     * RiakBlobFileAdapter constructor.
      * @param Riak $riak
      * @param Bucket $fileBucket
      */

@@ -10,7 +10,7 @@ class ReferenceModel implements ReferenceInterface
     private $tree;
 
     /**
-     * @return ReferenceModel
+     * {@inheritdoc}
      */
     public function getTree()
     {
