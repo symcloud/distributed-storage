@@ -7,7 +7,7 @@ use Symcloud\Component\BlobStorage\BlobManagerInterface;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\Common\FactoryInterface;
 
-class FileManager implements FileManagerInterface
+class BlobBlobFileManager implements BlobFileManagerInterface
 {
     /**
      * @var FileSplitterInterface
@@ -25,7 +25,7 @@ class FileManager implements FileManagerInterface
     private $factory;
 
     /**
-     * @var FileAdapterInterface
+     * @var BlobFileAdapterInterface
      */
     private $adapter;
 
@@ -35,18 +35,18 @@ class FileManager implements FileManagerInterface
     private $proxyFactory;
 
     /**
-     * FileManager constructor.
+     * BlobBlobFileManager constructor.
      * @param FileSplitterInterface $fileSplitter
      * @param BlobManagerInterface $blobManager
      * @param FactoryInterface $factory
-     * @param FileAdapterInterface $adapter
+     * @param BlobFileAdapterInterface $adapter
      * @param LazyLoadingValueHolderFactory $proxyFactory
      */
     public function __construct(
         FileSplitterInterface $fileSplitter,
         BlobManagerInterface $blobManager,
         FactoryInterface $factory,
-        FileAdapterInterface $adapter,
+        BlobFileAdapterInterface $adapter,
         LazyLoadingValueHolderFactory $proxyFactory
     ) {
         $this->fileSplitter = $fileSplitter;
@@ -82,7 +82,7 @@ class FileManager implements FileManagerInterface
             }
         );
 
-        $file = $this->factory->createFile($fileHash, $blobs);
+        $file = $this->factory->createBlobFile($fileHash, $blobs);
         $this->adapter->storeFile($file->getHash(), $blobKeys);
 
         return $file;
@@ -100,7 +100,7 @@ class FileManager implements FileManagerInterface
             $blobs[] = $this->getBlobProxy($key);
         }
 
-        return $this->factory->createFile($fileHash, $blobs);
+        return $this->factory->createBlobFile($fileHash, $blobs);
     }
 
     private function getBlobProxy($hash)

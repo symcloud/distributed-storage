@@ -2,7 +2,7 @@
 
 namespace Symcloud\Component\FileStorage;
 
-interface FileAdapterInterface
+interface BlobFileAdapterInterface
 {
     /**
      * @param string $hash

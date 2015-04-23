@@ -2,7 +2,7 @@
 
 namespace Symcloud\Component\FileStorage\Model;
 
-interface FileInterface
+interface BlobFileInterface
 {
     /**
      * @return string

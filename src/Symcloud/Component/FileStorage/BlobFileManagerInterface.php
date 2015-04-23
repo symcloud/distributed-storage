@@ -1,19 +1,19 @@
 <?php
 namespace Symcloud\Component\FileStorage;
 
-use Symcloud\Component\FileStorage\Model\FileInterface;
+use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 
-interface FileManagerInterface
+interface BlobFileManagerInterface
 {
     /**
      * @param string $filePath
-     * @return FileInterface
+     * @return BlobFileInterface
      */
     public function upload($filePath);
 
     /**
      * @param string $fileHash
-     * @return FileInterface
+     * @return BlobFileInterface
      */
     public function download($fileHash);
 }

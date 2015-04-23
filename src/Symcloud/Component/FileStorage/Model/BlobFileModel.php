@@ -4,7 +4,7 @@ namespace Symcloud\Component\FileStorage\Model;
 
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 
-class FileModel implements FileInterface
+class BlobFileModel implements BlobFileInterface
 {
     /**
      * @var BlobInterface[]

@@ -4,12 +4,11 @@ namespace Symcloud\Component\Common;
 
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\BlobStorage\Model\BlobModel;
-use Symcloud\Component\FileStorage\Model\FileInterface;
-use Symcloud\Component\FileStorage\Model\FileModel;
+use Symcloud\Component\FileStorage\Model\BlobFileInterface;
+use Symcloud\Component\FileStorage\Model\BlobFileModel;
 
 interface FactoryInterface
 {
-
     /**
      * @param string $data
      * @param string|null $hash
@@ -32,7 +31,7 @@ interface FactoryInterface
     /**
      * @param string $hash
      * @param BlobInterface[] $blobs
-     * @return FileInterface
+     * @return BlobFileInterface
      */
-    public function createFile($hash, $blobs = array());
+    public function createBlobFile($hash, $blobs = array());
 }
