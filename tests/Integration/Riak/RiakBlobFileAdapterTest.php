@@ -5,14 +5,17 @@ namespace Integration\Riak;
 use Basho\Riak;
 use Basho\Riak\Bucket;
 use Basho\Riak\Node\Builder;
-use Integration\BaseIntegrationTest;
+use Integration\Parts\BlobFileManagerTrait;
+use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\Common\Factory;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\FileStorage\BlobFileAdapterInterface;
 use Symcloud\Riak\RiakBlobFileAdapter;
 
-class RiakFileAdapterTest extends BaseIntegrationTest
+class RiakBlobFileAdapterTest extends ProphecyTestCase
 {
+    use BlobFileManagerTrait;
+
     public function adapterProvider()
     {
         $factory = new Factory('md5', 'ThisIsMySecretValue');

@@ -5,13 +5,16 @@ namespace Integration\Riak;
 use Basho\Riak;
 use Basho\Riak\Bucket;
 use Basho\Riak\Node\Builder;
-use Integration\BaseIntegrationTest;
+use Integration\Parts\BlobManagerTrait;
+use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\BlobStorage\BlobAdapterInterface;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Riak\RiakBlobAdapter;
 
-class RiakBlobAdapterTest extends BaseIntegrationTest
+class RiakBlobAdapterTest extends ProphecyTestCase
 {
+    use BlobManagerTrait;
+
     public function adapterProvider()
     {
         $factory = $this->getFactory();

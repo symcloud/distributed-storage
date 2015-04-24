@@ -5,13 +5,17 @@ namespace Integration\Component\FileStorage;
 use Basho\Riak;
 use Basho\Riak\Bucket;
 use Basho\Riak\Node\Builder;
-use Integration\BaseIntegrationTest;
+use Integration\Parts\BlobFileManagerTrait;
+use Integration\Parts\TestFileTrait;
+use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\FileStorage\BlobFileManagerInterface;
 
-class FileStorageTest extends BaseIntegrationTest
+class FileStorageTest extends ProphecyTestCase
 {
+    use TestFileTrait, BlobFileManagerTrait;
+
     protected function setUp()
     {
         $riak = $this->getRiak();
