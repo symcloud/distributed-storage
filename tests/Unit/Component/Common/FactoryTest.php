@@ -4,6 +4,9 @@ namespace Unit\Component\Common;
 
 use Symcloud\Component\BlobStorage\Model\BlobModel;
 use Symcloud\Component\Common\Factory;
+use Symcloud\Component\MetadataStorage\Model\CommitInterface;
+use Symcloud\Component\MetadataStorage\Model\TreeInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class FactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -71,6 +74,42 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($fileHash, $result->getHash());
         $this->assertEquals($blobs, $result->getBlobs());
         $this->assertEquals($this->data . strrev($this->data), $result->getContent());
+    }
+
+    public function testCreateCommit()
+    {
+        $factory = new Factory($this->algo, $this->secret);
+
+        $message = 'My message';
+        $treeHash = 'tree-hash';
+        $username = 'johannes';
+        $commitHash = 'commit-hash';
+
+        $tree = $this->prophesize(TreeInterface::class);
+        $tree->getHash()->willReturn($treeHash);
+        $user = $this->prophesize(UserInterface::class);
+        $user->getUsername()->willReturn($username);
+        $parentCommit = $this->prophesize(CommitInterface::class);
+        $parentCommit->getHash()->willReturn($commitHash);
+
+        $expectedData = array(
+            'tree' => $treeHash,
+            'message' => $message,
+            'parentCommit' => $commitHash,
+            'committer' => $username,
+            'createdAt' => new \DateTime()
+        );
+        $expectedHash = $factory->createHash(json_encode($expectedData));
+
+        $result = $factory->createCommit($tree->reveal(), $user->reveal(), $message, $parentCommit->reveal());
+
+        $this->assertEquals($tree->reveal(), $result->getTree());
+        $this->assertEquals($user->reveal(), $result->getCommitter());
+        $this->assertEquals($parentCommit->reveal(), $result->getParentCommit());
+        $this->assertEquals($message, $result->getMessage());
+        $this->assertInstanceOf(\DateTime::class, $result->getCreatedAt());
+        $this->assertEquals($expectedData, $result->toArray());
+        $this->assertEquals($expectedHash, $result->getHash());
     }
 
     public function testCreateHash()

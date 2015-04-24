@@ -2,7 +2,9 @@
 
 namespace Symcloud\Component\MetadataStorage\Model;
 
-class CommitModel implements CommitInterface
+use Symfony\Component\Security\Core\User\UserInterface;
+
+class CommitModel implements CommitInterface, \JsonSerializable
 {
     /**
      * @var string
@@ -15,14 +17,24 @@ class CommitModel implements CommitInterface
     private $message;
 
     /**
-     * @var CommitModel
+     * @var CommitInterface
      */
     private $parentCommit;
 
     /**
-     * @var TreeModel
+     * @var TreeInterface
      */
     private $tree;
+
+    /**
+     * @var UserInterface
+     */
+    private $committer;
+
+    /**
+     * @var \DateTime
+     */
+    private $createdAt;
 
     /**
      * @return string
@@ -57,7 +69,7 @@ class CommitModel implements CommitInterface
     }
 
     /**
-     * @return CommitModel
+     * @return CommitInterface
      */
     public function getParentCommit()
     {
@@ -65,15 +77,15 @@ class CommitModel implements CommitInterface
     }
 
     /**
-     * @param CommitModel $parentCommit
+     * @param CommitInterface $parentCommit
      */
-    public function setParentCommit($parentCommit)
+    public function setParentCommit(CommitInterface $parentCommit)
     {
         $this->parentCommit = $parentCommit;
     }
 
     /**
-     * @return TreeModel
+     * @return TreeInterface
      */
     public function getTree()
     {
@@ -81,10 +93,64 @@ class CommitModel implements CommitInterface
     }
 
     /**
-     * @param TreeModel $tree
+     * @param TreeInterface $tree
      */
     public function setTree($tree)
     {
         $this->tree = $tree;
+    }
+
+    /**
+     * @return UserInterface
+     */
+    public function getCommitter()
+    {
+        return $this->committer;
+    }
+
+    /**
+     * @param UserInterface $committer
+     */
+    public function setCommitter($committer)
+    {
+        $this->committer = $committer;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @param \DateTime $createdAt
+     */
+    public function setCreatedAt($createdAt)
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return array(
+            'tree' => $this->getTree()->getHash(),
+            'message' => $this->getMessage(),
+            'parentCommit' => ($this->getParentCommit() !== null ? $this->getParentCommit()->getHash() : null),
+            'committer' => $this->getCommitter()->getUsername(),
+            'createdAt' => $this->getCreatedAt()
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    function jsonSerialize()
+    {
+        return $this->toArray();
     }
 }

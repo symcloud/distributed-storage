@@ -7,8 +7,12 @@ use Symcloud\Component\Access\Model\FileModel;
 use Symcloud\Component\BlobStorage\Model\BlobModel;
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\FileStorage\Model\BlobFileModel;
+use Symcloud\Component\MetadataStorage\Model\CommitInterface;
+use Symcloud\Component\MetadataStorage\Model\CommitModel;
 use Symcloud\Component\MetadataStorage\Model\FileObjectInterface;
 use Symcloud\Component\MetadataStorage\Model\MetadataInterface;
+use Symcloud\Component\MetadataStorage\Model\TreeInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class Factory implements FactoryInterface
 {
@@ -77,6 +81,33 @@ class Factory implements FactoryInterface
         $file->setData($blobFile);
 
         return $file;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createCommit(
+        TreeInterface $tree,
+        UserInterface $user,
+        $message = '',
+        CommitInterface $parentCommit = null,
+        $hash = null
+    ) {
+        $commit = new CommitModel();
+        $commit->setTree($tree);
+        $commit->setMessage($message);
+        if ($parentCommit !== null) {
+            $commit->setParentCommit($parentCommit);
+        }
+        $commit->setCreatedAt(new \DateTime());
+        $commit->setCommitter($user);
+
+        if ($hash === null) {
+            $hash = $this->createHash(json_encode($commit->toArray()));
+        }
+        $commit->setHash($hash);
+
+        return $commit;
     }
 
     /**

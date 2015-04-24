@@ -1,6 +1,8 @@
 <?php
 namespace Symcloud\Component\MetadataStorage\Model;
 
+use Symfony\Component\Security\Core\User\UserInterface;
+
 interface CommitInterface
 {
     /**
@@ -22,4 +24,14 @@ interface CommitInterface
      * @return TreeModel
      */
     public function getTree();
+
+    /**
+     * @return UserInterface
+     */
+    public function getCommitter();
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreatedAt();
 }
