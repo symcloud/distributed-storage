@@ -4,8 +4,10 @@ namespace Symcloud\Component\MetadataStorage\Model;
 
 class ReferenceModel implements ReferenceInterface
 {
+    // FIXME here should a commit be
+
     /**
-     * @var ReferenceModel
+     * @var TreeInterface
      */
     private $tree;
 

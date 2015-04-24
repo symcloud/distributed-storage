@@ -149,7 +149,7 @@ class CommitModel implements CommitInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    function jsonSerialize()
+    public function jsonSerialize()
     {
         return $this->toArray();
     }

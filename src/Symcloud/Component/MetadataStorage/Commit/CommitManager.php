@@ -30,7 +30,6 @@ class CommitManager implements CommitManagerInterface
         $this->commitAdapter = $commitAdapter;
     }
 
-
     /**
      * @param TreeInterface $tree
      * @param UserInterface $user

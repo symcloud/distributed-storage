@@ -24,4 +24,12 @@ class TreeObjectModel extends ObjectModel
     {
         $this->tree = $tree;
     }
+
+    /**
+     * @return boolean
+     */
+    public function isFile()
+    {
+        return false;
+    }
 }

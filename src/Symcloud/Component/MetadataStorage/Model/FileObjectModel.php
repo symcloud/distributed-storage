@@ -24,4 +24,12 @@ class FileObjectModel extends ObjectModel implements FileObjectInterface
     {
         $this->fileHash = $fileHash;
     }
+
+    /**
+     * @return boolean
+     */
+    public function isFile()
+    {
+        return true;
+    }
 }
