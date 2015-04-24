@@ -6,10 +6,8 @@ use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 
 class TreeManager implements TreeManagerInterface
 {
-
     /**
-     * @param TreeInterface $tree
-     * @return TreeWalkerInterface
+     * {@inheritdoc}
      */
     public function getTreeWalker(TreeInterface $tree)
     {

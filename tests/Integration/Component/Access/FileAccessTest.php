@@ -47,14 +47,9 @@ class FileAccessTest extends ProphecyTestCase
 
     protected function setUp()
     {
-        $riak = $this->getRiak();
-        $blobBucket = $this->getBlobBucket();
-        $blobFileBucket = $this->getBlobFileBucket();
-        $metadataBucket = $this->getMetadataBucket();
-
-        $this->clearBucket($blobBucket);
-        $this->clearBucket($blobFileBucket);
-        $this->clearBucket($metadataBucket);
+        $this->clearBucket($this->getBlobBucket());
+        $this->clearBucket($this->getBlobFileBucket());
+        $this->clearBucket($this->getMetadataBucket());
 
         parent::setUp();
     }
@@ -64,7 +59,7 @@ class FileAccessTest extends ProphecyTestCase
         $user = $this->prophesize(UserInterface::class);
 
         return array(
-            array($this->getFileManager(), $user->reveal())
+            array($this->getFileManager(), $user->reveal(), '', 0, '', '', '', '')
         );
     }
 
@@ -90,6 +85,10 @@ class FileAccessTest extends ProphecyTestCase
         $fileHash,
         $content
     ) {
+        $this->markTestIncomplete(
+            'This feature is not fully implemented'
+        );
+
         $result = $fileManager->getByPath($path, $user);
 
         $this->assertEquals($depth, $result->getDepth());
