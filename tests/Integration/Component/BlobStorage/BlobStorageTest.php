@@ -10,20 +10,25 @@ use Symcloud\Component\BlobStorage\Model\BlobInterface;
 
 class BlobStorageTest extends BaseIntegrationTest
 {
-    public function storageProvider()
+    protected function setUp()
     {
         $riak = $this->getRiak();
         $blobBucket = $this->getBlobBucket();
 
         $this->clearBucket($blobBucket, $riak);
 
+        parent::setUp();
+    }
+
+    public function storageProvider()
+    {
         $length = 200;
         $data = $this->generateString($length);
 
         $expectedBlob = $this->getFactory()->createBlob($data);
 
         return array(
-            array($this->getBlobManager(), $expectedBlob, $blobBucket, $riak)
+            array($this->getBlobManager(), $expectedBlob, $this->getBlobBucket(), $this->getRiak())
         );
     }
 

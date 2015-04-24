@@ -2,6 +2,7 @@
 
 namespace Integration\Component\Access;
 
+use Basho\Riak\Bucket;
 use Integration\BaseIntegrationTest;
 use Symcloud\Component\Access\FileManagerInterface;
 use Symcloud\Component\MetadataStorage\Model\KeyValueInterface;
@@ -9,6 +10,21 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class FileAccessTest extends BaseIntegrationTest
 {
+    protected function setUp()
+    {
+        $riak = $this->getRiak();
+        $blobBucket = $this->getBlobBucket();
+        $blobFileBucket = $this->getBlobFileBucket();
+        $metadataBucket = $this->getMetadataBucket();
+
+        $this->clearBucket($blobBucket, $riak);
+        $this->clearBucket($blobFileBucket, $riak);
+        $this->clearBucket($blobFileBucket, $riak);
+        $this->clearBucket($metadataBucket, $riak);
+
+        parent::setUp();
+    }
+
     public function managerProvider()
     {
         return array(array());

@@ -12,20 +12,20 @@ use Symcloud\Component\FileStorage\BlobFileManagerInterface;
 
 class FileStorageTest extends BaseIntegrationTest
 {
-    /**
-     * @var int
-     */
-    protected $maxLength = 100;
-
-    public function storageProvider()
+    protected function setUp()
     {
         $riak = $this->getRiak();
         $blobBucket = $this->getBlobBucket();
-        $fileBucket = $this->getFileBucket();
+        $blobFileBucket = $this->getBlobFileBucket();
 
         $this->clearBucket($blobBucket, $riak);
-        $this->clearBucket($fileBucket, $riak);
+        $this->clearBucket($blobFileBucket, $riak);
 
+        parent::setUp();
+    }
+
+    public function storageProvider()
+    {
         $factory = $this->getFactory();
 
         list($data, $fileName) = $this->generateTestFile(200);
@@ -42,9 +42,9 @@ class FileStorageTest extends BaseIntegrationTest
                 $data,
                 $fileHash,
                 $blobs,
-                $fileBucket,
-                $blobBucket,
-                $riak,
+                $this->getBlobFileBucket(),
+                $this->getBlobBucket(),
+                $this->getRiak(),
                 $factory
             )
         );

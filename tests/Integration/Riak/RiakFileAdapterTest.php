@@ -18,7 +18,7 @@ class RiakFileAdapterTest extends BaseIntegrationTest
         $factory = new Factory('md5', 'ThisIsMySecretValue');
 
         $riak = $this->getRiak();
-        $fileBucket = $this->getFileBucket();
+        $fileBucket = $this->getBlobFileBucket();
         $adapter = new RiakBlobFileAdapter($riak, $fileBucket);
 
         return array(

@@ -23,6 +23,11 @@ use Symcloud\Riak\RiakBlobFileAdapter;
 abstract class BaseIntegrationTest extends ProphecyTestCase
 {
     /**
+     * @var int
+     */
+    protected static $blobMaxLength = 100;
+
+    /**
      * @var Riak
      */
     private $riak;
@@ -63,11 +68,6 @@ abstract class BaseIntegrationTest extends ProphecyTestCase
     private $fileSplitter;
 
     /**
-     * @var int
-     */
-    private $maxLength = 200;
-
-    /**
      * @var LazyLoadingValueHolderFactory
      */
     private $proxyFactory;
@@ -77,10 +77,15 @@ abstract class BaseIntegrationTest extends ProphecyTestCase
      */
     private $blobFileManager;
 
+    /**
+     * @var Bucket
+     */
+    private $metadataBucket;
+
     protected function getFileSplitter()
     {
         if (!$this->fileSplitter) {
-            $this->fileSplitter = new FileSplitter($this->maxLength);
+            $this->fileSplitter = new FileSplitter(self::$blobMaxLength);
         }
 
         return $this->fileSplitter;
@@ -98,7 +103,7 @@ abstract class BaseIntegrationTest extends ProphecyTestCase
     protected function getBlobFileAdapter()
     {
         if (!$this->blobFileAdapter) {
-            $this->blobFileAdapter = new RiakBlobFileAdapter($this->getRiak(), $this->getFileBucket());
+            $this->blobFileAdapter = new RiakBlobFileAdapter($this->getRiak(), $this->getBlobFileBucket());
         }
 
         return $this->blobFileAdapter;
@@ -167,13 +172,22 @@ abstract class BaseIntegrationTest extends ProphecyTestCase
         return $this->blobBucket;
     }
 
-    protected function getFileBucket()
+    protected function getBlobFileBucket()
     {
         if (!$this->fileBucket) {
             $this->fileBucket = new Riak\Bucket('test-files');
         }
 
         return $this->fileBucket;
+    }
+
+    protected function getMetadataBucket()
+    {
+        if (!$this->metadataBucket) {
+            $this->metadataBucket = new Bucket('metadata');
+        }
+
+        return $this->metadataBucket;
     }
 
     protected function clearBucket(Bucket $bucket, Riak $riak)
