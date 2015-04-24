@@ -7,31 +7,173 @@ use Basho\Riak\Bucket;
 use Basho\Riak\Node\Builder;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
+use Symcloud\Component\BlobStorage\BlobAdapterInterface;
+use Symcloud\Component\BlobStorage\BlobManager;
+use Symcloud\Component\BlobStorage\BlobManagerInterface;
 use Symcloud\Component\Common\Factory;
+use Symcloud\Component\Common\FactoryInterface;
+use Symcloud\Component\FileStorage\BlobFileAdapterInterface;
+use Symcloud\Component\FileStorage\BlobFileManager;
+use Symcloud\Component\FileStorage\BlobFileManagerInterface;
+use Symcloud\Component\FileStorage\FileSplitter;
+use Symcloud\Component\FileStorage\FileSplitterInterface;
+use Symcloud\Riak\RiakBlobAdapter;
+use Symcloud\Riak\RiakBlobFileAdapter;
 
 abstract class BaseIntegrationTest extends ProphecyTestCase
 {
+    /**
+     * @var Riak
+     */
+    private $riak;
+
+    /**
+     * @var FactoryInterface
+     */
+    private $factory;
+
+    /**
+     * @var Bucket
+     */
+    private $blobBucket;
+
+    /**
+     * @var Bucket
+     */
+    private $fileBucket;
+
+    /**
+     * @var BlobAdapterInterface
+     */
+    private $blobAdapter;
+
+    /**
+     * @var BlobManagerInterface
+     */
+    private $blobManager;
+
+    /**
+     * @var BlobFileAdapterInterface
+     */
+    private $blobFileAdapter;
+
+    /**
+     * @var FileSplitterInterface
+     */
+    private $fileSplitter;
+
+    /**
+     * @var int
+     */
+    private $maxLength = 200;
+
+    /**
+     * @var LazyLoadingValueHolderFactory
+     */
+    private $proxyFactory;
+
+    /**
+     * @var BlobFileManagerInterface
+     */
+    private $blobFileManager;
+
+    protected function getFileSplitter()
+    {
+        if (!$this->fileSplitter) {
+            $this->fileSplitter = new FileSplitter($this->maxLength);
+        }
+
+        return $this->fileSplitter;
+    }
+
+    protected function getProxyFactory()
+    {
+        if (!$this->proxyFactory) {
+            $this->proxyFactory = new LazyLoadingValueHolderFactory();
+        }
+
+        return $this->proxyFactory;
+    }
+
+    protected function getBlobFileAdapter()
+    {
+        if (!$this->blobFileAdapter) {
+            $this->blobFileAdapter = new RiakBlobFileAdapter($this->getRiak(), $this->getFileBucket());
+        }
+
+        return $this->blobFileAdapter;
+    }
+
+    protected function getBlobFileManager()
+    {
+        if (!$this->blobFileManager) {
+            $this->blobFileManager = new BlobFileManager(
+                $this->getFileSplitter(),
+                $this->getBlobManager(),
+                $this->getFactory(),
+                $this->getBlobFileAdapter(),
+                $this->getProxyFactory()
+            );
+        }
+
+        return $this->blobFileManager;
+    }
+
+    protected function getBlobAdapter()
+    {
+        if (!$this->blobAdapter) {
+            $this->blobAdapter = new RiakBlobAdapter($this->getRiak(), $this->getBlobBucket());
+        }
+
+        return $this->blobAdapter;
+    }
+
+    protected function getBlobManager()
+    {
+        if (!$this->blobManager) {
+            $this->blobManager = new BlobManager($this->getFactory(), $this->getBlobAdapter());
+        }
+
+        return $this->blobManager;
+    }
+
     protected function getFactory()
     {
-        return new Factory('md5', 'ThisIsMySecretValue', new LazyLoadingValueHolderFactory());
+        if (!$this->factory) {
+            $this->factory = new Factory('md5', 'ThisIsMySecretValue', $this->getProxyFactory());
+        }
+
+        return $this->factory;
     }
 
     protected function getRiak()
     {
-        $nodes = (new Builder())
-            ->buildLocalhost([8098]);
+        if (!$this->riak) {
+            $nodes = (new Builder())
+                ->buildLocalhost([8098]);
 
-        return new Riak($nodes);
+            $this->riak = new Riak($nodes);
+        }
+
+        return $this->riak;
     }
 
     protected function getBlobBucket()
     {
-        return new Riak\Bucket('test-blobs');
+        if (!$this->blobBucket) {
+            $this->blobBucket = new Riak\Bucket('test-blobs');
+        }
+
+        return $this->blobBucket;
     }
 
     protected function getFileBucket()
     {
-        return new Riak\Bucket('test-files');
+        if (!$this->fileBucket) {
+            $this->fileBucket = new Riak\Bucket('test-files');
+        }
+
+        return $this->fileBucket;
     }
 
     protected function clearBucket(Bucket $bucket, Riak $riak)

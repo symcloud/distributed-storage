@@ -5,49 +5,43 @@ namespace Integration\Component\BlobStorage;
 use Basho\Riak;
 use Basho\Riak\Bucket;
 use Integration\BaseIntegrationTest;
-use Symcloud\Component\BlobStorage\BlobManager;
 use Symcloud\Component\BlobStorage\BlobManagerInterface;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
-use Symcloud\Riak\RiakBlobAdapter;
 
 class BlobStorageTest extends BaseIntegrationTest
 {
     public function storageProvider()
     {
-        $factory = $this->getFactory();
         $riak = $this->getRiak();
         $blobBucket = $this->getBlobBucket();
 
         $this->clearBucket($blobBucket, $riak);
 
-        $blobAdapter = new RiakBlobAdapter($riak, $blobBucket);
-        $blobStorage = new BlobManager($factory, $blobAdapter);
-
         $length = 200;
         $data = $this->generateString($length);
 
-        $expectedBlob = $factory->createBlob($data);
+        $expectedBlob = $this->getFactory()->createBlob($data);
 
         return array(
-            array($blobStorage, $expectedBlob, $blobBucket, $riak)
+            array($this->getBlobManager(), $expectedBlob, $blobBucket, $riak)
         );
     }
 
     /**
      * @dataProvider storageProvider
      *
-     * @param BlobManagerInterface $blobStorage
+     * @param BlobManagerInterface $blobManager
      * @param BlobInterface $expectedBlob
      * @param Bucket $blobBucket
      * @param Riak $riak
      */
     public function testUpload(
-        BlobManagerInterface $blobStorage,
+        BlobManagerInterface $blobManager,
         BlobInterface $expectedBlob,
         Bucket $blobBucket,
         Riak $riak
     ) {
-        $blob = $blobStorage->uploadBlob($expectedBlob->getData());
+        $blob = $blobManager->uploadBlob($expectedBlob->getData());
 
         $this->assertEquals($expectedBlob->getHash(), $blob->getHash());
         $this->assertEquals($expectedBlob->getData(), $blob->getData());
@@ -62,20 +56,20 @@ class BlobStorageTest extends BaseIntegrationTest
     /**
      * @dataProvider storageProvider
      *
-     * @param BlobManagerInterface $blobStorage
+     * @param BlobManagerInterface $blobManager
      * @param BlobInterface $expectedBlob
      * @param Bucket $blobBucket
      * @param Riak $riak
      */
     public function testDownload(
-        BlobManagerInterface $blobStorage,
+        BlobManagerInterface $blobManager,
         BlobInterface $expectedBlob,
         Bucket $blobBucket,
         Riak $riak
     ) {
         $this->storeObject($expectedBlob->getHash(), $expectedBlob->getData(), $blobBucket, $riak);
 
-        $blob = $blobStorage->downloadBlob($expectedBlob->getHash());
+        $blob = $blobManager->downloadBlob($expectedBlob->getHash());
 
         $this->assertEquals($expectedBlob->getHash(), $blob->getHash());
         $this->assertEquals($expectedBlob->getData(), $blob->getData());

@@ -4,9 +4,7 @@ namespace Symcloud\Component\Common;
 
 use Symcloud\Component\Access\Model\FileInterface;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
-use Symcloud\Component\BlobStorage\Model\BlobModel;
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
-use Symcloud\Component\FileStorage\Model\BlobFileModel;
 use Symcloud\Component\MetadataStorage\Model\FileObjectInterface;
 use Symcloud\Component\MetadataStorage\Model\MetadataInterface;
 

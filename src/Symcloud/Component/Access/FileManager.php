@@ -12,7 +12,7 @@ use Symcloud\Component\MetadataStorage\Reference\ReferenceManagerInterface;
 use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class FileManager
+class FileManager implements FileManagerInterface
 {
     /**
      * @var ReferenceManagerInterface
@@ -61,6 +61,9 @@ class FileManager
         $this->factory = $factory;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getByPath($path, UserInterface $user)
     {
         $reference = $this->referenceManager->getForUser($user);

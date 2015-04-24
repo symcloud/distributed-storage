@@ -6,18 +6,17 @@ use Basho\Riak;
 use Basho\Riak\Bucket;
 use Basho\Riak\Node\Builder;
 use Integration\BaseIntegrationTest;
-use ProxyManager\Factory\LazyLoadingValueHolderFactory;
-use Symcloud\Component\BlobStorage\BlobManager;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\Common\FactoryInterface;
-use Symcloud\Component\FileStorage\BlobFileManager;
 use Symcloud\Component\FileStorage\BlobFileManagerInterface;
-use Symcloud\Component\FileStorage\FileSplitter;
-use Symcloud\Riak\RiakBlobAdapter;
-use Symcloud\Riak\RiakBlobFileAdapter;
 
 class FileStorageTest extends BaseIntegrationTest
 {
+    /**
+     * @var int
+     */
+    protected $maxLength = 100;
+
     public function storageProvider()
     {
         $riak = $this->getRiak();
@@ -28,14 +27,6 @@ class FileStorageTest extends BaseIntegrationTest
         $this->clearBucket($fileBucket, $riak);
 
         $factory = $this->getFactory();
-        $blobAdapter = new RiakBlobAdapter($riak, $blobBucket);
-
-        $fileSplitter = new FileSplitter(100);
-        $blobManager = new BlobManager($factory, $blobAdapter);
-
-        $fileAdapter = new RiakBlobFileAdapter($riak, $fileBucket);
-
-        $proxyFactory = new LazyLoadingValueHolderFactory();
 
         list($data, $fileName) = $this->generateTestFile(200);
         $blobs = array(
@@ -44,10 +35,18 @@ class FileStorageTest extends BaseIntegrationTest
         );
         $fileHash = $factory->createFileHash($fileName);
 
-        $manager = new BlobFileManager($fileSplitter, $blobManager, $factory, $fileAdapter, $proxyFactory);
-
         return array(
-            array($manager, $fileName, $data, $fileHash, $blobs, $fileBucket, $blobBucket, $riak, $factory)
+            array(
+                $this->getBlobFileManager(),
+                $fileName,
+                $data,
+                $fileHash,
+                $blobs,
+                $fileBucket,
+                $blobBucket,
+                $riak,
+                $factory
+            )
         );
     }
 
