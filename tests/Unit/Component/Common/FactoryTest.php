@@ -36,7 +36,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($this->data, $result->getData());
     }
 
-    public function testCreateFileSingleBlob()
+    public function testCreateBlobFileSingleBlob()
     {
         $blobHash = 'my-blob-hash';
         $fileHash = 'my-file-hash';
@@ -53,7 +53,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($this->data, $result->getContent());
     }
 
-    public function testCreateFileMultipleBlob()
+    public function testCreateBlobFileMultipleBlob()
     {
         $blobHashs = array(
             'my-blob-hash-1',
@@ -74,6 +74,21 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($fileHash, $result->getHash());
         $this->assertEquals($blobs, $result->getBlobs());
         $this->assertEquals($this->data . strrev($this->data), $result->getContent());
+    }
+
+    public function testCreateFile()
+    {
+        $this->markTestIncomplete('This test is not implemented until now');
+    }
+
+    public function testCreateProxy()
+    {
+        $this->markTestIncomplete('This test is not implemented until now');
+    }
+
+    public function testCreateProxyWithoutProxyFactory()
+    {
+        $this->markTestIncomplete('This test is not implemented until now');
     }
 
     public function testCreateCommit()
