@@ -9,22 +9,22 @@ use Integration\Parts\BlobManagerTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\BlobStorage\BlobAdapterInterface;
 use Symcloud\Component\Common\FactoryInterface;
-use Symcloud\Riak\RiakBlobAdapter;
 
 class RiakBlobAdapterTest extends ProphecyTestCase
 {
     use BlobManagerTrait;
 
+    protected function setUp()
+    {
+        $this->clearBucket($this->getBlobBucket());
+
+        parent::setUp();
+    }
+
     public function adapterProvider()
     {
-        $factory = $this->getFactory();
-
-        $riak = $this->getRiak();
-        $blobBucket = $this->getBlobBucket();
-        $adapter = new RiakBlobAdapter($riak, $blobBucket);
-
         return array(
-            array($adapter, $riak, $blobBucket, $factory)
+            array($this->getBlobAdapter(), $this->getRiak(), $this->getBlobBucket(), $this->getFactory())
         );
     }
 
@@ -42,8 +42,6 @@ class RiakBlobAdapterTest extends ProphecyTestCase
         Bucket $blobBucket,
         FactoryInterface $factory
     ) {
-        $this->clearBucket($blobBucket, $riak);
-
         $blob = $factory->createBlob('This is my data');
         $this->assertTrue($adapter->storeBlob($blob->getHash(), $blob->getData()));
 

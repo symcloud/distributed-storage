@@ -16,10 +16,7 @@ class BlobStorageTest extends ProphecyTestCase
 
     protected function setUp()
     {
-        $riak = $this->getRiak();
-        $blobBucket = $this->getBlobBucket();
-
-        $this->clearBucket($blobBucket, $riak);
+        $this->clearBucket($this->getBlobBucket());
 
         parent::setUp();
     }

@@ -18,12 +18,8 @@ class FileStorageTest extends ProphecyTestCase
 
     protected function setUp()
     {
-        $riak = $this->getRiak();
-        $blobBucket = $this->getBlobBucket();
-        $blobFileBucket = $this->getBlobFileBucket();
-
-        $this->clearBucket($blobBucket, $riak);
-        $this->clearBucket($blobFileBucket, $riak);
+        $this->clearBucket($this->getBlobBucket());
+        $this->clearBucket($this->getBlobFileBucket());
 
         parent::setUp();
     }

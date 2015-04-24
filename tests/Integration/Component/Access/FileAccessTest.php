@@ -52,17 +52,20 @@ class FileAccessTest extends ProphecyTestCase
         $blobFileBucket = $this->getBlobFileBucket();
         $metadataBucket = $this->getMetadataBucket();
 
-        $this->clearBucket($blobBucket, $riak);
-        $this->clearBucket($blobFileBucket, $riak);
-        $this->clearBucket($blobFileBucket, $riak);
-        $this->clearBucket($metadataBucket, $riak);
+        $this->clearBucket($blobBucket);
+        $this->clearBucket($blobFileBucket);
+        $this->clearBucket($metadataBucket);
 
         parent::setUp();
     }
 
     public function managerProvider()
     {
-        return array(array($this->getFileManager()));
+        $user = $this->prophesize(UserInterface::class);
+
+        return array(
+            array($this->getFileManager(), $user->reveal())
+        );
     }
 
     /**
