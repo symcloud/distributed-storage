@@ -4,7 +4,7 @@ namespace Symcloud\Component\MetadataStorage\Model;
 interface ReferenceInterface
 {
     /**
-     * @return TreeInterface
+     * @return CommitInterface
      */
-    public function getTree();
+    public function getCommit();
 }

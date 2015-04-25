@@ -4,26 +4,24 @@ namespace Symcloud\Component\MetadataStorage\Model;
 
 class ReferenceModel implements ReferenceInterface
 {
-    // FIXME here should a commit be
-
     /**
-     * @var TreeInterface
+     * @var CommitInterface
      */
-    private $tree;
+    private $commit;
 
     /**
      * {@inheritdoc}
      */
-    public function getTree()
+    public function getCommit()
     {
-        return $this->tree;
+        return $this->commit;
     }
 
     /**
-     * @param ReferenceModel $tree
+     * @param CommitInterface $commit
      */
-    public function setTree($tree)
+    public function setCommit(CommitInterface $commit)
     {
-        $this->tree = $tree;
+        $this->commit = $commit;
     }
 }

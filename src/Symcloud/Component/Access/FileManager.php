@@ -67,7 +67,8 @@ class FileManager implements FileManagerInterface
     public function getByPath($path, UserInterface $user)
     {
         $reference = $this->referenceManager->getForUser($user);
-        $tree = $reference->getTree();
+        $commit = $reference->getCommit();
+        $tree = $commit->getTree();
 
         $treeWalker = $this->treeManager->getTreeWalker($tree);
         $object = $treeWalker->walk($path);
