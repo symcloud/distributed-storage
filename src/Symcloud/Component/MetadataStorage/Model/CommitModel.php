@@ -138,11 +138,11 @@ class CommitModel implements CommitInterface, \JsonSerializable
     public function toArray()
     {
         return array(
-            'tree' => $this->getTree()->getHash(),
-            'message' => $this->getMessage(),
-            'parentCommit' => ($this->getParentCommit() !== null ? $this->getParentCommit()->getHash() : null),
-            'committer' => $this->getCommitter()->getUsername(),
-            'createdAt' => $this->getCreatedAt()
+            self::TREE_KEY => $this->getTree()->getHash(),
+            self::MESSAGE_KEY => $this->getMessage(),
+            self::PARENT_COMMIT_KEY => ($this->getParentCommit() !== null ? $this->getParentCommit()->getHash() : null),
+            self::COMMITTER_KEY => $this->getCommitter()->getUsername(),
+            self::CREATED_AT_KEY => $this->getCreatedAt()->format(\DateTime::ISO8601)
         );
     }
 

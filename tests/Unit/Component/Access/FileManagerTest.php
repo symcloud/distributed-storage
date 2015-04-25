@@ -10,6 +10,7 @@ use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\FileStorage\BlobFileManagerInterface;
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\MetadataStorage\MetadataManagerInterface;
+use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\FileObjectInterface;
 use Symcloud\Component\MetadataStorage\Model\KeyValueInterface;
 use Symcloud\Component\MetadataStorage\Model\MetadataInterface;
@@ -41,6 +42,7 @@ class FileManagerTest extends ProphecyTestCase
         $user = $this->prophesize(UserInterface::class);
         $reference = $this->prophesize(ReferenceInterface::class);
         $tree = $this->prophesize(TreeInterface::class);
+        $commit = $this->prophesize(CommitInterface::class);
         $treeWalker = $this->prophesize(TreeWalkerInterface::class);
         $fileObject = $this->prophesize(FileObjectInterface::class);
 
@@ -53,6 +55,10 @@ class FileManagerTest extends ProphecyTestCase
             ->willReturn($reference->reveal());
 
         $reference
+            ->getCommit()
+            ->willReturn($commit->reveal());
+
+        $commit
             ->getTree()
             ->willReturn($tree->reveal());
 

@@ -13,4 +13,13 @@ class TreeManager implements TreeManagerInterface
     {
         // TODO: Implement getTreeWalker() method.
     }
+
+    /**
+     * @param string $hash
+     * @return TreeInterface
+     */
+    public function fetch($hash)
+    {
+        // TODO: Implement fetch() method.
+    }
 }

@@ -14,7 +14,7 @@ interface CommitAdapterInterface
 
     /**
      * @param string $hash
-     * @return CommitInterface
+     * @return array
      */
     public function fetchCommit($hash);
 }

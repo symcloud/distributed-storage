@@ -99,6 +99,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $treeHash = 'tree-hash';
         $username = 'johannes';
         $commitHash = 'commit-hash';
+        $createdAt = new \DateTime();
 
         $tree = $this->prophesize(TreeInterface::class);
         $tree->getHash()->willReturn($treeHash);
@@ -108,15 +109,21 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $parentCommit->getHash()->willReturn($commitHash);
 
         $expectedData = array(
-            'tree' => $treeHash,
-            'message' => $message,
-            'parentCommit' => $commitHash,
-            'committer' => $username,
-            'createdAt' => new \DateTime()
+            CommitInterface::TREE_KEY => $treeHash,
+            CommitInterface::MESSAGE_KEY => $message,
+            CommitInterface::PARENT_COMMIT_KEY => $commitHash,
+            CommitInterface::COMMITTER_KEY => $username,
+            CommitInterface::CREATED_AT_KEY => $createdAt->format(\DateTime::ISO8601)
         );
         $expectedHash = $factory->createHash(json_encode($expectedData));
 
-        $result = $factory->createCommit($tree->reveal(), $user->reveal(), $message, $parentCommit->reveal());
+        $result = $factory->createCommit(
+            $tree->reveal(),
+            $user->reveal(),
+            $createdAt,
+            $message,
+            $parentCommit->reveal()
+        );
 
         $this->assertEquals($tree->reveal(), $result->getTree());
         $this->assertEquals($user->reveal(), $result->getCommitter());
@@ -125,6 +132,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(\DateTime::class, $result->getCreatedAt());
         $this->assertEquals($expectedData, $result->toArray());
         $this->assertEquals($expectedHash, $result->getHash());
+        $this->assertEquals($createdAt, $result->getCreatedAt());
     }
 
     public function testCreateHash()

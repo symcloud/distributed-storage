@@ -89,6 +89,7 @@ class Factory implements FactoryInterface
     public function createCommit(
         TreeInterface $tree,
         UserInterface $user,
+        \DateTime $createdAt,
         $message = '',
         CommitInterface $parentCommit = null,
         $hash = null
@@ -99,7 +100,7 @@ class Factory implements FactoryInterface
         if ($parentCommit !== null) {
             $commit->setParentCommit($parentCommit);
         }
-        $commit->setCreatedAt(new \DateTime());
+        $commit->setCreatedAt($createdAt);
         $commit->setCommitter($user);
 
         if ($hash === null) {

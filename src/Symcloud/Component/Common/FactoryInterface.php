@@ -50,11 +50,18 @@ interface FactoryInterface
     /**
      * @param TreeInterface $tree
      * @param UserInterface $user
+     * @param \DateTime $createdAt
      * @param string $message
      * @param CommitInterface $parentCommit
      * @return CommitInterface
      */
-    public function createCommit(TreeInterface $tree, UserInterface $user, $message = '', CommitInterface $parentCommit = null);
+    public function createCommit(
+        TreeInterface $tree,
+        UserInterface $user,
+        \DateTime $createdAt,
+        $message = '',
+        CommitInterface $parentCommit = null
+    );
 
     /**
      * @param string $className
