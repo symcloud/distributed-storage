@@ -60,6 +60,6 @@ class RiakSerializeAdapter extends RiakBaseAdapter implements CommitAdapterInter
      */
     protected function fetchJson($hash)
     {
-        return json_decode($this->fetchObject($hash, $this->metadataBucket)->getObject()->getData(), true);
+        return (array)$this->fetchObject($hash, $this->metadataBucket)->getObject()->getData();
     }
 }

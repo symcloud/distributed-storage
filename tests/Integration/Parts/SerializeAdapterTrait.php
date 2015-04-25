@@ -35,7 +35,7 @@ trait SerializeAdapterTrait
     protected function getMetadataBucket()
     {
         if (!$this->metadataBucket) {
-            $this->metadataBucket = new Bucket('test-blobs');
+            $this->metadataBucket = new Bucket('test-metadata');
         }
 
         return $this->metadataBucket;

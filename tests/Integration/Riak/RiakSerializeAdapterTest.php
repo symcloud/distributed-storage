@@ -69,4 +69,73 @@ class RiakSerializeAdapterTest extends ProphecyTestCase
             $response->getObject()->getData()
         );
     }
+
+    /**
+     * @dataProvider adapterProvider
+     *
+     * @param RiakSerializeAdapter $adapter
+     * @param Bucket $metadataBucket
+     * @param FactoryInterface $factory
+     */
+    public function testStoreCommitWithParent(
+        RiakSerializeAdapter $adapter,
+        Bucket $metadataBucket,
+        FactoryInterface $factory
+    ) {
+        $this->markTestIncomplete('This test is not implemented until now');
+    }
+
+    /**
+     * @dataProvider adapterProvider
+     *
+     * @param RiakSerializeAdapter $adapter
+     * @param Bucket $metadataBucket
+     * @param FactoryInterface $factory
+     */
+    public function testFetchCommit(
+        RiakSerializeAdapter $adapter,
+        Bucket $metadataBucket,
+        FactoryInterface $factory
+    ) {
+        $treeHash = 'tree-hash';
+        $username = 'johannes';
+        $createdAt = new \DateTime();
+        $message = 'My message';
+
+        $data = array(
+            CommitInterface::TREE_KEY => $treeHash,
+            CommitInterface::MESSAGE_KEY => $message,
+            CommitInterface::PARENT_COMMIT_KEY => null,
+            CommitInterface::COMMITTER_KEY => $username,
+            CommitInterface::CREATED_AT_KEY => $createdAt->format(\DateTime::ISO8601)
+        );
+        $commitHash = $factory->createHash(json_encode($data));
+
+        $tree = $this->prophesize(TreeInterface::class);
+        $tree->getHash()->willReturn($treeHash);
+
+        $user = $this->prophesize(UserInterface::class);
+        $user->getUsername()->willReturn($username);
+
+        $this->storeObject($commitHash, $data, $this->getMetadataBucket());
+
+        $result = $adapter->fetchCommit($commitHash);
+
+        $this->assertEquals($data, $result);
+    }
+
+    /**
+     * @dataProvider adapterProvider
+     *
+     * @param RiakSerializeAdapter $adapter
+     * @param Bucket $metadataBucket
+     * @param FactoryInterface $factory
+     */
+    public function testFetchCommitWithParent(
+        RiakSerializeAdapter $adapter,
+        Bucket $metadataBucket,
+        FactoryInterface $factory
+    ) {
+        $this->markTestIncomplete('This test is not implemented until now');
+    }
 }
