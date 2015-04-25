@@ -75,23 +75,24 @@ class CommitManagerTest extends ProphecyTestCase
 
     public function testFetchCommit()
     {
-        $commitHash = 'commit-hash';
         $treeHash = 'tree-hash';
         $message = 'My message';
         $username = 'johannes';
         $createdAt = new \DateTime();
 
         $factory = $this->getFactory();
-        $commitAdapter = $this->prophesize(CommitAdapterInterface::class);
-        $commitAdapter->fetchCommit($commitHash)->willReturn(
-            array(
-                CommitInterface::TREE_KEY => $treeHash,
-                CommitInterface::MESSAGE_KEY => $message,
-                CommitInterface::PARENT_COMMIT_KEY => null,
-                CommitInterface::COMMITTER_KEY => $username,
-                CommitInterface::CREATED_AT_KEY => $createdAt->format(\DateTime::ISO8601)
-            )
+        $data = array(
+            CommitInterface::TREE_KEY => $treeHash,
+            CommitInterface::MESSAGE_KEY => $message,
+            CommitInterface::PARENT_COMMIT_KEY => null,
+            CommitInterface::COMMITTER_KEY => $username,
+            CommitInterface::CREATED_AT_KEY => $createdAt->format(\DateTime::ISO8601)
         );
+        $commitHash = $factory->createHash(json_encode($data));
+
+        $factory = $this->getFactory();
+        $commitAdapter = $this->prophesize(CommitAdapterInterface::class);
+        $commitAdapter->fetchCommit($commitHash)->willReturn($data);
 
         $tree = $this->prophesize(TreeInterface::class);
         $tree->getHash()->willReturn($treeHash);
@@ -100,8 +101,8 @@ class CommitManagerTest extends ProphecyTestCase
         $user->getUsername()->willReturn($username);
 
         $userProvider = $this->prophesize(UserProviderInterface::class);
-        $userProvider->getUserByUsername($username)->willReturn($user);
-        
+        $userProvider->loadUserByUsername($username)->willReturn($user);
+
         $treeManager = $this->prophesize(TreeManagerInterface::class);
         $treeManager->fetch($treeHash)->willReturn($tree->reveal());
 
