@@ -51,11 +51,7 @@ class CommitManager implements CommitManagerInterface
     }
 
     /**
-     * @param TreeInterface $tree
-     * @param UserInterface $user
-     * @param string $message
-     * @param CommitInterface $parentCommit
-     * @return CommitInterface
+     * {@inheritdoc}
      */
     public function commit(
         TreeInterface $tree,
@@ -70,8 +66,7 @@ class CommitManager implements CommitManagerInterface
     }
 
     /**
-     * @param string $hash
-     * @return CommitInterface
+     * {@inheritdoc}
      */
     public function fetch($hash)
     {

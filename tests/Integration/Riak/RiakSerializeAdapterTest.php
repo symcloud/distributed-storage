@@ -117,11 +117,16 @@ class RiakSerializeAdapterTest extends ProphecyTestCase
         $user = $this->prophesize(UserInterface::class);
         $user->getUsername()->willReturn($username);
 
-        $this->storeObject($commitHash, $data, $this->getMetadataBucket());
+        $this->storeObject($commitHash, $data, $metadataBucket);
 
         $result = $adapter->fetchCommit($commitHash);
-
         $this->assertEquals($data, $result);
+
+        $response = $this->fetchBucketKeys($metadataBucket);
+        $this->assertContains($commitHash, $response->getObject()->getData()->keys);
+
+        $response = $this->fetchObject($commitHash, $metadataBucket);
+        $this->assertEquals($data, (array) $response->getObject()->getData());
     }
 
     /**
