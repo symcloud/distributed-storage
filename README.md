@@ -13,3 +13,23 @@ This library is currently under heavy development and the interfaces can change 
 ## Documentation
 
 See [docs/README.md](https://github.com/symcloud/distributed-storage/blob/master/doc/README.md)
+
+## Contribute
+
+### Dependencies
+
+* [composer](https://getcomposer.org/)
+* [php-cs-fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer)
+
+### Run tests
+
+```bash
+composer update
+phpunit
+```
+
+### Fix code style
+
+```bash
+php-cs-fixer fix src
+```
