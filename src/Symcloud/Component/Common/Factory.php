@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Symcloud Distributed-Storage.
+ *
+ * (c) Symcloud and Johannes Wachter
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Symcloud\Component\Common;
 
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
@@ -18,13 +27,15 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class Factory implements FactoryInterface
 {
     /**
-     * Name of selected hashing algorithm (i.e. "md5", "sha256", "haval160,4", etc..)
+     * Name of selected hashing algorithm (i.e. "md5", "sha256", "haval160,4", etc..).
+     *
      * @var string
      */
     private $algorithm;
 
     /**
-     * Shared secret key used for generating the HMAC variant of the message digest
+     * Shared secret key used for generating the HMAC variant of the message digest.
+     *
      * @var string
      */
     private $key;
@@ -36,8 +47,9 @@ class Factory implements FactoryInterface
 
     /**
      * Factory constructor.
-     * @param string $algorithm
-     * @param string $key
+     *
+     * @param string                        $algorithm
+     * @param string                        $key
      * @param LazyLoadingValueHolderFactory $proxyFactory
      */
     public function __construct($algorithm, $key, LazyLoadingValueHolderFactory $proxyFactory = null)
@@ -149,7 +161,7 @@ class Factory implements FactoryInterface
 
         return $this->proxyFactory->createProxy(
             $className,
-            function (& $wrappedObject, $proxy, $method, $parameters, & $initializer) use ($initializerCallback) {
+            function (&$wrappedObject, $proxy, $method, $parameters, &$initializer) use ($initializerCallback) {
                 $wrappedObject = $initializerCallback($proxy, $method, $parameters);
 
                 $initializer = null;

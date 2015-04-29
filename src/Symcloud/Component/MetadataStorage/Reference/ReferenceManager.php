@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Symcloud Distributed-Storage.
+ *
+ * (c) Symcloud and Johannes Wachter
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Symcloud\Component\MetadataStorage\Reference;
 
 use Symcloud\Component\Common\FactoryInterface;
@@ -27,9 +36,10 @@ class ReferenceManager implements ReferenceManagerInterface
 
     /**
      * ReferenceManager constructor.
+     *
      * @param ReferenceAdapterInterface $adapter
-     * @param CommitManagerInterface $commitManager
-     * @param FactoryInterface $factory
+     * @param CommitManagerInterface    $commitManager
+     * @param FactoryInterface          $factory
      */
     public function __construct(
         ReferenceAdapterInterface $adapter,

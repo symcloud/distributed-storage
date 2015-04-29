@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Symcloud Distributed-Storage.
+ *
+ * (c) Symcloud and Johannes Wachter
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Symcloud\Component\Access;
 
 use Symcloud\Component\Access\Exception\NotAFileException;
@@ -41,11 +50,12 @@ class FileManager implements FileManagerInterface
 
     /**
      * FileManager constructor.
+     *
      * @param ReferenceManagerInterface $referenceManager
-     * @param TreeManagerInterface $treeManager
-     * @param BlobFileManagerInterface $blobFileManager
-     * @param MetadataManagerInterface $metadataManager
-     * @param FactoryInterface $factory
+     * @param TreeManagerInterface      $treeManager
+     * @param BlobFileManagerInterface  $blobFileManager
+     * @param MetadataManagerInterface  $metadataManager
+     * @param FactoryInterface          $factory
      */
     public function __construct(
         ReferenceManagerInterface $referenceManager,

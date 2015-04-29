@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Symcloud Distributed-Storage.
+ *
+ * (c) Symcloud and Johannes Wachter
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Symcloud\Component\MetadataStorage\Model;
 
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -142,7 +151,7 @@ class CommitModel implements CommitInterface, \JsonSerializable
             self::MESSAGE_KEY => $this->getMessage(),
             self::PARENT_COMMIT_KEY => ($this->getParentCommit() !== null ? $this->getParentCommit()->getHash() : null),
             self::COMMITTER_KEY => $this->getCommitter()->getUsername(),
-            self::CREATED_AT_KEY => $this->getCreatedAt()->format(\DateTime::ISO8601)
+            self::CREATED_AT_KEY => $this->getCreatedAt()->format(\DateTime::ISO8601),
         );
     }
 

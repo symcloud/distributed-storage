@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Symcloud Distributed-Storage.
+ *
+ * (c) Symcloud and Johannes Wachter
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Symcloud\Component\BlobStorage;
 
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
@@ -19,7 +28,8 @@ class BlobManager implements BlobManagerInterface
 
     /**
      * BlobManager constructor.
-     * @param FactoryInterface $factory
+     *
+     * @param FactoryInterface     $factory
      * @param BlobAdapterInterface $adapter
      */
     public function __construct(FactoryInterface $factory, BlobAdapterInterface $adapter)
@@ -30,6 +40,7 @@ class BlobManager implements BlobManagerInterface
 
     /**
      * @param $data
+     *
      * @return BlobInterface
      */
     public function uploadBlob($data)
@@ -45,6 +56,7 @@ class BlobManager implements BlobManagerInterface
 
     /**
      * @param string $hash
+     *
      * @return BlobInterface
      */
     public function downloadBlob($hash)

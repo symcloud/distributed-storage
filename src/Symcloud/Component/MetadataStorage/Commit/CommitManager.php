@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Symcloud Distributed-Storage.
+ *
+ * (c) Symcloud and Johannes Wachter
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Symcloud\Component\MetadataStorage\Commit;
 
 use Symcloud\Component\Common\FactoryInterface;
@@ -33,10 +42,11 @@ class CommitManager implements CommitManagerInterface
 
     /**
      * CommitManager constructor.
-     * @param FactoryInterface $factory
+     *
+     * @param FactoryInterface       $factory
      * @param CommitAdapterInterface $commitAdapter
-     * @param UserProviderInterface $userProvider
-     * @param TreeManagerInterface $treeManager
+     * @param UserProviderInterface  $userProvider
+     * @param TreeManagerInterface   $treeManager
      */
     public function __construct(
         FactoryInterface $factory,
@@ -94,6 +104,7 @@ class CommitManager implements CommitManagerInterface
 
     /**
      * @param string $hash
+     *
      * @return CommitInterface
      */
     public function fetchProxy($hash)
@@ -104,6 +115,5 @@ class CommitManager implements CommitManagerInterface
                 return $this->fetch($hash);
             }
         );
-
     }
 }

@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Symcloud Distributed-Storage.
+ *
+ * (c) Symcloud and Johannes Wachter
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Symcloud\Component\Common;
 
 use Symcloud\Component\Access\Model\FileInterface;
@@ -15,45 +24,51 @@ use Symfony\Component\Security\Core\User\UserInterface;
 interface FactoryInterface
 {
     /**
-     * @param string $data
+     * @param string      $data
      * @param string|null $hash
+     *
      * @return BlobInterface
      */
     public function createBlob($data, $hash = null);
 
     /**
      * @param $data
+     *
      * @return string
      */
     public function createHash($data);
 
     /**
      * @param string $filePath
+     *
      * @return string
      */
     public function createFileHash($filePath);
 
     /**
-     * @param string $hash
+     * @param string          $hash
      * @param BlobInterface[] $blobs
+     *
      * @return BlobFileInterface
      */
     public function createBlobFile($hash, $blobs = array());
 
     /**
-     * @param MetadataInterface $metadata
+     * @param MetadataInterface   $metadata
      * @param FileObjectInterface $object
-     * @param BlobFileInterface $blobFile
+     * @param BlobFileInterface   $blobFile
+     *
      * @return FileInterface
      */
     public function createFile(MetadataInterface $metadata, FileObjectInterface $object, BlobFileInterface $blobFile);
 
     /**
-     * @param TreeInterface $tree
-     * @param UserInterface $user
-     * @param \DateTime $createdAt
-     * @param string $message
+     * @param TreeInterface   $tree
+     * @param UserInterface   $user
+     * @param \DateTime       $createdAt
+     * @param string          $message
      * @param CommitInterface $parentCommit
+     *
      * @return CommitInterface
      */
     public function createCommit(
@@ -66,15 +81,17 @@ interface FactoryInterface
 
     /**
      * @param CommitInterface $commit
-     * @param UserInterface $user
-     * @param string $name
+     * @param UserInterface   $user
+     * @param string          $name
+     *
      * @return ReferenceInterface
      */
     public function createReference(CommitInterface $commit, UserInterface $user, $name);
 
     /**
-     * @param string $className
+     * @param string   $className
      * @param callable $initializerCallback
+     *
      * @return mixed
      */
     public function createProxy($className, callable $initializerCallback);

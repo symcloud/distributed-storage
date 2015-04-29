@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Symcloud Distributed-Storage.
+ *
+ * (c) Symcloud and Johannes Wachter
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Symcloud\Riak;
 
 use Basho\Riak;
@@ -9,7 +18,6 @@ use Symcloud\Component\BlobStorage\Exception\BlobNotFoundException;
 
 class RiakBlobAdapter extends RiakBaseAdapter implements BlobAdapterInterface
 {
-
     /**
      * @var Bucket
      */
@@ -17,7 +25,8 @@ class RiakBlobAdapter extends RiakBaseAdapter implements BlobAdapterInterface
 
     /**
      * RiakBlobAdapter constructor.
-     * @param Riak $riak
+     *
+     * @param Riak   $riak
      * @param Bucket $blobBucket
      */
     public function __construct(Riak $riak, Bucket $blobBucket)

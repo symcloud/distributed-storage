@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Symcloud Distributed-Storage.
+ *
+ * (c) Symcloud and Johannes Wachter
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Symcloud\Component\FileStorage;
 
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
@@ -38,10 +47,11 @@ class BlobFileManager implements BlobFileManagerInterface
 
     /**
      * BlobFileManager constructor.
-     * @param FileSplitterInterface $fileSplitter
-     * @param BlobManagerInterface $blobManager
-     * @param FactoryInterface $factory
-     * @param BlobFileAdapterInterface $adapter
+     *
+     * @param FileSplitterInterface         $fileSplitter
+     * @param BlobManagerInterface          $blobManager
+     * @param FactoryInterface              $factory
+     * @param BlobFileAdapterInterface      $adapter
      * @param LazyLoadingValueHolderFactory $proxyFactory
      */
     public function __construct(
@@ -107,6 +117,7 @@ class BlobFileManager implements BlobFileManagerInterface
 
     /**
      * @param FileObjectInterface $object
+     *
      * @return BlobFileInterface
      */
     public function downloadByObject(FileObjectInterface $object)

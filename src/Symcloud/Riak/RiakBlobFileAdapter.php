@@ -1,11 +1,20 @@
 <?php
 
+/*
+ * This file is part of the Symcloud Distributed-Storage.
+ *
+ * (c) Symcloud and Johannes Wachter
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Symcloud\Riak;
 
 use Basho\Riak;
 use Basho\Riak\Bucket;
-use Symcloud\Component\FileStorage\Exception\FileNotFoundException;
 use Symcloud\Component\FileStorage\BlobFileAdapterInterface;
+use Symcloud\Component\FileStorage\Exception\FileNotFoundException;
 
 class RiakBlobFileAdapter extends RiakBaseAdapter implements BlobFileAdapterInterface
 {
@@ -16,7 +25,8 @@ class RiakBlobFileAdapter extends RiakBaseAdapter implements BlobFileAdapterInte
 
     /**
      * RiakBlobFileAdapter constructor.
-     * @param Riak $riak
+     *
+     * @param Riak   $riak
      * @param Bucket $fileBucket
      */
     public function __construct(Riak $riak, Bucket $fileBucket)

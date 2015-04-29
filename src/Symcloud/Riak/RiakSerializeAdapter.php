@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Symcloud Distributed-Storage.
+ *
+ * (c) Symcloud and Johannes Wachter
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Symcloud\Riak;
 
 use Basho\Riak;
@@ -19,7 +28,8 @@ class RiakSerializeAdapter extends RiakBaseAdapter implements CommitAdapterInter
 
     /**
      * RiakSerializeAdapter constructor.
-     * @param Riak $riak
+     *
+     * @param Riak   $riak
      * @param Bucket $metadataBucket
      */
     public function __construct(Riak $riak, Bucket $metadataBucket)
@@ -63,8 +73,9 @@ class RiakSerializeAdapter extends RiakBaseAdapter implements CommitAdapterInter
 
     /**
      * @param string $hash
-     * @param mixed $data
-     * @return boolean
+     * @param mixed  $data
+     *
+     * @return bool
      */
     protected function storeJson($hash, $data)
     {
@@ -73,10 +84,11 @@ class RiakSerializeAdapter extends RiakBaseAdapter implements CommitAdapterInter
 
     /**
      * @param string $hash
+     *
      * @return array
      */
     protected function fetchJson($hash)
     {
-        return (array)$this->fetchObject($hash, $this->metadataBucket)->getObject()->getData();
+        return (array) $this->fetchObject($hash, $this->metadataBucket)->getObject()->getData();
     }
 }

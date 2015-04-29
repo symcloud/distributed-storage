@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Symcloud Distributed-Storage.
+ *
+ * (c) Symcloud and Johannes Wachter
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Symcloud\Component\MetadataStorage\Commit;
 
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
@@ -8,12 +17,12 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 interface CommitManagerInterface
 {
-
     /**
-     * @param TreeInterface $tree
-     * @param UserInterface $user
-     * @param string $message
+     * @param TreeInterface   $tree
+     * @param UserInterface   $user
+     * @param string          $message
      * @param CommitInterface $parentCommit
+     *
      * @return CommitInterface
      */
     public function commit(
@@ -25,12 +34,14 @@ interface CommitManagerInterface
 
     /**
      * @param string $hash
+     *
      * @return CommitInterface
      */
     public function fetch($hash);
 
     /**
      * @param string $hash
+     *
      * @return CommitInterface
      */
     public function fetchProxy($hash);
