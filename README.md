@@ -14,7 +14,14 @@ This library is currently under heavy development and the interfaces can change 
 
 See [docs/README.md](https://github.com/symcloud/distributed-storage/blob/master/doc/README.md)
 
+## Requirements
+
+* Symfony: >= 2.6.*
+* See also the require section of [composer.json](https://github.com/symcloud/distributed-storage/blob/master$
+
 ## Contribute
+
+This project was initiated for a master thesis. Anyway pull-requests are welcome. (-:
 
 ### Dependencies
 
