@@ -44,7 +44,7 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
      */
     public function storeCommit(CommitInterface $commit)
     {
-        return $this->storeJson($commit->getHash(), $commit);
+        return $this->storeJson($commit->getHash(), $commit->toArray());
     }
 
     /**
@@ -60,7 +60,7 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
      */
     public function storeReference(ReferenceInterface $reference)
     {
-        return $this->storeJson($reference->getKey(), $reference);
+        return $this->storeJson($reference->getKey(), $reference->toArray());
     }
 
     /**
@@ -68,7 +68,7 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
      */
     public function fetchReference(UserInterface $user, $name = 'HEAD')
     {
-        return $this->fetchJson(sprintf('%s/%s', $user->getUsername(), $name));
+        return $this->fetchJson(sprintf('%s-%s', $user->getUsername(), $name));
     }
 
     /**
@@ -79,7 +79,7 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
      */
     protected function storeJson($hash, $data)
     {
-        return $this->storeObject($hash, json_encode($data), $this->metadataBucket)->isSuccess();
+        return $this->storeObject($hash, $data, $this->metadataBucket)->isSuccess();
     }
 
     /**

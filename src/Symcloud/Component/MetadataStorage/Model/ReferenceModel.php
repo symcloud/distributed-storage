@@ -35,7 +35,7 @@ class ReferenceModel implements ReferenceInterface
      */
     public function getKey()
     {
-        return sprintf('%s/%s', $this->user->getUsername(), $this->getName());
+        return sprintf('%s-%s', $this->user->getUsername(), $this->getName());
     }
 
     /**

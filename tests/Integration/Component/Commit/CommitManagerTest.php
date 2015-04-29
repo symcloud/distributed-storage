@@ -56,7 +56,7 @@ class CommitManagerTest extends ProphecyTestCase
         $this->assertContains($commit->getHash(), $response->getObject()->getData()->keys);
 
         $response = $this->fetchObject($commit->getHash(), $metadataBucket);
-        $this->assertEquals($commit->toArray(), json_decode($response->getObject()->getData(), true));
+        $this->assertEquals($commit->toArray(), (array)$response->getObject()->getData());
 
         $this->assertEquals($tree->reveal(), $commit->getTree());
         $this->assertEquals($user->reveal(), $commit->getCommitter());

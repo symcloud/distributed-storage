@@ -4,11 +4,12 @@ namespace Integration\Riak;
 
 use Basho\Riak\Bucket;
 use Integration\Parts\FactoryTrait;
-use Integration\Parts\RiakTrait;
 use Integration\Parts\MetadataAdapterTrait;
+use Integration\Parts\RiakTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
+use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symcloud\Riak\RiakMetadataAdapter;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -59,16 +60,14 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
 
         $response = $this->fetchObject($commit->getHash(), $metadataBucket);
         $this->assertEquals(
-            json_encode(
                 array(
                     CommitInterface::TREE_KEY => $treeHash,
                     CommitInterface::MESSAGE_KEY => $message,
                     CommitInterface::PARENT_COMMIT_KEY => null,
                     CommitInterface::COMMITTER_KEY => $username,
                     CommitInterface::CREATED_AT_KEY => $createdAt->format(\DateTime::ISO8601)
-                )
             ),
-            $response->getObject()->getData()
+            (array)$response->getObject()->getData()
         );
     }
 
@@ -146,23 +145,80 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
         $this->markTestIncomplete('This test is not implemented until now');
     }
 
-    public function testStoreReference()
-    {
-        $this->markTestIncomplete('This test is not implemented until now');
+    /**
+     * @dataProvider adapterProvider
+     *
+     * @param RiakMetadataAdapter $adapter
+     * @param Bucket $metadataBucket
+     * @param FactoryInterface $factory
+     */
+    public function testStoreReference(
+        RiakMetadataAdapter $adapter,
+        Bucket $metadataBucket,
+        FactoryInterface $factory
+    ) {
+        $username = 'johannes';
+        $referenceName = 'HEAD';
+        $referenceKey = sprintf('%s-%s', $username, $referenceName);
+        $commitHash = 'commit-hash';
+        $data = array(
+            ReferenceInterface::NAME_KEY => $referenceName,
+            ReferenceInterface::COMMIT_KEY => $commitHash,
+            ReferenceInterface::USER_KEY => $username,
+        );
+
+        $commit = $this->prophesize(CommitInterface::class);
+        $commit->getHash()->willReturn($commitHash);
+
+        $user = $this->prophesize(UserInterface::class);
+        $user->getUsername()->willReturn($username);
+
+        $reference = $factory->createReference($commit->reveal(), $user->reveal(), $referenceName);
+
+        $this->assertTrue($adapter->storeReference($reference));
+
+        $this->assertEquals($referenceKey, $reference->getKey());
+        $this->assertEquals($referenceName, $reference->getName());
+        $this->assertEquals($user->reveal(), $reference->getUser());
+        $this->assertEquals($commit->reveal(), $reference->getCommit());
+        $this->assertEquals($data, $reference->toArray());
+
+        $response = $this->fetchBucketKeys($metadataBucket);
+        $this->assertContains($referenceKey, $response->getObject()->getData()->keys);
+
+        $response = $this->fetchObject($referenceKey, $metadataBucket);
+        $this->assertEquals($data, (array)$response->getObject()->getData());
     }
 
-    public function testStoreReferenceWithName()
-    {
-        $this->markTestIncomplete('This test is not implemented until now');
-    }
+    /**
+     * @dataProvider adapterProvider
+     *
+     * @param RiakMetadataAdapter $adapter
+     * @param Bucket $metadataBucket
+     * @param FactoryInterface $factory
+     */
+    public function testFetchReference(
+        RiakMetadataAdapter $adapter,
+        Bucket $metadataBucket,
+        FactoryInterface $factory
+    ) {
+        $username = 'johannes';
+        $referenceName = 'HEAD';
+        $referenceKey = sprintf('%s-%s', $username, $referenceName);
+        $commitHash = 'commit-hash';
+        $data = array(
+            ReferenceInterface::NAME_KEY => $referenceName,
+            ReferenceInterface::COMMIT_KEY => $commitHash,
+            ReferenceInterface::USER_KEY => $username,
+        );
 
-    public function testFetchReference()
-    {
-        $this->markTestIncomplete('This test is not implemented until now');
-    }
+        $this->storeObject($referenceKey, $data, $metadataBucket);
 
-    public function testFetchReferenceWithName()
-    {
-        $this->markTestIncomplete('This test is not implemented until now');
+        $user = $this->prophesize(UserInterface::class);
+        $user->getUsername()->willReturn($username);
+
+        $reference = $adapter->fetchReference($user->reveal(), $referenceName);
+
+        $this->assertEquals($data, $reference);
     }
 }

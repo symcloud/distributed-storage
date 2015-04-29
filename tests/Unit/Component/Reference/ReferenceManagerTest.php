@@ -21,7 +21,7 @@ class ReferenceManagerTest extends ProphecyTestCase
         $username = 'johannes';
         $commitHash = 'commit-hash';
         $referenceName = 'HEAD';
-        $referenceKey = sprintf('%s/%s', $username, $referenceName);
+        $referenceKey = sprintf('%s-%s', $username, $referenceName);
         $data = array(
             ReferenceInterface::USER_KEY => $username,
             ReferenceInterface::COMMIT_KEY => $commitHash,
@@ -57,7 +57,7 @@ class ReferenceManagerTest extends ProphecyTestCase
         $username = 'johannes';
         $commitHash = 'commit-hash';
         $referenceName = 'HEAD-NEW';
-        $referenceKey = sprintf('%s/%s', $username, $referenceName);
+        $referenceKey = sprintf('%s-%s', $username, $referenceName);
         $data = array(
             ReferenceInterface::USER_KEY => $username,
             ReferenceInterface::COMMIT_KEY => $commitHash,
@@ -121,7 +121,7 @@ class ReferenceManagerTest extends ProphecyTestCase
         $username = 'johannes';
         $commitHash = 'commit-hash';
         $referenceName = 'HEAD';
-        $referenceKey = sprintf('%s/%s', $username, $referenceName);
+        $referenceKey = sprintf('%s-%s', $username, $referenceName);
         $data = array(
             ReferenceInterface::USER_KEY => $username,
             ReferenceInterface::COMMIT_KEY => $commitHash,
@@ -162,7 +162,7 @@ class ReferenceManagerTest extends ProphecyTestCase
         $username = 'johannes';
         $commitHash = 'commit-hash';
         $referenceName = 'NEW-HEAD';
-        $referenceKey = sprintf('%s/%s', $username, $referenceName);
+        $referenceKey = sprintf('%s-%s', $username, $referenceName);
         $data = array(
             ReferenceInterface::USER_KEY => $username,
             ReferenceInterface::COMMIT_KEY => $commitHash,
