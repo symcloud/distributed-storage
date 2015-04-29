@@ -17,4 +17,10 @@ interface TreeManagerInterface
      * @return TreeInterface
      */
     public function fetch($hash);
+
+    /**
+     * @param string $hash
+     * @return TreeInterface
+     */
+    public function fetchProxy($hash);
 }

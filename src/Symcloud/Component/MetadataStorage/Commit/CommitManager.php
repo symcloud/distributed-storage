@@ -82,21 +82,11 @@ class CommitManager implements CommitManagerInterface
             }
         );
 
-        $tree = $this->factory->createProxy(
-            TreeInterface::class,
-            function () use ($data) {
-                return $this->treeManager->fetch($data[CommitInterface::TREE_KEY]);
-            }
-        );
+        $tree = $this->treeManager->fetchProxy($data[CommitInterface::TREE_KEY]);
 
         $parentCommit = null;
         if ($data[CommitInterface::PARENT_COMMIT_KEY] !== null) {
-            $parentCommit = $this->factory->createProxy(
-                TreeInterface::class,
-                function () use ($data) {
-                    return $this->fetch($data[CommitInterface::PARENT_COMMIT_KEY]);
-                }
-            );
+            $parentCommit = $this->fetchProxy($data[CommitInterface::PARENT_COMMIT_KEY]);
         }
 
         return $this->factory->createCommit($tree, $user, $createdAt, $message, $parentCommit);

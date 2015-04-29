@@ -19,11 +19,6 @@ class CommitManagerTest extends ProphecyTestCase
      */
     private $userProviderMock;
 
-    /**
-     * @var mixed
-     */
-    private $treeManagerMock;
-
     protected function setUp()
     {
         $this->clearBucket($this->getMetadataBucket());

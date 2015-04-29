@@ -22,4 +22,13 @@ class TreeManager implements TreeManagerInterface
     {
         // TODO: Implement fetch() method.
     }
+
+    /**
+     * @param string $hash
+     * @return TreeInterface
+     */
+    public function fetchProxy($hash)
+    {
+        // TODO: Implement fetchProxy() method.
+    }
 }
