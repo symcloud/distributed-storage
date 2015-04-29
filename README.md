@@ -17,7 +17,7 @@ See [docs/README.md](https://github.com/symcloud/distributed-storage/blob/master
 ## Requirements
 
 * Symfony: >= 2.6.*
-* See also the require section of [composer.json](https://github.com/symcloud/distributed-storage/blob/master$
+* See also the require section of [composer.json](https://github.com/symcloud/distributed-storage/blob/master/composer.json)
 
 ## Contribute
 
