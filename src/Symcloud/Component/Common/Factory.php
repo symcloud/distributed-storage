@@ -11,6 +11,7 @@ use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitModel;
 use Symcloud\Component\MetadataStorage\Model\FileObjectInterface;
 use Symcloud\Component\MetadataStorage\Model\MetadataInterface;
+use Symcloud\Component\MetadataStorage\Model\ReferenceModel;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -109,6 +110,16 @@ class Factory implements FactoryInterface
         $commit->setHash($hash);
 
         return $commit;
+    }
+
+    public function createReference(CommitInterface $commit, UserInterface $user, $name)
+    {
+        $reference = new ReferenceModel();
+        $reference->setCommit($commit);
+        $reference->setUser($user);
+        $reference->setName($name);
+
+        return $reference;
     }
 
     /**

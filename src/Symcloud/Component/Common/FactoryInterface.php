@@ -8,6 +8,7 @@ use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\FileObjectInterface;
 use Symcloud\Component\MetadataStorage\Model\MetadataInterface;
+use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -62,6 +63,14 @@ interface FactoryInterface
         $message = '',
         CommitInterface $parentCommit = null
     );
+
+    /**
+     * @param CommitInterface $commit
+     * @param UserInterface $user
+     * @param string $name
+     * @return ReferenceInterface
+     */
+    public function createReference(CommitInterface $commit, UserInterface $user, $name);
 
     /**
      * @param string $className

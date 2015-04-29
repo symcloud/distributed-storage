@@ -101,4 +101,19 @@ class CommitManager implements CommitManagerInterface
 
         return $this->factory->createCommit($tree, $user, $createdAt, $message, $parentCommit);
     }
+
+    /**
+     * @param string $hash
+     * @return CommitInterface
+     */
+    public function fetchProxy($hash)
+    {
+        return $this->factory->createProxy(
+            CommitInterface::class,
+            function () use ($hash) {
+                return $this->fetch($hash);
+            }
+        );
+
+    }
 }

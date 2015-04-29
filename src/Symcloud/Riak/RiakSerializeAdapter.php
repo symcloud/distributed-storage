@@ -6,8 +6,11 @@ use Basho\Riak;
 use Basho\Riak\Bucket;
 use Symcloud\Component\MetadataStorage\Commit\CommitAdapterInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
+use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
+use Symcloud\Component\MetadataStorage\Reference\ReferenceAdapterInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
-class RiakSerializeAdapter extends RiakBaseAdapter implements CommitAdapterInterface
+class RiakSerializeAdapter extends RiakBaseAdapter implements CommitAdapterInterface, ReferenceAdapterInterface
 {
     /**
      * @var Bucket
@@ -27,8 +30,7 @@ class RiakSerializeAdapter extends RiakBaseAdapter implements CommitAdapterInter
     }
 
     /**
-     * @param CommitInterface $commit
-     * @return boolean
+     * {@inheritdoc}
      */
     public function storeCommit(CommitInterface $commit)
     {
@@ -36,12 +38,27 @@ class RiakSerializeAdapter extends RiakBaseAdapter implements CommitAdapterInter
     }
 
     /**
-     * @param string $hash
-     * @return array
+     * {@inheritdoc}
      */
     public function fetchCommit($hash)
     {
         return $this->fetchJson($hash);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function storeReference(ReferenceInterface $reference)
+    {
+        return $this->storeJson($reference->getKey(), $reference);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchReference(UserInterface $user, $name = 'HEAD')
+    {
+        return $this->fetchJson(sprintf('%s/%s', $user->getUsername(), $name));
     }
 
     /**

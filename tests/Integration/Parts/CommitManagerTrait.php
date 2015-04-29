@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 trait CommitManagerTrait
 {
-    use SerializeAdapterTrait;
+    use SerializeAdapterTrait, TreeManagerTrait;
 
     /**
      * @var CommitManagerInterface
@@ -20,7 +20,7 @@ trait CommitManagerTrait
      */
     private $userProvider;
 
-    public function getCommitManager()
+    protected function getCommitManager()
     {
         if (!$this->commitManager) {
             $this->commitManager = new CommitManager(
@@ -34,12 +34,12 @@ trait CommitManagerTrait
         return $this->commitManager;
     }
 
-    public function getCommitAdapter()
+    protected function getCommitAdapter()
     {
         return $this->getSerializeAdapter();
     }
 
-    public function getUserProvider()
+    protected function getUserProvider()
     {
         if (!$this->userProvider) {
             $this->userProvider = $this->createUserProvider();
@@ -48,7 +48,5 @@ trait CommitManagerTrait
         return $this->userProvider;
     }
 
-    public abstract function createUserProvider();
-
-    public abstract function getTreeManager();
+    protected abstract function createUserProvider();
 }

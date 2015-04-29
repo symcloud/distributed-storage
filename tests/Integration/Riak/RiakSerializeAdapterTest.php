@@ -3,6 +3,8 @@
 namespace Integration\Riak;
 
 use Basho\Riak\Bucket;
+use Integration\Parts\FactoryTrait;
+use Integration\Parts\RiakTrait;
 use Integration\Parts\SerializeAdapterTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\Common\FactoryInterface;
@@ -13,7 +15,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class RiakSerializeAdapterTest extends ProphecyTestCase
 {
-    use SerializeAdapterTrait;
+    use SerializeAdapterTrait, RiakTrait, FactoryTrait;
 
     protected function setUp()
     {
@@ -141,6 +143,26 @@ class RiakSerializeAdapterTest extends ProphecyTestCase
         Bucket $metadataBucket,
         FactoryInterface $factory
     ) {
+        $this->markTestIncomplete('This test is not implemented until now');
+    }
+
+    public function testStoreReference()
+    {
+        $this->markTestIncomplete('This test is not implemented until now');
+    }
+
+    public function testStoreReferenceWithName()
+    {
+        $this->markTestIncomplete('This test is not implemented until now');
+    }
+
+    public function testFetchReference()
+    {
+        $this->markTestIncomplete('This test is not implemented until now');
+    }
+
+    public function testFetchReferenceWithName()
+    {
         $this->markTestIncomplete('This test is not implemented until now');
     }
 }

@@ -40,4 +40,9 @@ interface CommitInterface
      * @return \DateTime
      */
     public function getCreatedAt();
+
+    /**
+     * @return array
+     */
+    public function toArray();
 }

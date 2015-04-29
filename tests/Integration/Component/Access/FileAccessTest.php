@@ -2,23 +2,20 @@
 
 namespace Integration\Component\Access;
 
-use Basho\Riak\Bucket;
 use Integration\Parts\BlobFileManagerTrait;
+use Integration\Parts\ReferenceManagerTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\Access\FileManager;
 use Symcloud\Component\Access\FileManagerInterface;
 use Symcloud\Component\MetadataStorage\MetadataManager;
 use Symcloud\Component\MetadataStorage\MetadataManagerInterface;
 use Symcloud\Component\MetadataStorage\Model\KeyValueInterface;
-use Symcloud\Component\MetadataStorage\Reference\ReferenceManager;
-use Symcloud\Component\MetadataStorage\Reference\ReferenceManagerInterface;
-use Symcloud\Component\MetadataStorage\Tree\TreeManager;
-use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class FileAccessTest extends ProphecyTestCase
 {
-    use BlobFileManagerTrait;
+    use ReferenceManagerTrait;
 
     /**
      * @var FileManagerInterface
@@ -26,24 +23,14 @@ class FileAccessTest extends ProphecyTestCase
     private $fileManager;
 
     /**
-     * @var ReferenceManagerInterface
-     */
-    private $referenceManager;
-
-    /**
-     * @var TreeManagerInterface
-     */
-    private $treeManager;
-
-    /**
      * @var MetadataManagerInterface
      */
     private $metadataManager;
 
     /**
-     * @var Bucket
+     * @var mixed
      */
-    private $metadataBucket;
+    private $userProviderMock;
 
     protected function setUp()
     {
@@ -115,24 +102,6 @@ class FileAccessTest extends ProphecyTestCase
         return $this->fileManager;
     }
 
-    protected function getReferenceManager()
-    {
-        if (!$this->referenceManager) {
-            $this->referenceManager = new ReferenceManager();
-        }
-
-        return $this->referenceManager;
-    }
-
-    protected function getTreeManager()
-    {
-        if (!$this->treeManager) {
-            $this->treeManager = new TreeManager();
-        }
-
-        return $this->treeManager;
-    }
-
     protected function getMetadataManager()
     {
         if (!$this->metadataManager) {
@@ -142,12 +111,10 @@ class FileAccessTest extends ProphecyTestCase
         return $this->metadataManager;
     }
 
-    private function getMetadataBucket()
+    protected function createUserProvider()
     {
-        if (!$this->metadataBucket) {
-            $this->metadataBucket = new Bucket('test-metadata');
-        }
+        $this->userProviderMock = $this->prophesize(UserProviderInterface::class);
 
-        return $this->metadataBucket;
+        return $this->userProviderMock->reveal();
     }
 }

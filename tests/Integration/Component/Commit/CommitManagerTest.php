@@ -7,7 +7,6 @@ use Integration\Parts\CommitManagerTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\MetadataStorage\Commit\CommitManagerInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
-use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -86,17 +85,15 @@ class CommitManagerTest extends ProphecyTestCase
         $this->markTestIncomplete('This test is not implemented until now, missing tree-manager');
     }
 
+    public function  testFetchCommitProxy()
+    {
+        $this->markTestIncomplete('This test is not implemented until now, missing tree-manager');
+    }
+
     public function createUserProvider()
     {
         $this->userProviderMock = $this->prophesize(UserProviderInterface::class);
 
         return $this->userProviderMock->reveal();
-    }
-
-    public function getTreeManager()
-    {
-        $this->treeManagerMock = $this->prophesize(TreeManagerInterface::class);
-
-        return $this->treeManagerMock->reveal();
     }
 }

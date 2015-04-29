@@ -28,4 +28,10 @@ interface CommitManagerInterface
      * @return CommitInterface
      */
     public function fetch($hash);
+
+    /**
+     * @param string $hash
+     * @return CommitInterface
+     */
+    public function fetchProxy($hash);
 }

@@ -11,8 +11,6 @@ use Symcloud\Riak\RiakSerializeAdapter;
 
 trait SerializeAdapterTrait
 {
-    use FactoryTrait, RiakTrait;
-
     /**
      * @var RiakSerializeAdapter
      */
@@ -40,4 +38,6 @@ trait SerializeAdapterTrait
 
         return $this->metadataBucket;
     }
+
+    public abstract function getRiak();
 }
