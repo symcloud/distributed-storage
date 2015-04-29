@@ -19,7 +19,7 @@ use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
 use Symcloud\Component\MetadataStorage\Reference\ReferenceAdapterInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class RiakSerializeAdapter extends RiakBaseAdapter implements CommitAdapterInterface, ReferenceAdapterInterface
+class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterface, ReferenceAdapterInterface
 {
     /**
      * @var Bucket
@@ -27,7 +27,7 @@ class RiakSerializeAdapter extends RiakBaseAdapter implements CommitAdapterInter
     private $metadataBucket;
 
     /**
-     * RiakSerializeAdapter constructor.
+     * RiakMetadataAdapter constructor.
      *
      * @param Riak   $riak
      * @param Bucket $metadataBucket

@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 trait CommitManagerTrait
 {
-    use SerializeAdapterTrait, TreeManagerTrait;
+    use MetadataAdapterTrait, TreeManagerTrait;
 
     /**
      * @var CommitManagerInterface

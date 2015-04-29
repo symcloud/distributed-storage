@@ -7,12 +7,12 @@ use Symcloud\Component\BlobStorage\BlobAdapterInterface;
 use Symcloud\Component\BlobStorage\BlobManager;
 use Symcloud\Component\BlobStorage\BlobManagerInterface;
 use Symcloud\Riak\RiakBlobAdapter;
-use Symcloud\Riak\RiakSerializeAdapter;
+use Symcloud\Riak\RiakMetadataAdapter;
 
-trait SerializeAdapterTrait
+trait MetadataAdapterTrait
 {
     /**
-     * @var RiakSerializeAdapter
+     * @var RiakMetadataAdapter
      */
     private $serializeAdapter;
 
@@ -24,7 +24,7 @@ trait SerializeAdapterTrait
     protected function getSerializeAdapter()
     {
         if (!$this->serializeAdapter) {
-            $this->serializeAdapter = new RiakSerializeAdapter($this->getRiak(), $this->getMetadataBucket());
+            $this->serializeAdapter = new RiakMetadataAdapter($this->getRiak(), $this->getMetadataBucket());
         }
 
         return $this->serializeAdapter;

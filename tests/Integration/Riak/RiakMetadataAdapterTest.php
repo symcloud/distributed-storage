@@ -5,17 +5,17 @@ namespace Integration\Riak;
 use Basho\Riak\Bucket;
 use Integration\Parts\FactoryTrait;
 use Integration\Parts\RiakTrait;
-use Integration\Parts\SerializeAdapterTrait;
+use Integration\Parts\MetadataAdapterTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
-use Symcloud\Riak\RiakSerializeAdapter;
+use Symcloud\Riak\RiakMetadataAdapter;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class RiakSerializeAdapterTest extends ProphecyTestCase
+class RiakMetadataAdapterTest extends ProphecyTestCase
 {
-    use SerializeAdapterTrait, RiakTrait, FactoryTrait;
+    use MetadataAdapterTrait, RiakTrait, FactoryTrait;
 
     protected function setUp()
     {
@@ -34,12 +34,12 @@ class RiakSerializeAdapterTest extends ProphecyTestCase
     /**
      * @dataProvider adapterProvider
      *
-     * @param RiakSerializeAdapter $adapter
+     * @param RiakMetadataAdapter $adapter
      * @param Bucket $metadataBucket
      * @param FactoryInterface $factory
      */
     public function testStoreCommit(
-        RiakSerializeAdapter $adapter,
+        RiakMetadataAdapter $adapter,
         Bucket $metadataBucket,
         FactoryInterface $factory
     ) {
@@ -75,12 +75,12 @@ class RiakSerializeAdapterTest extends ProphecyTestCase
     /**
      * @dataProvider adapterProvider
      *
-     * @param RiakSerializeAdapter $adapter
+     * @param RiakMetadataAdapter $adapter
      * @param Bucket $metadataBucket
      * @param FactoryInterface $factory
      */
     public function testStoreCommitWithParent(
-        RiakSerializeAdapter $adapter,
+        RiakMetadataAdapter $adapter,
         Bucket $metadataBucket,
         FactoryInterface $factory
     ) {
@@ -90,12 +90,12 @@ class RiakSerializeAdapterTest extends ProphecyTestCase
     /**
      * @dataProvider adapterProvider
      *
-     * @param RiakSerializeAdapter $adapter
+     * @param RiakMetadataAdapter $adapter
      * @param Bucket $metadataBucket
      * @param FactoryInterface $factory
      */
     public function testFetchCommit(
-        RiakSerializeAdapter $adapter,
+        RiakMetadataAdapter $adapter,
         Bucket $metadataBucket,
         FactoryInterface $factory
     ) {
@@ -134,12 +134,12 @@ class RiakSerializeAdapterTest extends ProphecyTestCase
     /**
      * @dataProvider adapterProvider
      *
-     * @param RiakSerializeAdapter $adapter
+     * @param RiakMetadataAdapter $adapter
      * @param Bucket $metadataBucket
      * @param FactoryInterface $factory
      */
     public function testFetchCommitWithParent(
-        RiakSerializeAdapter $adapter,
+        RiakMetadataAdapter $adapter,
         Bucket $metadataBucket,
         FactoryInterface $factory
     ) {
