@@ -19,12 +19,22 @@ class TreeModel implements TreeInterface
     private $hash;
 
     /**
-     * @var ObjectModel
+     * @var TreeInterface
+     */
+    private $root;
+
+    /**
+     * @var string
+     */
+    private $path;
+
+    /**
+     * @var NodeInterface[]
      */
     private $children;
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function getHash()
     {
@@ -40,7 +50,7 @@ class TreeModel implements TreeInterface
     }
 
     /**
-     * @return ObjectModel
+     * {@inheritdoc}
      */
     public function getChildren()
     {
@@ -48,10 +58,70 @@ class TreeModel implements TreeInterface
     }
 
     /**
-     * @param ObjectModel $children
+     * @param NodeInterface[] $children
      */
     public function setChildren($children)
     {
         $this->children = $children;
+    }
+
+    /**
+     * @param $name
+     * @param NodeInterface $node
+     */
+    public function setChild($name, NodeInterface $node)
+    {
+        $this->hash = null;
+        $this->children[$name] = $node;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getRoot()
+    {
+        return $this->root;
+    }
+
+    /**
+     * @param TreeInterface $root
+     */
+    public function setRoot($root)
+    {
+        $this->root = $root;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @param string $path
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    function jsonSerialize()
+    {
+        $children = array();
+        foreach ($this->getChildren() as $name => $child) {
+            $children[$name] = $child->getHash();
+        }
+
+        return array(
+            'type' => 'tree',
+            'path' => $this->getPath(),
+            'root' => $this->getRoot(),
+            'children' => $children,
+        );
     }
 }

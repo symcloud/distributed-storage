@@ -11,22 +11,50 @@
 
 namespace Symcloud\Component\MetadataStorage\Tree;
 
+use Symcloud\Component\MetadataStorage\Model\NodeInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 
 class TreeManager implements TreeManagerInterface
 {
     /**
+     * @var TreeAdapterInterface
+     */
+    private $treeAdapter;
+
+    /**
      * {@inheritdoc}
      */
     public function getTreeWalker(TreeInterface $tree)
     {
-        // TODO: Implement getTreeWalker() method.
+        return new MaterializedPathTreeWalker($tree, $this);
     }
 
     /**
-     * @param string $hash
-     *
-     * @return TreeInterface
+     * {@inheritdoc}
+     */
+    public function store(TreeInterface $tree)
+    {
+        foreach ($tree->getChildren() as $child) {
+            if ($child instanceof TreeInterface) {
+                $this->store($child);
+            }
+
+            $this->storeFile($child);
+        }
+
+        // TODO store tree
+    }
+
+    /**
+     * @param NodeInterface $child
+     */
+    private function storeFile(NodeInterface $child)
+    {
+        // TODO store file
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function fetch($hash)
     {
@@ -34,9 +62,7 @@ class TreeManager implements TreeManagerInterface
     }
 
     /**
-     * @param string $hash
-     *
-     * @return TreeInterface
+     * {@inheritdoc}
      */
     public function fetchProxy($hash)
     {

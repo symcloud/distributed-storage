@@ -16,6 +16,11 @@ interface MetadataInterface
     /**
      * @return string
      */
+    public function getHash();
+
+    /**
+     * @return string
+     */
     public function getTitle();
 
     /**

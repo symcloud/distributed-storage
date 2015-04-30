@@ -11,15 +11,10 @@
 
 namespace Symcloud\Component\MetadataStorage\Model;
 
-interface TreeInterface
+interface TreeInterface extends NodeInterface
 {
     /**
-     * @return string
-     */
-    public function getHash();
-
-    /**
-     * @return ObjectModel
+     * @return NodeInterface[]
      */
     public function getChildren();
 }
