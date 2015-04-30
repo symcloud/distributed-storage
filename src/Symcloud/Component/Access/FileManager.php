@@ -15,7 +15,7 @@ use Symcloud\Component\Access\Exception\NotAFileException;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\FileStorage\BlobFileManagerInterface;
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
-use Symcloud\Component\MetadataStorage\MetadataManagerInterface;
+use Symcloud\Component\MetadataStorage\Metadata\MetadataManagerInterface;
 use Symcloud\Component\MetadataStorage\Model\MetadataInterface;
 use Symcloud\Component\MetadataStorage\Reference\ReferenceManagerInterface;
 use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;

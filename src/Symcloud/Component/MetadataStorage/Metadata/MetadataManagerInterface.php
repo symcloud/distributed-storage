@@ -9,20 +9,17 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Symcloud\Component\MetadataStorage;
+namespace Symcloud\Component\MetadataStorage\Metadata;
 
 use Symcloud\Component\MetadataStorage\Model\FileObjectInterface;
 use Symcloud\Component\MetadataStorage\Model\MetadataInterface;
 
-class MetadataManager implements MetadataManagerInterface
+interface MetadataManagerInterface
 {
     /**
      * @param FileObjectInterface $object
      *
      * @return MetadataInterface
      */
-    public function getByObject($object)
-    {
-        // TODO: Implement getByObject() method.
-    }
+    public function getByObject($object);
 }

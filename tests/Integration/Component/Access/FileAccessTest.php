@@ -2,13 +2,12 @@
 
 namespace Integration\Component\Access;
 
-use Integration\Parts\BlobFileManagerTrait;
 use Integration\Parts\ReferenceManagerTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\Access\FileManager;
 use Symcloud\Component\Access\FileManagerInterface;
-use Symcloud\Component\MetadataStorage\MetadataManager;
-use Symcloud\Component\MetadataStorage\MetadataManagerInterface;
+use Symcloud\Component\MetadataStorage\Metadata\MetadataManager;
+use Symcloud\Component\MetadataStorage\Metadata\MetadataManagerInterface;
 use Symcloud\Component\MetadataStorage\Model\KeyValueInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
