@@ -13,6 +13,8 @@ namespace Symcloud\Component\MetadataStorage\Model;
 
 interface TreeInterface extends NodeInterface
 {
+    const CHILDREN_KEY = 'children';
+
     /**
      * @return NodeInterface[]
      */

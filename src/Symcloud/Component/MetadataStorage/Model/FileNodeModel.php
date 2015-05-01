@@ -13,6 +13,14 @@ class FileNodeModel implements FileNodeInterface
     }
 
     /**
+     * @param string $hash
+     */
+    public function setHash($hash)
+    {
+        // TODO: Implement setHash() method.
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getFile()
@@ -55,12 +63,22 @@ class FileNodeModel implements FileNodeInterface
     /**
      * {@inheritdoc}
      */
-    function jsonSerialize()
+    public function toArray()
     {
         return array(
-            'file' => $this->getFile()->getHash(),
-            'path' => $this->getPath(),
-            'metadata' => $this->getMetadata()->getHash(),
+            self::TYPE_KEY => 'file',
+            self::FILE_KEY => $this->getFile()->getHash(),
+            self::PATH_KEY => $this->getPath(),
+            self::ROOT_KEY => $this->getRoot()->getHash(),
+            self::METADATA_KEY => $this->getMetadata()->getHash(),
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    function jsonSerialize()
+    {
+        return $this->toArray();
     }
 }

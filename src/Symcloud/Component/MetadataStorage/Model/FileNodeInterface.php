@@ -6,6 +6,9 @@ use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 
 interface FileNodeInterface extends NodeInterface
 {
+    const FILE_KEY = 'file';
+    const METADATA_KEY = 'metadata';
+
     /**
      * @return BlobFileInterface
      */

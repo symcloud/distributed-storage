@@ -110,7 +110,7 @@ class TreeModel implements TreeInterface
     /**
      * {@inheritdoc}
      */
-    function jsonSerialize()
+    public function toArray()
     {
         $children = array();
         foreach ($this->getChildren() as $name => $child) {
@@ -118,10 +118,18 @@ class TreeModel implements TreeInterface
         }
 
         return array(
-            'type' => 'tree',
-            'path' => $this->getPath(),
-            'root' => $this->getRoot(),
-            'children' => $children,
+            self::TYPE_KEY => 'tree',
+            self::PATH_KEY => $this->getPath(),
+            self::ROOT_KEY => $this->getRoot()->getHash(),
+            self::CHILDREN_KEY => $children,
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    function jsonSerialize()
+    {
+        return $this->toArray();
     }
 }

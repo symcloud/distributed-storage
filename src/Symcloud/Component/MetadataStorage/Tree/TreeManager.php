@@ -11,6 +11,7 @@
 
 namespace Symcloud\Component\MetadataStorage\Tree;
 
+use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\MetadataStorage\Model\NodeInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 
@@ -20,6 +21,11 @@ class TreeManager implements TreeManagerInterface
      * @var TreeAdapterInterface
      */
     private $treeAdapter;
+
+    /**
+     * @var FactoryInterface
+     */
+    private $factory;
 
     /**
      * {@inheritdoc}
@@ -39,18 +45,22 @@ class TreeManager implements TreeManagerInterface
                 $this->store($child);
             }
 
-            $this->storeFile($child);
+            $this->storeNode($child);
         }
 
-        // TODO store tree
+        $this->storeNode($tree);
     }
 
     /**
      * @param NodeInterface $child
      */
-    private function storeFile(NodeInterface $child)
+    private function storeNode(NodeInterface $child)
     {
-        // TODO store file
+        if ($child->getHash() === null) {
+            $child->setHash($this->factory->createHash(json_encode($child)));
+        }
+
+        $this->treeAdapter->store($child->getHash(), $child->toArray());
     }
 
     /**
