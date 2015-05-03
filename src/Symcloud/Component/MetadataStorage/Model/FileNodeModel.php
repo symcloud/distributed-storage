@@ -75,7 +75,7 @@ class FileNodeModel implements FileNodeInterface
     public function toArray()
     {
         return array(
-            self::TYPE_KEY => 'file',
+            self::TYPE_KEY => self::FILE_TYPE,
             self::FILE_KEY => $this->getFile()->getHash(),
             self::PATH_KEY => $this->getPath(),
             self::ROOT_KEY => $this->getRoot()->getHash(),

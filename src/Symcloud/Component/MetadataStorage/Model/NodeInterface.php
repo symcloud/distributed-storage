@@ -17,6 +17,9 @@ interface NodeInterface extends \JsonSerializable
     const ROOT_KEY = 'root';
     const PATH_KEY = 'path';
 
+    const TREE_TYPE = 'tree';
+    const FILE_TYPE = 'file';
+
     /**
      * @return string
      */
@@ -36,6 +39,11 @@ interface NodeInterface extends \JsonSerializable
      * @return TreeInterface
      */
     public function getRoot();
+
+    /**
+     * @return string
+     */
+    public function getType();
 
     /**
      * @return array

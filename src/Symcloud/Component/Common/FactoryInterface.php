@@ -63,6 +63,15 @@ interface FactoryInterface
     public function createFile(MetadataInterface $metadata, FileObjectInterface $object, BlobFileInterface $blobFile);
 
     /**
+     * @param string $path
+     * @param TreeInterface $root
+     * @param array $children
+     * @param string|null $hash
+     * @return TreeInterface
+     */
+    public function createTree($path, TreeInterface $root, $children = array(), $hash = null);
+
+    /**
      * @param TreeInterface   $tree
      * @param UserInterface   $user
      * @param \DateTime       $createdAt

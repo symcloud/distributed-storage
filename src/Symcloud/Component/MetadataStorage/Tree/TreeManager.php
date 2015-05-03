@@ -12,6 +12,7 @@
 namespace Symcloud\Component\MetadataStorage\Tree;
 
 use Symcloud\Component\Common\FactoryInterface;
+use Symcloud\Component\MetadataStorage\Exception\NotATreeException;
 use Symcloud\Component\MetadataStorage\Model\NodeInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 
@@ -60,7 +61,7 @@ class TreeManager implements TreeManagerInterface
             $child->setHash($this->factory->createHash(json_encode($child)));
         }
 
-        $this->treeAdapter->store($child->getHash(), $child->toArray());
+        $this->treeAdapter->store($child->getHash(), $child);
     }
 
     /**
@@ -68,7 +69,25 @@ class TreeManager implements TreeManagerInterface
      */
     public function fetch($hash)
     {
-        // TODO: Implement fetch() method.
+        $data = $this->treeAdapter->fetch($hash);
+
+        $path = $data[NodeInterface::PATH_KEY];
+
+        if ($data[TreeInterface::TYPE_KEY] !== NodeInterface::TREE_TYPE) {
+            throw new NotATreeException($hash, $path);
+        }
+
+        $root = $this->fetchProxy($data[TreeInterface::ROOT_KEY]);
+
+        $children = array();
+        foreach ($data[TreeInterface::CHILDREN_KEY][TreeInterface::TREE_TYPE] as $childHash) {
+            $children[] = $this->fetchProxy($childHash);
+        }
+        foreach ($data[TreeInterface::CHILDREN_KEY][TreeInterface::FILE_TYPE] as $childHash) {
+            $children[] = $this->fetchProxy($childHash);
+        }
+
+        return $this->factory->createTree($path, $root, $children, $hash);
     }
 
     /**
@@ -76,6 +95,11 @@ class TreeManager implements TreeManagerInterface
      */
     public function fetchProxy($hash)
     {
-        // TODO: Implement fetchProxy() method.
+        return $this->factory->createProxy(
+            TreeInterface::class,
+            function () use ($hash) {
+                return $this->fetch($hash);
+            }
+        );
     }
 }

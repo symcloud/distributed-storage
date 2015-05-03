@@ -110,15 +110,26 @@ class TreeModel implements TreeInterface
     /**
      * {@inheritdoc}
      */
+    public function getType()
+    {
+        return self::TREE_TYPE;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function toArray()
     {
-        $children = array();
+        $children = array(
+            NodeInterface::TREE_TYPE => array(),
+            NodeInterface::FILE_TYPE => array(),
+        );
         foreach ($this->getChildren() as $name => $child) {
-            $children[$name] = $child->getHash();
+            $children[$child->getType()][$name] = $child->getHash();
         }
 
         return array(
-            self::TYPE_KEY => 'tree',
+            self::TYPE_KEY => $this->getType(),
             self::PATH_KEY => $this->getPath(),
             self::ROOT_KEY => $this->getRoot()->getHash(),
             self::CHILDREN_KEY => $children,

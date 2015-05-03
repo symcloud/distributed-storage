@@ -15,7 +15,7 @@ interface TreeAdapterInterface
 {
     /**
      * @param string $hash
-     * @param array $data
+     * @param \JsonSerializable $data
      *
      * @return bool
      */
