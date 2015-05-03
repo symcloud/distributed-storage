@@ -155,6 +155,19 @@ class Factory implements FactoryInterface
     /**
      * {@inheritdoc}
      */
+    public function createRootTree()
+    {
+        $tree = new TreeModel();
+        $tree->setPath('/');
+        $tree->setRoot($tree);
+        $tree->setChildren(array());
+
+        return $tree;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function createHash($data)
     {
         return hash_hmac($this->algorithm, $data, $this->key);

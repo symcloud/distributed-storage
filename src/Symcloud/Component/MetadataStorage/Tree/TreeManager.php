@@ -13,6 +13,7 @@ namespace Symcloud\Component\MetadataStorage\Tree;
 
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\MetadataStorage\Exception\NotATreeException;
+use Symcloud\Component\MetadataStorage\Model\FileNodeInterface;
 use Symcloud\Component\MetadataStorage\Model\NodeInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 
@@ -39,7 +40,26 @@ class TreeManager implements TreeManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function getHash($path, $rootHash)
+    public function createRootTree()
+    {
+        return $this->factory->createRootTree();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createTree($name, TreeInterface $parent)
+    {
+        $tree = $this->factory->createTree(sprintf('%s/%s', $parent->getPath(), $name), $parent->getRoot());
+        $parent->setChild($name, $tree);
+
+        return $tree;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createHash($path, $rootHash)
     {
         return $this->factory->createHash(
             json_encode(
@@ -61,10 +81,28 @@ class TreeManager implements TreeManagerInterface
                 $this->store($child);
             }
 
-            $this->storeNode($child);
+            $this->storeFile($child);
         }
 
-        $this->storeNode($tree);
+        $this->storeTree($tree);
+    }
+
+    private function storeFile(FileNodeInterface $child)
+    {
+        if ($child->getHash() === null) {
+            $child->setHash($this->factory->createHash(json_encode($child)));
+        }
+
+        $this->storeNode($child);
+    }
+
+    private function storeTree(TreeInterface $child)
+    {
+        if ($child->getHash() === null) {
+            $child->setHash($this->createHash($child->getPath(), $child->getRoot()));
+        }
+
+        $this->storeNode($child);
     }
 
     /**
@@ -72,10 +110,6 @@ class TreeManager implements TreeManagerInterface
      */
     private function storeNode(NodeInterface $child)
     {
-        if ($child->getHash() === null) {
-            $child->setHash($this->factory->createHash(json_encode($child)));
-        }
-
         $this->treeAdapter->store($child->getHash(), $child);
     }
 

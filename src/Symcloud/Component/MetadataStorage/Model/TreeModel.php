@@ -66,7 +66,7 @@ class TreeModel implements TreeInterface
     }
 
     /**
-     * @param $name
+     * @param string $name
      * @param NodeInterface $node
      */
     public function setChild($name, NodeInterface $node)
@@ -105,6 +105,14 @@ class TreeModel implements TreeInterface
     public function setPath($path)
     {
         $this->path = $path;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isRoot()
+    {
+        return $this === $this->getRoot();
     }
 
     /**

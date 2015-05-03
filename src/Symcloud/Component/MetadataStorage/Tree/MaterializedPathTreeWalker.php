@@ -42,7 +42,7 @@ class MaterializedPathTreeWalker implements TreeWalkerInterface
     public function walk($path)
     {
         $absolutePath = sprintf('/%s/%s', ltrim($this->tree->getPath()), ltrim($path, '/'));
-        $hash = $this->treeManager->getHash($absolutePath, $this->tree->getRoot()->getHash());
+        $hash = $this->treeManager->createHash($absolutePath, $this->tree->getRoot()->getHash());
 
         return $this->treeManager->fetchProxy($hash);
     }

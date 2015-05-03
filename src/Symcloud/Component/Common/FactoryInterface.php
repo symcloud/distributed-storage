@@ -71,6 +71,8 @@ interface FactoryInterface
      */
     public function createTree($path, TreeInterface $root, $children = array(), $hash = null);
 
+    public function createRootTree();
+
     /**
      * @param TreeInterface   $tree
      * @param UserInterface   $user

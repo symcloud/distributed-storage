@@ -19,4 +19,15 @@ interface TreeInterface extends NodeInterface
      * @return NodeInterface[]
      */
     public function getChildren();
+
+    /**
+     * @param string $name
+     * @param NodeInterface $node
+     */
+    public function setChild($name, NodeInterface $node);
+
+    /**
+     * @return boolean
+     */
+    public function isRoot();
 }
