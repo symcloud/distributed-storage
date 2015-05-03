@@ -128,7 +128,7 @@ class TreeModel implements TreeInterface
     /**
      * {@inheritdoc}
      */
-    function jsonSerialize()
+    public function jsonSerialize()
     {
         return $this->toArray();
     }
