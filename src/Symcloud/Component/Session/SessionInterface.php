@@ -18,6 +18,11 @@ use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 interface SessionInterface
 {
     /**
+     * @return TreeInterface
+     */
+    public function init();
+
+    /**
      * @param string $fileName
      *
      * @return BlobFileInterface

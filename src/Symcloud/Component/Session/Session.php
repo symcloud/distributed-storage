@@ -78,6 +78,14 @@ class Session implements SessionInterface
     /**
      * {@inheritdoc}
      */
+    public function init()
+    {
+        return $this->root = $this->treeManager->createRootTree();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function upload($fileName)
     {
         $blobFile = $this->blobFileManager->upload($fileName);
