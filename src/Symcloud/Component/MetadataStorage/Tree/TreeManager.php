@@ -121,7 +121,7 @@ class TreeManager implements TreeManagerInterface
         $root = $this->fetchProxy($data[TreeInterface::ROOT_KEY]);
         $children = $this->deserializeChildren($data[TreeInterface::CHILDREN_KEY]);
 
-        return $this->factory->createTree($path, $root, $children, $hash);
+        return $this->factory->createTree($path, $root, $children);
     }
 
     /**
@@ -160,7 +160,7 @@ class TreeManager implements TreeManagerInterface
         $blobFile = $this->blobFileManager->downloadProxy($data[TreeFileInterface::FILE_KEY]);
         $metadata = $data[TreeFileInterface::METADATA_KEY];
 
-        return $this->factory->createTreeFile($path, $name, $root, $blobFile, $metadata, $hash);
+        return $this->factory->createTreeFile($path, $name, $root, $blobFile, $metadata);
     }
 
     /**
