@@ -12,6 +12,9 @@
 namespace Symcloud\Component\MetadataStorage\Tree;
 
 use Symcloud\Component\Common\FactoryInterface;
+use Symcloud\Component\FileStorage\BlobFileManagerInterface;
+use Symcloud\Component\FileStorage\Model\BlobFileInterface;
+use Symcloud\Component\MetadataStorage\Exception\NotAFileException;
 use Symcloud\Component\MetadataStorage\Exception\NotATreeException;
 use Symcloud\Component\MetadataStorage\Model\FileNodeInterface;
 use Symcloud\Component\MetadataStorage\Model\NodeInterface;
@@ -23,6 +26,11 @@ class TreeManager implements TreeManagerInterface
      * @var TreeAdapterInterface
      */
     private $treeAdapter;
+
+    /**
+     * @var BlobFileManagerInterface
+     */
+    private $blobFileManager;
 
     /**
      * @var FactoryInterface
@@ -59,6 +67,23 @@ class TreeManager implements TreeManagerInterface
     /**
      * {@inheritdoc}
      */
+    public function createFileNode($name, TreeInterface $parent, BlobFileInterface $blobFile, $metadata = array())
+    {
+        $file = $this->factory->createFileNode(
+            sprintf('%s/%s', $parent->getPath(), $name),
+            $name,
+            $parent->getRoot(),
+            $blobFile,
+            $metadata
+        );
+        $parent->setChild($name, $file);
+
+        return $file;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function createHash($path, $rootHash)
     {
         return $this->factory->createHash(
@@ -89,19 +114,13 @@ class TreeManager implements TreeManagerInterface
 
     private function storeFile(FileNodeInterface $child)
     {
-        if ($child->getHash() === null) {
-            $child->setHash($this->factory->createHash(json_encode($child)));
-        }
-
+        $child->setHash($this->factory->createHash(json_encode($child)));
         $this->storeNode($child);
     }
 
     private function storeTree(TreeInterface $child)
     {
-        if ($child->getHash() === null) {
-            $child->setHash($this->createHash($child->getPath(), $child->getRoot()));
-        }
-
+        $child->setHash($this->createHash($child->getPath(), $child->getRoot()));
         $this->storeNode($child);
     }
 
@@ -121,8 +140,8 @@ class TreeManager implements TreeManagerInterface
         $data = $this->treeAdapter->fetch($hash);
 
         $path = $data[NodeInterface::PATH_KEY];
-
-        if ($data[TreeInterface::TYPE_KEY] !== NodeInterface::TREE_TYPE) {
+        $type = $data[TreeInterface::TYPE_KEY];
+        if ($type !== NodeInterface::TREE_TYPE) {
             throw new NotATreeException($hash, $path);
         }
 
@@ -133,10 +152,31 @@ class TreeManager implements TreeManagerInterface
             $children[] = $this->fetchProxy($childHash);
         }
         foreach ($data[TreeInterface::CHILDREN_KEY][TreeInterface::FILE_TYPE] as $childHash) {
-            $children[] = $this->fetchProxy($childHash);
+            $children[] = $this->fetchFileProxy($childHash);
         }
 
         return $this->factory->createTree($path, $root, $children, $hash);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchFile($hash)
+    {
+        $data = $this->treeAdapter->fetch($hash);
+
+        $path = $data[NodeInterface::PATH_KEY];
+        $type = $data[TreeInterface::TYPE_KEY];
+        if ($type !== NodeInterface::FILE_TYPE) {
+            throw new NotAFileException($hash, $path);
+        }
+
+        $name = basename($path);
+        $root = $this->fetchProxy($data[TreeInterface::ROOT_KEY]);
+        $blobFile = $this->blobFileManager->downloadProxy($data[FileNodeInterface::FILE_KEY]);
+        $metadata = $data[FileNodeInterface::METADATA_KEY];
+
+        return $this->factory->createFileNode($path, $name, $root, $blobFile, $metadata, $hash);
     }
 
     /**
@@ -148,6 +188,19 @@ class TreeManager implements TreeManagerInterface
             TreeInterface::class,
             function () use ($hash) {
                 return $this->fetch($hash);
+            }
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchFileProxy($hash)
+    {
+        return $this->factory->createProxy(
+            TreeInterface::class,
+            function () use ($hash) {
+                return $this->fetchFile($hash);
             }
         );
     }

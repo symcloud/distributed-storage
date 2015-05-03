@@ -116,13 +116,16 @@ class BlobFileManager implements BlobFileManagerInterface
     }
 
     /**
-     * @param FileObjectInterface $object
-     *
-     * @return BlobFileInterface
+     * {@inheritdoc}
      */
-    public function downloadByObject(FileObjectInterface $object)
+    public function downloadProxy($hash)
     {
-        return $this->download($object->getFileHash());
+        return $this->factory->createProxy(
+            BlobFileInterface::class,
+            function () use ($hash) {
+                return $this->download($hash);
+            }
+        );
     }
 
     private function getBlobProxy($hash)

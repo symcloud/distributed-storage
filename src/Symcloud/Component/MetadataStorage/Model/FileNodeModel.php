@@ -11,22 +11,54 @@
 
 namespace Symcloud\Component\MetadataStorage\Model;
 
+use Symcloud\Component\FileStorage\Model\BlobFileInterface;
+
 class FileNodeModel implements FileNodeInterface
 {
+    /**
+     * @var string
+     */
+    private $hash;
+
+    /**
+     * @var BlobFileInterface
+     */
+    private $file;
+
+    /**
+     * @var array
+     */
+    private $metadata;
+
+    /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @var TreeInterface
+     */
+    private $root;
+
+    /**
+     * @var string
+     */
+    private $path;
+
     /**
      * {@inheritdoc}
      */
     public function getHash()
     {
-        // TODO: Implement getHash() method.
+        return $this->hash;
     }
 
     /**
-     * @param string $hash
+     * {@inheritdoc}
      */
     public function setHash($hash)
     {
-        // TODO: Implement setHash() method.
+        $this->hash = $hash;
     }
 
     /**
@@ -34,15 +66,15 @@ class FileNodeModel implements FileNodeInterface
      */
     public function getFile()
     {
-        // TODO: Implement getFile() method.
+        return $this->file;
     }
 
     /**
-     * {@inheritdoc}
+     * @param BlobFileInterface $file
      */
-    public function getMetadata()
+    public function setFile(BlobFileInterface $file)
     {
-        // TODO: Implement getMetadata() method.
+        $this->file = $file;
     }
 
     /**
@@ -50,7 +82,15 @@ class FileNodeModel implements FileNodeInterface
      */
     public function getName()
     {
-        // TODO: Implement getName() method.
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
     }
 
     /**
@@ -58,7 +98,15 @@ class FileNodeModel implements FileNodeInterface
      */
     public function getRoot()
     {
-        // TODO: Implement getRoot() method.
+        return $this->root;
+    }
+
+    /**
+     * @param TreeInterface $root
+     */
+    public function setRoot($root)
+    {
+        $this->root = $root;
     }
 
     /**
@@ -66,7 +114,70 @@ class FileNodeModel implements FileNodeInterface
      */
     public function getPath()
     {
-        // TODO: Implement getPath() method.
+        return $this->path;
+    }
+
+    /**
+     * @param string $path
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasMetadata($name)
+    {
+        return array_key_exists($name, $this->metadata);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMetadata($name)
+    {
+        return ($this->hasMetadata($name) ? $this->metadata[$name] : null);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setMetadata($name, $value)
+    {
+        if ($this->getMetadata($name) === $value) {
+            return;
+        }
+
+        $this->setHash(null);
+        $this->metadata[$name] = $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAllMetadata()
+    {
+        return $this->metadata;
+    }
+
+    /**
+     * @param array $metadata
+     */
+    public function setAllMetadata(array $metadata)
+    {
+        foreach ($metadata as $name => $value) {
+            $this->setMetadata($name, $value);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getType()
+    {
+        return self::FILE_TYPE;
     }
 
     /**
@@ -78,8 +189,9 @@ class FileNodeModel implements FileNodeInterface
             self::TYPE_KEY => self::FILE_TYPE,
             self::FILE_KEY => $this->getFile()->getHash(),
             self::PATH_KEY => $this->getPath(),
+            self::NAME_KEY => $this->getName(),
             self::ROOT_KEY => $this->getRoot()->getHash(),
-            self::METADATA_KEY => $this->getMetadata()->getHash(),
+            self::METADATA_KEY => $this->getAllMetadata(),
         );
     }
 

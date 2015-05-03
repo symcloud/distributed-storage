@@ -18,6 +18,7 @@ use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\FileStorage\Model\BlobFileModel;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitModel;
+use Symcloud\Component\MetadataStorage\Model\FileNodeModel;
 use Symcloud\Component\MetadataStorage\Model\FileObjectInterface;
 use Symcloud\Component\MetadataStorage\Model\MetadataInterface;
 use Symcloud\Component\MetadataStorage\Model\ReferenceModel;
@@ -163,6 +164,28 @@ class Factory implements FactoryInterface
         $tree->setChildren(array());
 
         return $tree;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createFileNode(
+        $path,
+        $name,
+        TreeInterface $root,
+        BlobFileInterface $blobFile,
+        $metadata = array(),
+        $hash = null
+    ) {
+        $file = new FileNodeModel();
+        $file->setPath($path);
+        $file->setName($name);
+        $file->setRoot($root);
+        $file->setFile($blobFile);
+        $file->setAllMetadata($metadata);
+        $file->setHash($hash);
+
+        return $file;
     }
 
     /**

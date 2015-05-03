@@ -31,9 +31,8 @@ interface BlobFileManagerInterface
     public function download($fileHash);
 
     /**
-     * @param FileObjectInterface $object
-     *
+     * @param string $hash
      * @return BlobFileInterface
      */
-    public function downloadByObject(FileObjectInterface $object);
+    public function downloadProxy($hash);
 }

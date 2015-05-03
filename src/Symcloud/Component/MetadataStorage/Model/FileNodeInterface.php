@@ -24,12 +24,30 @@ interface FileNodeInterface extends NodeInterface
     public function getFile();
 
     /**
-     * @return MetadataInterface
-     */
-    public function getMetadata();
-
-    /**
      * @return string
      */
     public function getName();
+
+    /**
+     * @param string $name
+     * @return boolean
+     */
+    public function hasMetadata($name);
+
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function getMetadata($name);
+
+    /**
+     * @param string $name
+     * @param string $value
+     */
+    public function setMetadata($name, $value);
+
+    /**
+     * @return array
+     */
+    public function getAllMetadata();
 }
