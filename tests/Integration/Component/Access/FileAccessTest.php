@@ -6,9 +6,6 @@ use Integration\Parts\ReferenceManagerTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\Access\FileManager;
 use Symcloud\Component\Access\FileManagerInterface;
-use Symcloud\Component\MetadataStorage\Metadata\MetadataManager;
-use Symcloud\Component\MetadataStorage\Metadata\MetadataManagerInterface;
-use Symcloud\Component\MetadataStorage\Model\KeyValueInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -20,11 +17,6 @@ class FileAccessTest extends ProphecyTestCase
      * @var FileManagerInterface
      */
     private $fileManager;
-
-    /**
-     * @var MetadataManagerInterface
-     */
-    private $metadataManager;
 
     /**
      * @var mixed
@@ -83,7 +75,6 @@ class FileAccessTest extends ProphecyTestCase
         $this->assertEquals($description, $result->getDescription());
         $this->assertEquals($fileHash, $result->getFileHash());
         $this->assertEquals($content, $result->getContent());
-        $this->assertInstanceOf(KeyValueInterface::class, $result->getMetadataStore());
     }
 
     protected function getFileManager()
@@ -92,22 +83,11 @@ class FileAccessTest extends ProphecyTestCase
             $this->fileManager = new FileManager(
                 $this->getReferenceManager(),
                 $this->getTreeManager(),
-                $this->getBlobFileManager(),
-                $this->getMetadataManager(),
                 $this->getFactory()
             );
         }
 
         return $this->fileManager;
-    }
-
-    protected function getMetadataManager()
-    {
-        if (!$this->metadataManager) {
-            $this->metadataManager = new MetadataManager();
-        }
-
-        return $this->metadataManager;
     }
 
     protected function createUserProvider()

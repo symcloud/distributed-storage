@@ -37,7 +37,7 @@ class ReferenceManagerTest extends ProphecyTestCase
         $commit->getHash()->willReturn($commitHash);
 
         $referenceAdapter = $this->prophesize(ReferenceAdapterInterface::class);
-        $referenceAdapter->fetchReference($user->reveal(), $referenceName)->willReturn($data);
+        $referenceAdapter->fetchReferenceData($user->reveal(), $referenceName)->willReturn($data);
 
         $commitManager = $this->prophesize(CommitManagerInterface::class);
         $commitManager->fetchProxy($commitHash)->willReturn($commit->reveal());
@@ -73,7 +73,7 @@ class ReferenceManagerTest extends ProphecyTestCase
         $commit->getHash()->willReturn($commitHash);
 
         $referenceAdapter = $this->prophesize(ReferenceAdapterInterface::class);
-        $referenceAdapter->fetchReference($user->reveal(), $referenceName)->willReturn($data);
+        $referenceAdapter->fetchReferenceData($user->reveal(), $referenceName)->willReturn($data);
 
         $commitManager = $this->prophesize(CommitManagerInterface::class);
         $commitManager->fetchProxy($commitHash)->willReturn($commit->reveal());

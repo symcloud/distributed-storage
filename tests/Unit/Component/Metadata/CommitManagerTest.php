@@ -92,7 +92,7 @@ class CommitManagerTest extends ProphecyTestCase
 
         $factory = $this->getFactory();
         $commitAdapter = $this->prophesize(CommitAdapterInterface::class);
-        $commitAdapter->fetchCommit($commitHash)->willReturn($data);
+        $commitAdapter->fetchCommitData($commitHash)->willReturn($data);
 
         $tree = $this->prophesize(TreeInterface::class);
         $tree->getHash()->willReturn($treeHash);
