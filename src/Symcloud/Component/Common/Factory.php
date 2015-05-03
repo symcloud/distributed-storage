@@ -18,10 +18,10 @@ use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\FileStorage\Model\BlobFileModel;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitModel;
-use Symcloud\Component\MetadataStorage\Model\FileNodeModel;
 use Symcloud\Component\MetadataStorage\Model\FileObjectInterface;
 use Symcloud\Component\MetadataStorage\Model\MetadataInterface;
 use Symcloud\Component\MetadataStorage\Model\ReferenceModel;
+use Symcloud\Component\MetadataStorage\Model\TreeFileModel;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeModel;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -169,7 +169,7 @@ class Factory implements FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createFileNode(
+    public function createTreeFile(
         $path,
         $name,
         TreeInterface $root,
@@ -177,7 +177,7 @@ class Factory implements FactoryInterface
         $metadata = array(),
         $hash = null
     ) {
-        $file = new FileNodeModel();
+        $file = new TreeFileModel();
         $file->setPath($path);
         $file->setName($name);
         $file->setRoot($root);

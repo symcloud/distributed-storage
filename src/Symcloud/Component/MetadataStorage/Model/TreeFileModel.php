@@ -13,7 +13,7 @@ namespace Symcloud\Component\MetadataStorage\Model;
 
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 
-class FileNodeModel implements FileNodeInterface
+class TreeFileModel implements TreeFileInterface
 {
     /**
      * @var string

@@ -15,10 +15,10 @@ use Symcloud\Component\Access\Model\FileInterface;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
-use Symcloud\Component\MetadataStorage\Model\FileNodeInterface;
 use Symcloud\Component\MetadataStorage\Model\FileObjectInterface;
 use Symcloud\Component\MetadataStorage\Model\MetadataInterface;
 use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
+use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -68,6 +68,7 @@ interface FactoryInterface
      * @param TreeInterface $root
      * @param array $children
      * @param string|null $hash
+     *
      * @return TreeInterface
      */
     public function createTree($path, TreeInterface $root, $children = array(), $hash = null);
@@ -84,9 +85,10 @@ interface FactoryInterface
      * @param BlobFileInterface $blobFile
      * @param array $metadata
      * @param string|null $hash
-     * @return FileNodeInterface
+     *
+     * @return TreeFileInterface
      */
-    public function createFileNode(
+    public function createTreeFile(
         $path,
         $name,
         TreeInterface $root,

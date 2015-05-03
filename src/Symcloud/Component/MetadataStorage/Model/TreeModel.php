@@ -108,7 +108,7 @@ class TreeModel implements TreeInterface
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isRoot()
     {

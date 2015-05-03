@@ -13,7 +13,7 @@ namespace Symcloud\Component\MetadataStorage\Model;
 
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 
-interface FileNodeInterface extends NodeInterface
+interface TreeFileInterface extends NodeInterface
 {
     const FILE_KEY = 'file';
     const METADATA_KEY = 'metadata';
@@ -30,12 +30,14 @@ interface FileNodeInterface extends NodeInterface
 
     /**
      * @param string $name
-     * @return boolean
+     *
+     * @return bool
      */
     public function hasMetadata($name);
 
     /**
      * @param string $name
+     *
      * @return mixed
      */
     public function getMetadata($name);

@@ -12,7 +12,7 @@
 namespace Symcloud\Component\MetadataStorage\Tree;
 
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
-use Symcloud\Component\MetadataStorage\Model\FileNodeInterface;
+use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 
 interface TreeManagerInterface
@@ -25,6 +25,7 @@ interface TreeManagerInterface
     /**
      * @param string $name
      * @param TreeInterface $parent
+     *
      * @return TreeInterface
      */
     public function createTree($name, TreeInterface $parent);
@@ -34,9 +35,10 @@ interface TreeManagerInterface
      * @param TreeInterface $parent
      * @param BlobFileInterface $blobFile
      * @param array $metadata
-     * @return FileNodeInterface mixed
+     *
+     * @return TreeFileInterface mixed
      */
-    public function createFileNode($name, TreeInterface $parent, BlobFileInterface $blobFile, $metadata = array());
+    public function createTreeFile($name, TreeInterface $parent, BlobFileInterface $blobFile, $metadata = array());
 
     /**
      * @param TreeInterface $tree
@@ -48,6 +50,7 @@ interface TreeManagerInterface
     /**
      * @param string $path
      * @param string $rootHash
+     *
      * @return string
      */
     public function createHash($path, $rootHash);
@@ -66,7 +69,8 @@ interface TreeManagerInterface
 
     /**
      * @param string $hash
-     * @return FileNodeInterface
+     *
+     * @return TreeFileInterface
      */
     public function fetchFile($hash);
 
@@ -80,7 +84,7 @@ interface TreeManagerInterface
     /**
      * @param string $hash
      *
-     * @return FileNodeInterface
+     * @return TreeFileInterface
      */
     public function fetchFileProxy($hash);
 }

@@ -27,6 +27,7 @@ class MaterializedPathTreeWalker implements TreeWalkerInterface
 
     /**
      * MaterializedPathTreeWalker constructor.
+     *
      * @param TreeInterface $tree
      * @param TreeManagerInterface $treeManager
      */

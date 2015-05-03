@@ -16,8 +16,8 @@ use Symcloud\Component\FileStorage\BlobFileManagerInterface;
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\MetadataStorage\Exception\NotAFileException;
 use Symcloud\Component\MetadataStorage\Exception\NotATreeException;
-use Symcloud\Component\MetadataStorage\Model\FileNodeInterface;
 use Symcloud\Component\MetadataStorage\Model\NodeInterface;
+use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 
 class TreeManager implements TreeManagerInterface
@@ -67,9 +67,9 @@ class TreeManager implements TreeManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function createFileNode($name, TreeInterface $parent, BlobFileInterface $blobFile, $metadata = array())
+    public function createTreeFile($name, TreeInterface $parent, BlobFileInterface $blobFile, $metadata = array())
     {
-        $file = $this->factory->createFileNode(
+        $file = $this->factory->createTreeFile(
             sprintf('%s/%s', $parent->getPath(), $name),
             $name,
             $parent->getRoot(),
@@ -90,7 +90,7 @@ class TreeManager implements TreeManagerInterface
             json_encode(
                 array(
                     NodeInterface::PATH_KEY => $path,
-                    NodeInterface::ROOT_KEY => $rootHash
+                    NodeInterface::ROOT_KEY => $rootHash,
                 )
             )
         );
@@ -112,7 +112,7 @@ class TreeManager implements TreeManagerInterface
         $this->storeTree($tree);
     }
 
-    private function storeFile(FileNodeInterface $child)
+    private function storeFile(TreeFileInterface $child)
     {
         $child->setHash($this->factory->createHash(json_encode($child)));
         $this->storeNode($child);
@@ -173,10 +173,10 @@ class TreeManager implements TreeManagerInterface
 
         $name = basename($path);
         $root = $this->fetchProxy($data[TreeInterface::ROOT_KEY]);
-        $blobFile = $this->blobFileManager->downloadProxy($data[FileNodeInterface::FILE_KEY]);
-        $metadata = $data[FileNodeInterface::METADATA_KEY];
+        $blobFile = $this->blobFileManager->downloadProxy($data[TreeFileInterface::FILE_KEY]);
+        $metadata = $data[TreeFileInterface::METADATA_KEY];
 
-        return $this->factory->createFileNode($path, $name, $root, $blobFile, $metadata, $hash);
+        return $this->factory->createTreeFile($path, $name, $root, $blobFile, $metadata, $hash);
     }
 
     /**

@@ -12,7 +12,6 @@
 namespace Symcloud\Component\FileStorage;
 
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
-use Symcloud\Component\MetadataStorage\Model\FileObjectInterface;
 
 interface BlobFileManagerInterface
 {
@@ -32,6 +31,7 @@ interface BlobFileManagerInterface
 
     /**
      * @param string $hash
+     *
      * @return BlobFileInterface
      */
     public function downloadProxy($hash);

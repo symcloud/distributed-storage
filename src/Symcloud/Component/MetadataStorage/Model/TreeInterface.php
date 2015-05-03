@@ -27,7 +27,7 @@ interface TreeInterface extends NodeInterface
     public function setChild($name, NodeInterface $node);
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isRoot();
 }
