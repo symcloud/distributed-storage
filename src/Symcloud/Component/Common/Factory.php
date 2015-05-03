@@ -12,14 +12,12 @@
 namespace Symcloud\Component\Common;
 
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
-use Symcloud\Component\Access\Model\FileModel;
 use Symcloud\Component\BlobStorage\Model\BlobModel;
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\FileStorage\Model\BlobFileModel;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitModel;
 use Symcloud\Component\MetadataStorage\Model\ReferenceModel;
-use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeFileModel;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeModel;
@@ -87,17 +85,6 @@ class Factory implements FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createFile(TreeFileInterface $treeFile)
-    {
-        $file = new FileModel();
-        $file->setTreeFile($treeFile);
-
-        return $file;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createCommit(
         TreeInterface $tree,
         UserInterface $user,
@@ -139,13 +126,12 @@ class Factory implements FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createTree($path, TreeInterface $root, $children = array(), $hash = null)
+    public function createTree($path, TreeInterface $root, $children = array())
     {
         $tree = new TreeModel();
         $tree->setPath($path);
         $tree->setRoot($root);
         $tree->setChildren($children);
-        $tree->setHash($hash);
 
         return $tree;
     }
@@ -166,21 +152,14 @@ class Factory implements FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createTreeFile(
-        $path,
-        $name,
-        TreeInterface $root,
-        BlobFileInterface $blobFile,
-        $metadata = array(),
-        $hash = null
-    ) {
+    public function createTreeFile($path, $name, TreeInterface $root, BlobFileInterface $blobFile, $metadata = array())
+    {
         $file = new TreeFileModel();
         $file->setPath($path);
         $file->setName($name);
         $file->setRoot($root);
         $file->setFile($blobFile);
         $file->setAllMetadata($metadata);
-        $file->setHash($hash);
 
         return $file;
     }

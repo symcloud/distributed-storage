@@ -24,6 +24,11 @@ interface TreeFileInterface extends NodeInterface
     public function getFile();
 
     /**
+     * @param BlobFileInterface $file
+     */
+    public function setFile(BlobFileInterface $file);
+
+    /**
      * @return string
      */
     public function getName();

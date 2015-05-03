@@ -11,15 +11,11 @@
 
 namespace Symcloud\Component\MetadataStorage\Model;
 
+use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 
 class TreeFileModel implements TreeFileInterface
 {
-    /**
-     * @var string
-     */
-    private $hash;
-
     /**
      * @var BlobFileInterface
      */
@@ -46,19 +42,26 @@ class TreeFileModel implements TreeFileInterface
     private $path;
 
     /**
-     * {@inheritdoc}
+     * @var FactoryInterface
      */
-    public function getHash()
+    private $factory;
+
+    /**
+     * TreeFileModel constructor.
+     *
+     * @param FactoryInterface $factory
+     */
+    public function __construct(FactoryInterface $factory)
     {
-        return $this->hash;
+        $this->factory = $factory;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setHash($hash)
+    public function getHash()
     {
-        $this->hash = $hash;
+        return $this->factory->createHash(json_encode($this));
     }
 
     /**
@@ -70,7 +73,7 @@ class TreeFileModel implements TreeFileInterface
     }
 
     /**
-     * @param BlobFileInterface $file
+     * {@inheritdoc}
      */
     public function setFile(BlobFileInterface $file)
     {
@@ -150,7 +153,6 @@ class TreeFileModel implements TreeFileInterface
             return;
         }
 
-        $this->setHash(null);
         $this->metadata[$name] = $value;
     }
 
@@ -197,7 +199,6 @@ class TreeFileModel implements TreeFileInterface
             self::TYPE_KEY => self::FILE_TYPE,
             self::FILE_KEY => $this->getFile()->getHash(),
             self::PATH_KEY => $this->getPath(),
-            self::NAME_KEY => $this->getName(),
             self::ROOT_KEY => $this->getRoot()->getHash(),
             self::METADATA_KEY => $this->getAllMetadata(),
         );

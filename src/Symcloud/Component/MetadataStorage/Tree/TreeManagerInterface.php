@@ -48,14 +48,6 @@ interface TreeManagerInterface
     public function getTreeWalker(TreeInterface $tree);
 
     /**
-     * @param string $path
-     * @param string $rootHash
-     *
-     * @return string
-     */
-    public function createHash($path, $rootHash);
-
-    /**
      * @param TreeInterface $tree
      */
     public function store(TreeInterface $tree);

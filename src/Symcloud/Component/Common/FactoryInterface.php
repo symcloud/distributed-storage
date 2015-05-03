@@ -11,7 +11,6 @@
 
 namespace Symcloud\Component\Common;
 
-use Symcloud\Component\Access\Model\FileInterface;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
@@ -53,21 +52,13 @@ interface FactoryInterface
     public function createBlobFile($hash, $blobs = array());
 
     /**
-     * @param TreeFileInterface $treeFile
-     *
-     * @return FileInterface
-     */
-    public function createFile(TreeFileInterface $treeFile);
-
-    /**
      * @param string $path
      * @param TreeInterface $root
      * @param array $children
-     * @param string|null $hash
      *
      * @return TreeInterface
      */
-    public function createTree($path, TreeInterface $root, $children = array(), $hash = null);
+    public function createTree($path, TreeInterface $root, $children = array());
 
     /**
      * @return TreeInterface
@@ -80,18 +71,10 @@ interface FactoryInterface
      * @param TreeInterface $root
      * @param BlobFileInterface $blobFile
      * @param array $metadata
-     * @param string|null $hash
      *
      * @return TreeFileInterface
      */
-    public function createTreeFile(
-        $path,
-        $name,
-        TreeInterface $root,
-        BlobFileInterface $blobFile,
-        $metadata = array(),
-        $hash = null
-    );
+    public function createTreeFile($path, $name, TreeInterface $root, BlobFileInterface $blobFile, $metadata = array());
 
     /**
      * @param TreeInterface   $tree

@@ -84,21 +84,6 @@ class TreeManager implements TreeManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function createHash($path, $rootHash)
-    {
-        return $this->factory->createHash(
-            json_encode(
-                array(
-                    NodeInterface::PATH_KEY => $path,
-                    NodeInterface::ROOT_KEY => $rootHash,
-                )
-            )
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function store(TreeInterface $tree)
     {
         foreach ($tree->getChildren() as $child) {
@@ -106,22 +91,10 @@ class TreeManager implements TreeManagerInterface
                 $this->store($child);
             }
 
-            $this->storeFile($child);
+            $this->storeNode($child);
         }
 
-        $this->storeTree($tree);
-    }
-
-    private function storeFile(TreeFileInterface $child)
-    {
-        $child->setHash($this->factory->createHash(json_encode($child)));
-        $this->storeNode($child);
-    }
-
-    private function storeTree(TreeInterface $child)
-    {
-        $child->setHash($this->createHash($child->getPath(), $child->getRoot()));
-        $this->storeNode($child);
+        $this->storeNode($tree);
     }
 
     /**
@@ -146,16 +119,27 @@ class TreeManager implements TreeManagerInterface
         }
 
         $root = $this->fetchProxy($data[TreeInterface::ROOT_KEY]);
-
-        $children = array();
-        foreach ($data[TreeInterface::CHILDREN_KEY][TreeInterface::TREE_TYPE] as $childHash) {
-            $children[] = $this->fetchProxy($childHash);
-        }
-        foreach ($data[TreeInterface::CHILDREN_KEY][TreeInterface::FILE_TYPE] as $childHash) {
-            $children[] = $this->fetchFileProxy($childHash);
-        }
+        $children = $this->deserializeChildren($data[TreeInterface::CHILDREN_KEY]);
 
         return $this->factory->createTree($path, $root, $children, $hash);
+    }
+
+    /**
+     * @param array $children
+     *
+     * @return array
+     */
+    private function deserializeChildren($children)
+    {
+        $result = array();
+        foreach ($children[TreeInterface::TREE_TYPE] as $childHash) {
+            $result[] = $this->fetchProxy($childHash);
+        }
+        foreach ($children[TreeInterface::FILE_TYPE] as $childHash) {
+            $result[] = $this->fetchFileProxy($childHash);
+        }
+
+        return $result;
     }
 
     /**

@@ -11,13 +11,10 @@
 
 namespace Symcloud\Component\MetadataStorage\Model;
 
+use Symcloud\Component\Common\FactoryInterface;
+
 class TreeModel implements TreeInterface
 {
-    /**
-     * @var string
-     */
-    private $hash;
-
     /**
      * @var TreeInterface
      */
@@ -34,19 +31,26 @@ class TreeModel implements TreeInterface
     private $children;
 
     /**
+     * @var FactoryInterface
+     */
+    private $factory;
+
+    /**
+     * TreeModel constructor.
+     *
+     * @param FactoryInterface $factory
+     */
+    public function __construct(FactoryInterface $factory)
+    {
+        $this->factory = $factory;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getHash()
     {
-        return $this->hash;
-    }
-
-    /**
-     * @param string $hash
-     */
-    public function setHash($hash)
-    {
-        $this->hash = $hash;
+        return $this->factory->createHash(json_encode($this));
     }
 
     /**

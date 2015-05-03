@@ -26,11 +26,6 @@ interface NodeInterface extends \JsonSerializable
     public function getHash();
 
     /**
-     * @param string $hash
-     */
-    public function setHash($hash);
-
-    /**
      * @return string
      */
     public function getPath();
