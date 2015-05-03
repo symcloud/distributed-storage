@@ -15,8 +15,8 @@ use Basho\Riak;
 use Basho\Riak\Bucket;
 use Symcloud\Component\MetadataStorage\Commit\CommitAdapterInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
+use Symcloud\Component\MetadataStorage\Model\NodeInterface;
 use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symcloud\Component\MetadataStorage\Reference\ReferenceAdapterInterface;
 use Symcloud\Component\MetadataStorage\Tree\TreeAdapterInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -74,11 +74,9 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
     }
 
     /**
-     * @param TreeInterface $tree
-     *
-     * @return bool
+     * {@inheritdoc}
      */
-    public function storeTree(TreeInterface $tree)
+    public function storeTree(NodeInterface $tree)
     {
         return $this->storeJson($tree->getHash(), $tree->toArray());
     }

@@ -11,16 +11,16 @@
 
 namespace Symcloud\Component\MetadataStorage\Tree;
 
-use Symcloud\Component\MetadataStorage\Model\TreeInterface;
+use Symcloud\Component\MetadataStorage\Model\NodeInterface;
 
 interface TreeAdapterInterface
 {
     /**
-     * @param TreeInterface $tree
+     * @param NodeInterface $tree
      *
      * @return bool
      */
-    public function storeTree(TreeInterface $tree);
+    public function storeTree(NodeInterface $tree);
 
     /**
      * @param string $hash

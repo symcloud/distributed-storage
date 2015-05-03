@@ -75,7 +75,6 @@ class TreeModel implements TreeInterface
      */
     public function setChild($name, NodeInterface $node)
     {
-        $this->hash = null;
         $this->children[$name] = $node;
     }
 
