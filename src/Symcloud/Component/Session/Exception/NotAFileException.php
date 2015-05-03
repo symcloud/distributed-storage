@@ -9,30 +9,32 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Symcloud\Component\Access\Exception;
+namespace Symcloud\Component\Session\Exception;
 
 class NotAFileException extends \Exception
 {
     /**
-     * @var string
+     * @var string string
      */
-    private $path;
+    private $filePath;
 
     /**
      * NotAFileException constructor.
      *
-     * @param $path
+     * @param string $filePath
      */
-    public function __construct($path)
+    public function __construct($filePath)
     {
-        $this->path = $path;
+        parent::__construct(sprintf('Path "%s" is not a file', $filePath));
+
+        $this->filePath = $filePath;
     }
 
     /**
      * @return string
      */
-    public function getPath()
+    public function getFilePath()
     {
-        return $this->path;
+        return $this->filePath;
     }
 }

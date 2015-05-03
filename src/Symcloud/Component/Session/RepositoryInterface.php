@@ -9,21 +9,17 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Symcloud\Component\Access;
+namespace Symcloud\Component\Session;
 
-use Symcloud\Component\Access\Exception\NotAFileException;
-use Symcloud\Component\Access\Model\FileInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-interface FileManagerInterface
+interface RepositoryInterface
 {
     /**
-     * @param string        $path
      * @param UserInterface $user
+     * @param string $reference
      *
-     * @return FileInterface
-     *
-     * @throws NotAFileException
+     * @return SessionInterface
      */
-    public function getByPath($path, UserInterface $user);
+    public function login(UserInterface $user, $reference = 'HEAD');
 }
