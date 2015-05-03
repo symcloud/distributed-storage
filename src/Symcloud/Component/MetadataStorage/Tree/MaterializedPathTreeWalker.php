@@ -11,13 +11,39 @@
 
 namespace Symcloud\Component\MetadataStorage\Tree;
 
+use Symcloud\Component\MetadataStorage\Model\TreeInterface;
+
 class MaterializedPathTreeWalker implements TreeWalkerInterface
 {
+    /**
+     * @var TreeManagerInterface
+     */
+    private $treeManager;
+
+    /**
+     * @var TreeInterface
+     */
+    private $tree;
+
+    /**
+     * MaterializedPathTreeWalker constructor.
+     * @param TreeInterface $tree
+     * @param TreeManagerInterface $treeManager
+     */
+    public function __construct(TreeInterface $tree, TreeManagerInterface $treeManager)
+    {
+        $this->treeManager = $treeManager;
+        $this->tree = $tree;
+    }
+
     /**
      * {@inheritdoc}
      */
     public function walk($path)
     {
-        // TODO: Implement walk() method.
+        $absolutePath = sprintf('/%s/%s', ltrim($this->tree->getPath()), ltrim($path, '/'));
+        $hash = $this->treeManager->getHash($absolutePath, $this->tree->getRoot()->getHash());
+
+        return $this->treeManager->fetchProxy($hash);
     }
 }

@@ -23,6 +23,13 @@ interface TreeManagerInterface
     public function getTreeWalker(TreeInterface $tree);
 
     /**
+     * @param string $path
+     * @param string $rootHash
+     * @return string
+     */
+    public function getHash($path, $rootHash);
+
+    /**
      * @param TreeInterface $tree
      */
     public function store(TreeInterface $tree);

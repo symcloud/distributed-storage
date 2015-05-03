@@ -39,6 +39,21 @@ class TreeManager implements TreeManagerInterface
     /**
      * {@inheritdoc}
      */
+    public function getHash($path, $rootHash)
+    {
+        return $this->factory->createHash(
+            json_encode(
+                array(
+                    NodeInterface::PATH_KEY => $path,
+                    NodeInterface::ROOT_KEY => $rootHash
+                )
+            )
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function store(TreeInterface $tree)
     {
         foreach ($tree->getChildren() as $child) {
