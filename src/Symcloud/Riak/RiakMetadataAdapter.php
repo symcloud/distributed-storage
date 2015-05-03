@@ -16,10 +16,12 @@ use Basho\Riak\Bucket;
 use Symcloud\Component\MetadataStorage\Commit\CommitAdapterInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
+use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symcloud\Component\MetadataStorage\Reference\ReferenceAdapterInterface;
+use Symcloud\Component\MetadataStorage\Tree\TreeAdapterInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterface, ReferenceAdapterInterface
+class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterface, ReferenceAdapterInterface, TreeAdapterInterface
 {
     /**
      * @var Bucket
@@ -50,7 +52,7 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
     /**
      * {@inheritdoc}
      */
-    public function fetchCommit($hash)
+    public function fetchCommitData($hash)
     {
         return $this->fetchJson($hash);
     }
@@ -66,9 +68,29 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
     /**
      * {@inheritdoc}
      */
-    public function fetchReference(UserInterface $user, $name = 'HEAD')
+    public function fetchReferenceData(UserInterface $user, $name = 'HEAD')
     {
         return $this->fetchJson(sprintf('%s-%s', $user->getUsername(), $name));
+    }
+
+    /**
+     * @param TreeInterface $tree
+     *
+     * @return bool
+     */
+    public function storeTree(TreeInterface $tree)
+    {
+        return $this->storeJson($tree->getHash(), $tree->toArray());
+    }
+
+    /**
+     * @param string $hash
+     *
+     * @return array
+     */
+    public function fetchTreeData($hash)
+    {
+        return $this->fetchJson($hash);
     }
 
     /**

@@ -11,11 +11,11 @@
 
 namespace Symcloud\Component\Access\Model;
 
-use Symcloud\Component\FileStorage\Model\BlobFileInterface;
-use Symcloud\Component\MetadataStorage\Model\KeyValueInterface;
-
 interface FileInterface
 {
+    const TITLE = 'title';
+    const DESCRIPTION = 'description';
+
     /**
      * @return string
      */
@@ -27,9 +27,11 @@ interface FileInterface
     public function getDescription();
 
     /**
-     * @return KeyValueInterface
+     * @param string $name
+     *
+     * @return mixed
      */
-    public function getMetadataStore();
+    public function getMetadata($name);
 
     /**
      * @return string
@@ -53,9 +55,4 @@ interface FileInterface
      * @return mixed
      */
     public function getContent($length = -1, $offset = 0);
-
-    /**
-     * @param BlobFileInterface $data
-     */
-    public function setData($data);
 }

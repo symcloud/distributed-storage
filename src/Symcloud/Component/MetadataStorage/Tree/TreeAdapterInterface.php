@@ -11,20 +11,21 @@
 
 namespace Symcloud\Component\MetadataStorage\Tree;
 
+use Symcloud\Component\MetadataStorage\Model\TreeInterface;
+
 interface TreeAdapterInterface
 {
     /**
-     * @param string $hash
-     * @param \JsonSerializable $data
+     * @param TreeInterface $tree
      *
      * @return bool
      */
-    public function store($hash, $data);
+    public function storeTree(TreeInterface $tree);
 
     /**
      * @param string $hash
      *
      * @return array
      */
-    public function fetch($hash);
+    public function fetchTreeData($hash);
 }

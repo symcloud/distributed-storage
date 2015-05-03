@@ -183,6 +183,14 @@ class TreeFileModel implements TreeFileInterface
     /**
      * {@inheritdoc}
      */
+    public function isFile()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function toArray()
     {
         return array(

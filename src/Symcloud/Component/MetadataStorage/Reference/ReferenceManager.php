@@ -77,7 +77,7 @@ class ReferenceManager implements ReferenceManagerInterface
      */
     public function getForUser(UserInterface $user, $name = 'HEAD')
     {
-        $referenceData = $this->adapter->fetchReference($user, $name);
+        $referenceData = $this->adapter->fetchReferenceData($user, $name);
         $commit = $this->commitManager->fetchProxy($referenceData[ReferenceInterface::COMMIT_KEY]);
 
         return $this->factory->createReference($commit, $user, $referenceData[ReferenceInterface::NAME_KEY]);

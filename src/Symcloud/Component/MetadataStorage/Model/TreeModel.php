@@ -126,6 +126,14 @@ class TreeModel implements TreeInterface
     /**
      * {@inheritdoc}
      */
+    public function isFile()
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function toArray()
     {
         $children = array(

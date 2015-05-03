@@ -120,7 +120,7 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
 
         $this->storeObject($commitHash, $data, $metadataBucket);
 
-        $result = $adapter->fetchCommit($commitHash);
+        $result = $adapter->fetchCommitData($commitHash);
         $this->assertEquals($data, $result);
 
         $response = $this->fetchBucketKeys($metadataBucket);
@@ -217,7 +217,7 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
         $user = $this->prophesize(UserInterface::class);
         $user->getUsername()->willReturn($username);
 
-        $reference = $adapter->fetchReference($user->reveal(), $referenceName);
+        $reference = $adapter->fetchReferenceData($user->reveal(), $referenceName);
 
         $this->assertEquals($data, $reference);
     }

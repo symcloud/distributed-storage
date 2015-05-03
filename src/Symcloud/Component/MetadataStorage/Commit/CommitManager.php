@@ -80,7 +80,7 @@ class CommitManager implements CommitManagerInterface
      */
     public function fetch($hash)
     {
-        $data = $this->commitAdapter->fetchCommit($hash);
+        $data = $this->commitAdapter->fetchCommitData($hash);
 
         $message = $data[CommitInterface::MESSAGE_KEY];
         $createdAt = \DateTime::createFromFormat(\DateTime::ISO8601, $data[CommitInterface::CREATED_AT_KEY]);

@@ -18,9 +18,8 @@ use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\FileStorage\Model\BlobFileModel;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitModel;
-use Symcloud\Component\MetadataStorage\Model\FileObjectInterface;
-use Symcloud\Component\MetadataStorage\Model\MetadataInterface;
 use Symcloud\Component\MetadataStorage\Model\ReferenceModel;
+use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeFileModel;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeModel;
@@ -88,12 +87,10 @@ class Factory implements FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createFile(MetadataInterface $metadata, FileObjectInterface $object, BlobFileInterface $blobFile)
+    public function createFile(TreeFileInterface $treeFile)
     {
         $file = new FileModel();
-        $file->setMetadata($metadata);
-        $file->setObject($object);
-        $file->setData($blobFile);
+        $file->setTreeFile($treeFile);
 
         return $file;
     }

@@ -29,5 +29,5 @@ interface ReferenceAdapterInterface
      *
      * @return array
      */
-    public function fetchReference(UserInterface $user, $name = 'HEAD');
+    public function fetchReferenceData(UserInterface $user, $name = 'HEAD');
 }

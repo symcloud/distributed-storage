@@ -11,104 +11,63 @@
 
 namespace Symcloud\Component\Access\Model;
 
-use Symcloud\Component\FileStorage\Model\BlobFileInterface;
-use Symcloud\Component\MetadataStorage\Model\FileObjectInterface;
-use Symcloud\Component\MetadataStorage\Model\MetadataInterface;
+use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
 
 class FileModel implements FileInterface
 {
     /**
-     * @var MetadataInterface
+     * @var TreeFileInterface
      */
-    private $metadata;
+    private $treeFile;
 
     /**
-     * @var BlobFileInterface
+     * @return TreeFileInterface
      */
-    private $data;
+    public function getTreeFile()
+    {
+        return $this->treeFile;
+    }
 
     /**
-     * @var FileObjectInterface
+     * @param TreeFileInterface $treeFile
      */
-    private $object;
+    public function setTreeFile($treeFile)
+    {
+        $this->treeFile = $treeFile;
+    }
 
     public function getTitle()
     {
-        return $this->metadata->getTitle();
+        return $this->treeFile->getMetadata(self::TITLE);
     }
 
     public function getDescription()
     {
-        return $this->metadata->getDescription();
+        return $this->treeFile->getMetadata(self::DESCRIPTION);
     }
 
-    public function getMetadataStore()
+    public function getMetadata($name)
     {
-        return $this->metadata->getKeyValueStore();
+        return $this->treeFile->getMetadata($name);
     }
 
     public function getFileHash()
     {
-        return $this->data->getHash();
+        return $this->treeFile->getFile()->getHash();
     }
 
     public function getPath()
     {
-        return sprintf('%s/%s', $this->object->getParent(), $this->object->getName());
+        return $this->treeFile->getPath();
     }
 
     public function getDepth()
     {
-        return $this->object->getDepth();
+        // TODO calculate depth
     }
 
     public function getContent($length = -1, $offset = 0)
     {
-        return $this->data->getContent($length, $offset);
-    }
-
-    /**
-     * @return MetadataInterface
-     */
-    public function getMetadata()
-    {
-        return $this->metadata;
-    }
-
-    /**
-     * @param MetadataInterface $metadata
-     */
-    public function setMetadata($metadata)
-    {
-        $this->metadata = $metadata;
-    }
-
-    /**
-     * @return BlobFileInterface
-     */
-    public function getData()
-    {
-        return $this->data;
-    }
-
-    public function setData($data)
-    {
-        $this->data = $data;
-    }
-
-    /**
-     * @return FileObjectInterface
-     */
-    public function getObject()
-    {
-        return $this->object;
-    }
-
-    /**
-     * @param FileObjectInterface $object
-     */
-    public function setObject($object)
-    {
-        $this->object = $object;
+        return $this->treeFile->getFile()->getContent($length, $offset);
     }
 }

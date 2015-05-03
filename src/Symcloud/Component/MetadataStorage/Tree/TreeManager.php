@@ -129,7 +129,7 @@ class TreeManager implements TreeManagerInterface
      */
     private function storeNode(NodeInterface $child)
     {
-        $this->treeAdapter->store($child->getHash(), $child);
+        $this->treeAdapter->storeTree($child);
     }
 
     /**
@@ -137,7 +137,7 @@ class TreeManager implements TreeManagerInterface
      */
     public function fetch($hash)
     {
-        $data = $this->treeAdapter->fetch($hash);
+        $data = $this->treeAdapter->fetchTreeData($hash);
 
         $path = $data[NodeInterface::PATH_KEY];
         $type = $data[TreeInterface::TYPE_KEY];
@@ -163,7 +163,7 @@ class TreeManager implements TreeManagerInterface
      */
     public function fetchFile($hash)
     {
-        $data = $this->treeAdapter->fetch($hash);
+        $data = $this->treeAdapter->fetchTreeData($hash);
 
         $path = $data[NodeInterface::PATH_KEY];
         $type = $data[TreeInterface::TYPE_KEY];

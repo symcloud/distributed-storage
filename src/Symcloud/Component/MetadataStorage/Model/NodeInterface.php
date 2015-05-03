@@ -46,6 +46,11 @@ interface NodeInterface extends \JsonSerializable
     public function getType();
 
     /**
+     * @return bool
+     */
+    public function isFile();
+
+    /**
      * @return array
      */
     public function toArray();
