@@ -38,6 +38,23 @@ class TreeManager implements TreeManagerInterface
     private $factory;
 
     /**
+     * TreeManager constructor.
+     *
+     * @param TreeAdapterInterface $treeAdapter
+     * @param BlobFileManagerInterface $blobFileManager
+     * @param FactoryInterface $factory
+     */
+    public function __construct(
+        TreeAdapterInterface $treeAdapter,
+        BlobFileManagerInterface $blobFileManager,
+        FactoryInterface $factory
+    ) {
+        $this->treeAdapter = $treeAdapter;
+        $this->blobFileManager = $blobFileManager;
+        $this->factory = $factory;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getTreeWalker(TreeInterface $tree)
