@@ -74,6 +74,10 @@ class TreeModel implements TreeInterface
      */
     public function getChild($name)
     {
+        if (!array_key_exists($name, $this->children)) {
+            return;
+        }
+
         return $this->children[$name];
     }
 
