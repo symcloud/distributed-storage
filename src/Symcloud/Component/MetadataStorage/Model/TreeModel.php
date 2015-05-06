@@ -155,10 +155,15 @@ class TreeModel implements TreeInterface
             $children[$child->getType()][$name] = $child->getHash();
         }
 
+        $rootHash = null;
+        if (!$this->isRoot()) {
+            $this->getRoot()->getHash();
+        }
+
         return array(
             self::TYPE_KEY => $this->getType(),
             self::PATH_KEY => $this->getPath(),
-            self::ROOT_KEY => $this->getRoot()->getHash(),
+            self::ROOT_KEY => $rootHash,
             self::CHILDREN_KEY => $children,
         );
     }

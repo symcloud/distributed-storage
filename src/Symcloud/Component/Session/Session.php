@@ -107,7 +107,12 @@ class Session implements SessionInterface
      */
     public function init()
     {
-        return $this->root = $this->treeManager->createRootTree();
+        $this->root = $this->treeManager->createRootTree();
+        $this->treeManager->store($this->root);
+        $this->referenceCommit = $this->commitManager->commit($this->root, $this->user, 'init');
+        $this->referenceManager->create($this->user, $this->referenceCommit, $this->referenceName);
+
+        return $this->root;
     }
 
     /**
