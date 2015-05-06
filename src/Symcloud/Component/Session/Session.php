@@ -15,6 +15,7 @@ use Symcloud\Component\FileStorage\BlobFileManagerInterface;
 use Symcloud\Component\MetadataStorage\Commit\CommitManagerInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
+use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symcloud\Component\MetadataStorage\Reference\ReferenceManagerInterface;
 use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
@@ -76,6 +77,32 @@ class Session implements SessionInterface
     private $user;
 
     /**
+     * Session constructor.
+     *
+     * @param BlobFileManagerInterface $blobFileManager
+     * @param ReferenceManagerInterface $referenceManager
+     * @param TreeManagerInterface $treeManager
+     * @param CommitManagerInterface $commitManager
+     * @param string $referenceName
+     * @param UserInterface $user
+     */
+    public function __construct(
+        BlobFileManagerInterface $blobFileManager,
+        ReferenceManagerInterface $referenceManager,
+        TreeManagerInterface $treeManager,
+        CommitManagerInterface $commitManager,
+        $referenceName,
+        UserInterface $user
+    ) {
+        $this->blobFileManager = $blobFileManager;
+        $this->referenceManager = $referenceManager;
+        $this->treeManager = $treeManager;
+        $this->commitManager = $commitManager;
+        $this->referenceName = $referenceName;
+        $this->user = $user;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function init()
@@ -120,7 +147,7 @@ class Session implements SessionInterface
     private function getTreeWalker()
     {
         if (!$this->treeWalker) {
-            $this->treeWalker = $this->treeManager->getTreeWalker($this->root);
+            $this->treeWalker = $this->treeManager->getTreeWalker($this->getRoot());
         }
 
         return $this->treeWalker;
@@ -131,7 +158,46 @@ class Session implements SessionInterface
      */
     public function createOrUpdateFile($filePath, $fileHash)
     {
-        // TODO createOrUpdateFile()
+        $treeWalker = $this->getTreeWalker();
+
+        $parentPath = dirname($filePath);
+        $fileName = basename($filePath);
+        if (!($parentTree = $treeWalker->walk($parentPath))) {
+            $parentTree = $this->createRecursive($parentPath);
+        }
+
+        if (!($child = $parentTree->getChild($fileName))) {
+            return $this->treeManager->createTreeFile(
+                $fileName,
+                $parentTree,
+                $this->blobFileManager->downloadProxy($fileHash)
+            );
+        }
+
+        if (!($child instanceof TreeFileInterface)) {
+            throw new NotAFileException($filePath);
+        }
+
+        $child->setFile($this->blobFileManager->downloadProxy($fileHash));
+
+        return $child;
+    }
+
+    /**
+     * @param $path
+     *
+     * @return TreeInterface
+     */
+    private function createRecursive($path)
+    {
+        $treeWalker = $this->getTreeWalker();
+        $name = basename($path);
+        $parentPath = dirname($path);
+        if (!($parentTree = $treeWalker->walk($parentPath))) {
+            $parentTree = $this->createRecursive($parentPath);
+        }
+
+        return $this->treeManager->createTree($name, $parentTree);
     }
 
     /**
@@ -158,7 +224,12 @@ class Session implements SessionInterface
      */
     public function commit($message = '')
     {
-        $this->referenceCommit = $this->commitManager->commit($this->root, $this->user, $message, $this->referenceCommit);
+        $this->referenceCommit = $this->commitManager->commit(
+            $this->root,
+            $this->user,
+            $message,
+            $this->referenceCommit
+        );
         $this->referenceManager->update($this->reference, $this->referenceCommit);
     }
 }

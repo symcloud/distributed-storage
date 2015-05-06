@@ -22,6 +22,13 @@ interface TreeInterface extends NodeInterface
 
     /**
      * @param string $name
+     *
+     * @return NodeInterface
+     */
+    public function getChild($name);
+
+    /**
+     * @param string $name
      * @param NodeInterface $node
      */
     public function setChild($name, NodeInterface $node);

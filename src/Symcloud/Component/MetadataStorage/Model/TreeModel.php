@@ -70,6 +70,14 @@ class TreeModel implements TreeInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getChild($name)
+    {
+        return $this->children[$name];
+    }
+
+    /**
      * @param string $name
      * @param NodeInterface $node
      */
