@@ -54,11 +54,12 @@ interface FactoryInterface
     /**
      * @param string $path
      * @param TreeInterface $root
+     * @param TreeInterface $parent
      * @param array $children
      *
      * @return TreeInterface
      */
-    public function createTree($path, TreeInterface $root, $children = array());
+    public function createTree($path, TreeInterface $root, TreeInterface $parent, $children = array());
 
     /**
      * @return TreeInterface
@@ -69,12 +70,20 @@ interface FactoryInterface
      * @param string $path
      * @param string $name
      * @param TreeInterface $root
+     * @param TreeInterface $parent
      * @param BlobFileInterface $blobFile
      * @param array $metadata
      *
      * @return TreeFileInterface
      */
-    public function createTreeFile($path, $name, TreeInterface $root, BlobFileInterface $blobFile, $metadata = array());
+    public function createTreeFile(
+        $path,
+        $name,
+        TreeInterface $root,
+        TreeInterface $parent,
+        BlobFileInterface $blobFile,
+        $metadata = array()
+    );
 
     /**
      * @param TreeInterface   $tree

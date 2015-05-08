@@ -146,8 +146,10 @@ class CommitModel implements CommitInterface, \JsonSerializable
      */
     public function toArray()
     {
+        $treeHash = $this->getTree()->getHash();
+
         return array(
-            self::TREE_KEY => $this->getTree()->getHash(),
+            self::TREE_KEY => $treeHash,
             self::MESSAGE_KEY => $this->getMessage(),
             self::PARENT_COMMIT_KEY => ($this->getParentCommit() !== null ? $this->getParentCommit()->getHash() : null),
             self::COMMITTER_KEY => $this->getCommitter()->getUsername(),

@@ -90,6 +90,7 @@ class TreeManager implements TreeManagerInterface
             ltrim(sprintf('%s/%s', $parent->getPath(), $name), '/'),
             $name,
             $parent->getRoot(),
+            $parent,
             $blobFile,
             $metadata
         );
@@ -176,8 +177,9 @@ class TreeManager implements TreeManagerInterface
         $root = $this->fetchProxy($data[TreeInterface::ROOT_KEY]);
         $blobFile = $this->blobFileManager->downloadProxy($data[TreeFileInterface::FILE_KEY]);
         $metadata = $data[TreeFileInterface::METADATA_KEY];
+        $parent = $this->fetchProxy($data[NodeInterface::PARENT_KEY]);
 
-        return $this->factory->createTreeFile($path, $name, $root, $blobFile, $metadata);
+        return $this->factory->createTreeFile($path, $name, $root, $parent, $blobFile, $metadata);
     }
 
     /**

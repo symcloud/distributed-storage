@@ -17,6 +17,11 @@ use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 class TreeFileModel implements TreeFileInterface
 {
     /**
+     * @var string
+     */
+    private $hash;
+
+    /**
      * @var BlobFileInterface
      */
     private $file;
@@ -35,6 +40,11 @@ class TreeFileModel implements TreeFileInterface
      * @var TreeInterface
      */
     private $root;
+
+    /**
+     * @var TreeInterface
+     */
+    private $parent;
 
     /**
      * @var string
@@ -61,7 +71,18 @@ class TreeFileModel implements TreeFileInterface
      */
     public function getHash()
     {
-        return $this->factory->createHash(json_encode($this));
+        if (!$this->hash) {
+            $this->hash = $this->factory->createHash(json_encode($this->toArrayForHash()));
+        }
+
+        return $this->hash;
+    }
+
+    public function setDirty()
+    {
+        $this->hash = null;
+
+        $this->getParent()->setDirty();
     }
 
     /**
@@ -78,6 +99,8 @@ class TreeFileModel implements TreeFileInterface
     public function setFile(BlobFileInterface $file)
     {
         $this->file = $file;
+
+        $this->setDirty();
     }
 
     /**
@@ -110,6 +133,22 @@ class TreeFileModel implements TreeFileInterface
     public function setRoot($root)
     {
         $this->root = $root;
+    }
+
+    /**
+     * @return TreeInterface
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * @param TreeInterface $parent
+     */
+    public function setParent($parent)
+    {
+        $this->parent = $parent;
     }
 
     /**
@@ -154,6 +193,8 @@ class TreeFileModel implements TreeFileInterface
         }
 
         $this->metadata[$name] = $value;
+
+        $this->setDirty();
     }
 
     /**
@@ -172,6 +213,8 @@ class TreeFileModel implements TreeFileInterface
         foreach ($metadata as $name => $value) {
             $this->setMetadata($name, $value);
         }
+
+        $this->setDirty();
     }
 
     /**
@@ -200,6 +243,20 @@ class TreeFileModel implements TreeFileInterface
             self::FILE_KEY => $this->getFile()->getHash(),
             self::PATH_KEY => $this->getPath(),
             self::ROOT_KEY => $this->getRoot()->getHash(),
+            self::METADATA_KEY => $this->getAllMetadata(),
+            self::PARENT_KEY => $this->getParent()->getHash(),
+        );
+    }
+
+    /**
+     * data which will be used to generate hash.
+     */
+    private function toArrayForHash()
+    {
+        return array(
+            self::TYPE_KEY => self::FILE_TYPE,
+            self::FILE_KEY => $this->getFile()->getHash(),
+            self::PATH_KEY => $this->getPath(),
             self::METADATA_KEY => $this->getAllMetadata(),
         );
     }

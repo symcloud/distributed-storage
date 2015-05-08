@@ -110,7 +110,7 @@ class Session implements SessionInterface
         $this->root = $this->treeManager->createRootTree();
         $this->treeManager->store($this->root);
         $this->referenceCommit = $this->commitManager->commit($this->root, $this->user, 'init');
-        $this->referenceManager->create($this->user, $this->referenceCommit, $this->referenceName);
+        $this->reference = $this->referenceManager->create($this->user, $this->referenceCommit, $this->referenceName);
 
         return $this->root;
     }
@@ -230,7 +230,7 @@ class Session implements SessionInterface
     public function commit($message = '')
     {
         $this->referenceCommit = $this->commitManager->commit(
-            $this->root,
+            $this->getRoot(),
             $this->user,
             $message,
             $this->referenceCommit

@@ -16,6 +16,11 @@ use Symcloud\Component\Common\FactoryInterface;
 class TreeModel implements TreeInterface
 {
     /**
+     * @var string
+     */
+    private $hash;
+
+    /**
      * @var TreeInterface
      */
     private $root;
@@ -29,6 +34,11 @@ class TreeModel implements TreeInterface
      * @var NodeInterface[]
      */
     private $children;
+
+    /**
+     * @var TreeInterface
+     */
+    private $parent;
 
     /**
      * @var FactoryInterface
@@ -50,7 +60,11 @@ class TreeModel implements TreeInterface
      */
     public function getHash()
     {
-        return $this->factory->createHash(json_encode($this));
+        if (!$this->hash) {
+            $this->hash = $this->factory->createHash(json_encode($this->toArrayForHash()));
+        }
+
+        return $this->hash;
     }
 
     /**
@@ -66,6 +80,7 @@ class TreeModel implements TreeInterface
      */
     public function setChildren($children)
     {
+        $this->setDirty();
         $this->children = $children;
     }
 
@@ -107,6 +122,22 @@ class TreeModel implements TreeInterface
     }
 
     /**
+     * @return TreeInterface
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * @param TreeInterface $parent
+     */
+    public function setParent($parent)
+    {
+        $this->parent = $parent;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getPath()
@@ -120,6 +151,17 @@ class TreeModel implements TreeInterface
     public function setPath($path)
     {
         $this->path = $path;
+    }
+
+    /**
+     *
+     */
+    public function setDirty()
+    {
+        $this->hash = null;
+        if (!$this->isRoot()) {
+            $this->getParent()->setDirty();
+        }
     }
 
     /**
@@ -151,23 +193,36 @@ class TreeModel implements TreeInterface
      */
     public function toArray()
     {
+        $rootHash = null;
+        $parentHash = null;
+        if (!$this->isRoot()) {
+            $rootHash = $this->getRoot()->getHash();
+            $parentHash = $this->getParent()->getHash();
+        }
+
+        return array_merge(
+            array(
+                self::ROOT_KEY => $rootHash,
+                self::PARENT_KEY => $parentHash,
+            ),
+            $this->toArrayForHash()
+        );
+    }
+
+    private function toArrayForHash()
+    {
         $children = array(
             NodeInterface::TREE_TYPE => array(),
             NodeInterface::FILE_TYPE => array(),
         );
+
         foreach ($this->getChildren() as $name => $child) {
             $children[$child->getType()][$name] = $child->getHash();
-        }
-
-        $rootHash = null;
-        if (!$this->isRoot()) {
-            $this->getRoot()->getHash();
         }
 
         return array(
             self::TYPE_KEY => $this->getType(),
             self::PATH_KEY => $this->getPath(),
-            self::ROOT_KEY => $rootHash,
             self::CHILDREN_KEY => $children,
         );
     }

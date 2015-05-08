@@ -126,7 +126,7 @@ class Factory implements FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createTree($path, TreeInterface $root, $children = array())
+    public function createTree($path, TreeInterface $root, TreeInterface $parent, $children = array())
     {
         $tree = new TreeModel($this);
         $tree->setPath($path);
@@ -152,12 +152,19 @@ class Factory implements FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createTreeFile($path, $name, TreeInterface $root, BlobFileInterface $blobFile, $metadata = array())
-    {
+    public function createTreeFile(
+        $path,
+        $name,
+        TreeInterface $root,
+        TreeInterface $parent,
+        BlobFileInterface $blobFile,
+        $metadata = array()
+    ) {
         $file = new TreeFileModel($this);
         $file->setPath($path);
         $file->setName($name);
         $file->setRoot($root);
+        $file->setParent($parent);
         $file->setFile($blobFile);
         $file->setAllMetadata($metadata);
 

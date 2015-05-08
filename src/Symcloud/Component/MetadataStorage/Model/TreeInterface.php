@@ -37,4 +37,9 @@ interface TreeInterface extends NodeInterface
      * @return bool
      */
     public function isRoot();
+
+    /**
+     *
+     */
+    public function setDirty();
 }
