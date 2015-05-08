@@ -87,7 +87,7 @@ class TreeManager implements TreeManagerInterface
     public function createTreeFile($name, TreeInterface $parent, BlobFileInterface $blobFile, $metadata = array())
     {
         $file = $this->factory->createTreeFile(
-            sprintf('%s/%s', $parent->getPath(), $name),
+            ltrim(sprintf('%s/%s', $parent->getPath(), $name), '/'),
             $name,
             $parent->getRoot(),
             $blobFile,
