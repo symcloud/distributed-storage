@@ -146,6 +146,8 @@ class SessionTest extends ProphecyTestCase
 
     public function testDownload()
     {
+        $this->markTestIncomplete('This test is not implemented until now');
+
         /**
          * setup
          */
