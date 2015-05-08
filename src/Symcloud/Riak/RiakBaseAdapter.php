@@ -13,20 +13,21 @@ namespace Symcloud\Riak;
 
 use Basho\Riak;
 use Basho\Riak\Bucket;
+use Riak\Client\RiakClient;
 
 class RiakBaseAdapter
 {
     /**
-     * @var Riak
+     * @var RiakClient
      */
     protected $riak;
 
     /**
      * RiakBaseAdapter constructor.
      *
-     * @param Riak $riak
+     * @param RiakClient $riak
      */
-    public function __construct(Riak $riak)
+    public function __construct(RiakClient $riak)
     {
         $this->riak = $riak;
     }
