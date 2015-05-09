@@ -2,12 +2,10 @@
 
 namespace Integration\Component\FileStorage;
 
-use Basho\Riak;
-use Basho\Riak\Bucket;
-use Basho\Riak\Node\Builder;
 use Integration\Parts\BlobFileManagerTrait;
 use Integration\Parts\TestFileTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
+use Riak\Client\Core\Query\RiakNamespace;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\FileStorage\BlobFileManagerInterface;
@@ -18,8 +16,8 @@ class FileStorageTest extends ProphecyTestCase
 
     protected function setUp()
     {
-        $this->clearBucket($this->getBlobBucket());
-        $this->clearBucket($this->getBlobFileBucket());
+        $this->clearBucket($this->getBlobNamespace());
+        $this->clearBucket($this->getBlobFileNamespace());
 
         parent::setUp();
     }
@@ -42,9 +40,8 @@ class FileStorageTest extends ProphecyTestCase
                 $data,
                 $fileHash,
                 $blobs,
-                $this->getBlobFileBucket(),
-                $this->getBlobBucket(),
-                $this->getRiak(),
+                $this->getBlobFileNamespace(),
+                $this->getBlobNamespace(),
                 $factory
             )
         );
@@ -58,10 +55,9 @@ class FileStorageTest extends ProphecyTestCase
      * @param string $data
      * @param string $fileHash
      * @param BlobInterface[] $blobs
-     * @param Bucket $fileBucket
-     * @param Bucket $blobBucket
+     * @param RiakNamespace $fileNamespace
+     * @param RiakNamespace $blobNamespace
      * @param FactoryInterface $factory
-     * @param Riak $riak
      */
     public function testUpload(
         BlobFileManagerInterface $manager,
@@ -69,9 +65,8 @@ class FileStorageTest extends ProphecyTestCase
         $data,
         $fileHash,
         $blobs,
-        Bucket $fileBucket,
-        Bucket $blobBucket,
-        Riak $riak,
+        RiakNamespace $fileNamespace,
+        RiakNamespace $blobNamespace,
         FactoryInterface $factory
     ) {
         $result = $manager->upload($fileName);
@@ -83,8 +78,8 @@ class FileStorageTest extends ProphecyTestCase
         $this->assertEquals($blobs[1]->getData(), $result->getBlobs()[1]->getData());
         $this->assertEquals($data, $result->getContent());
 
-        $fileKeys = $this->fetchBucketKeys($fileBucket, $riak)->getObject()->getData()->keys;
-        $blobKeys = $this->fetchBucketKeys($blobBucket, $riak)->getObject()->getData()->keys;
+        $fileKeys = $this->fetchBucketKeys($fileNamespace);
+        $blobKeys = $this->fetchBucketKeys($blobNamespace);
 
         $this->assertContains($result->getBlobs()[0]->getHash(), $blobKeys);
         $this->assertContains($result->getBlobs()[1]->getHash(), $blobKeys);
@@ -96,16 +91,16 @@ class FileStorageTest extends ProphecyTestCase
 
         $this->assertEquals(
             $blobs[0]->getData(),
-            $this->fetchObject($blobs[0]->getHash(), $blobBucket, $riak)->getObject()->getData()
+            json_decode($this->fetchObject($blobs[0]->getHash(), $blobNamespace)->getValue()->getValue(), true)
         );
         $this->assertEquals(
             $blobs[1]->getData(),
-            $this->fetchObject($blobs[1]->getHash(), $blobBucket, $riak)->getObject()->getData()
+            json_decode($this->fetchObject($blobs[1]->getHash(), $blobNamespace)->getValue()->getValue(), true)
         );
 
         $this->assertEquals(
             array($blobs[0]->getHash(), $blobs[1]->getHash()),
-            $this->fetchObject($fileHash, $fileBucket, $riak)->getObject()->getData()
+            json_decode($this->fetchObject($fileHash, $fileNamespace)->getValue()->getValue(), true)
         );
     }
 
@@ -117,10 +112,9 @@ class FileStorageTest extends ProphecyTestCase
      * @param string $data
      * @param string $fileHash
      * @param BlobInterface[] $blobs
-     * @param Bucket $fileBucket
-     * @param Bucket $blobBucket
+     * @param RiakNamespace $fileNamespace
+     * @param RiakNamespace $blobNamespace
      * @param FactoryInterface $factory
-     * @param Riak $riak
      */
     public function testDownload(
         BlobFileManagerInterface $manager,
@@ -128,14 +122,13 @@ class FileStorageTest extends ProphecyTestCase
         $data,
         $fileHash,
         $blobs,
-        Bucket $fileBucket,
-        Bucket $blobBucket,
-        Riak $riak,
+        RiakNamespace $fileNamespace,
+        RiakNamespace $blobNamespace,
         FactoryInterface $factory
     ) {
-        $this->storeObject($blobs[0]->getHash(), $blobs[0]->getData(), $blobBucket, $riak);
-        $this->storeObject($blobs[1]->getHash(), $blobs[1]->getData(), $blobBucket, $riak);
-        $this->storeObject($fileHash, array($blobs[0]->getHash(), $blobs[1]->getHash()), $fileBucket, $riak);
+        $this->storeObject($blobs[0]->getHash(), $blobs[0]->getData(), $blobNamespace);
+        $this->storeObject($blobs[1]->getHash(), $blobs[1]->getData(), $blobNamespace);
+        $this->storeObject($fileHash, array($blobs[0]->getHash(), $blobs[1]->getHash()), $fileNamespace);
 
         $result = $manager->download($fileHash);
 
@@ -150,8 +143,8 @@ class FileStorageTest extends ProphecyTestCase
         $this->assertEquals($blobs[0]->getData(), $result->getBlobs()[0]->getData());
         $this->assertEquals($blobs[1]->getData(), $result->getBlobs()[1]->getData());
 
-        $fileKeys = $this->fetchBucketKeys($fileBucket, $riak)->getObject()->getData()->keys;
-        $blobKeys = $this->fetchBucketKeys($blobBucket, $riak)->getObject()->getData()->keys;
+        $fileKeys = $this->fetchBucketKeys($fileNamespace);
+        $blobKeys = $this->fetchBucketKeys($blobNamespace);
 
         $this->assertContains($result->getBlobs()[0]->getHash(), $blobKeys);
         $this->assertContains($result->getBlobs()[1]->getHash(), $blobKeys);

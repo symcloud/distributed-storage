@@ -11,29 +11,29 @@
 
 namespace Symcloud\Riak;
 
-use Basho\Riak;
-use Basho\Riak\Bucket;
+use Riak\Client\Core\Query\RiakNamespace;
+use Riak\Client\RiakClient;
 use Symcloud\Component\FileStorage\BlobFileAdapterInterface;
 use Symcloud\Component\FileStorage\Exception\FileNotFoundException;
 
 class RiakBlobFileAdapter extends RiakBaseAdapter implements BlobFileAdapterInterface
 {
     /**
-     * @var Bucket
+     * @var RiakNamespace
      */
-    private $fileBucket;
+    private $fileNamespace;
 
     /**
      * RiakBlobFileAdapter constructor.
      *
-     * @param Riak   $riak
-     * @param Bucket $fileBucket
+     * @param RiakClient   $riak
+     * @param RiakNamespace $fileNamespace
      */
-    public function __construct(Riak $riak, Bucket $fileBucket)
+    public function __construct(RiakClient $riak, RiakNamespace $fileNamespace)
     {
         parent::__construct($riak);
 
-        $this->fileBucket = $fileBucket;
+        $this->fileNamespace = $fileNamespace;
     }
 
     /**
@@ -41,7 +41,7 @@ class RiakBlobFileAdapter extends RiakBaseAdapter implements BlobFileAdapterInte
      */
     public function storeFile($hash, $blobs)
     {
-        return $this->storeObject($hash, $blobs, $this->fileBucket)->isSuccess();
+        $this->storeObject($hash, json_encode($blobs), $this->fileNamespace);
     }
 
     /**
@@ -49,9 +49,9 @@ class RiakBlobFileAdapter extends RiakBaseAdapter implements BlobFileAdapterInte
      */
     public function fileExists($hash)
     {
-        $response = $this->fetchObject($hash, $this->fileBucket);
+        $response = $this->fetchObject($hash, $this->fileNamespace);
 
-        return $response->isSuccess();
+        return !$response->getNotFound();
     }
 
     /**
@@ -59,12 +59,12 @@ class RiakBlobFileAdapter extends RiakBaseAdapter implements BlobFileAdapterInte
      */
     public function fetchFile($hash)
     {
-        $response = $this->fetchObject($hash, $this->fileBucket);
+        $response = $this->fetchObject($hash, $this->fileNamespace);
 
-        if ($response->isNotFound()) {
+        if ($response->getNotFound()) {
             throw new FileNotFoundException($hash);
         }
 
-        return $response->getObject()->getData();
+        return json_decode($response->getValue()->getValue());
     }
 }

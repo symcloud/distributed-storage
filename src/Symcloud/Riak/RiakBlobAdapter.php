@@ -11,29 +11,29 @@
 
 namespace Symcloud\Riak;
 
-use Basho\Riak;
-use Basho\Riak\Bucket;
+use Riak\Client\Core\Query\RiakNamespace;
+use Riak\Client\RiakClient;
 use Symcloud\Component\BlobStorage\BlobAdapterInterface;
 use Symcloud\Component\BlobStorage\Exception\BlobNotFoundException;
 
 class RiakBlobAdapter extends RiakBaseAdapter implements BlobAdapterInterface
 {
     /**
-     * @var Bucket
+     * @var RiakNamespace
      */
-    private $blobBucket;
+    private $blobNamespace;
 
     /**
      * RiakBlobAdapter constructor.
      *
-     * @param Riak   $riak
-     * @param Bucket $blobBucket
+     * @param RiakClient $riak
+     * @param RiakNamespace $blobNamespace
      */
-    public function __construct(Riak $riak, Bucket $blobBucket)
+    public function __construct(RiakClient $riak, RiakNamespace $blobNamespace)
     {
         parent::__construct($riak);
 
-        $this->blobBucket = $blobBucket;
+        $this->blobNamespace = $blobNamespace;
     }
 
     /**
@@ -41,7 +41,7 @@ class RiakBlobAdapter extends RiakBaseAdapter implements BlobAdapterInterface
      */
     public function storeBlob($hash, $data)
     {
-        return $this->storeObject($hash, $data, $this->blobBucket)->isSuccess();
+        $this->storeObject($hash, $data, $this->blobNamespace);
     }
 
     /**
@@ -49,9 +49,9 @@ class RiakBlobAdapter extends RiakBaseAdapter implements BlobAdapterInterface
      */
     public function blobExists($hash)
     {
-        $response = $this->fetchObject($hash, $this->blobBucket);
+        $response = $this->fetchObject($hash, $this->blobNamespace);
 
-        return $response->isSuccess();
+        return !$response->getNotFound();
     }
 
     /**
@@ -59,12 +59,12 @@ class RiakBlobAdapter extends RiakBaseAdapter implements BlobAdapterInterface
      */
     public function fetchBlob($hash)
     {
-        $response = $this->fetchObject($hash, $this->blobBucket);
+        $response = $this->fetchObject($hash, $this->blobNamespace);
 
-        if ($response->isNotFound()) {
+        if ($response->getNotFound()) {
             throw new BlobNotFoundException($hash);
         }
 
-        return $response->getObject()->getData();
+        return $response->getValue()->getValue()->getContents();
     }
 }

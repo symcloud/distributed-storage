@@ -2,11 +2,9 @@
 
 namespace Integration\Riak;
 
-use Basho\Riak;
-use Basho\Riak\Bucket;
-use Basho\Riak\Node\Builder;
 use Integration\Parts\BlobManagerTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
+use Riak\Client\Core\Query\RiakNamespace;
 use Symcloud\Component\BlobStorage\BlobAdapterInterface;
 use Symcloud\Component\Common\FactoryInterface;
 
@@ -16,7 +14,7 @@ class RiakBlobAdapterTest extends ProphecyTestCase
 
     protected function setUp()
     {
-        $this->clearBucket($this->getBlobBucket());
+        $this->clearBucket($this->getBlobNamespace());
 
         parent::setUp();
     }
@@ -24,7 +22,7 @@ class RiakBlobAdapterTest extends ProphecyTestCase
     public function adapterProvider()
     {
         return array(
-            array($this->getBlobAdapter(), $this->getRiak(), $this->getBlobBucket(), $this->getFactory())
+            array($this->getBlobAdapter(), $this->getBlobNamespace(), $this->getFactory())
         );
     }
 
@@ -32,51 +30,41 @@ class RiakBlobAdapterTest extends ProphecyTestCase
      * @dataProvider adapterProvider
      *
      * @param BlobAdapterInterface $adapter
-     * @param Riak $riak
-     * @param Bucket $blobBucket
+     * @param RiakNamespace $blobNamespace
      * @param FactoryInterface $factory
      */
     public function testStoreBlob(
         BlobAdapterInterface $adapter,
-        Riak $riak,
-        Bucket $blobBucket,
+        RiakNamespace $blobNamespace,
         FactoryInterface $factory
     ) {
         $blob = $factory->createBlob('This is my data');
-        $this->assertTrue($adapter->storeBlob($blob->getHash(), $blob->getData()));
+        $adapter->storeBlob($blob->getHash(), $blob->getData());
 
-        $response = $this->fetchBucketKeys($blobBucket, $riak);
-        $this->assertTrue($response->isSuccess());
-        $this->assertFalse($response->isNotFound());
-        $this->assertContains($blob->getHash(), $response->getObject()->getData()->keys);
-
-        $response = $this->fetchObject($blob->getHash(), $blobBucket, $riak);
-        $this->assertTrue($response->isSuccess());
-        $this->assertFalse($response->isNotFound());
-        $this->assertEquals($blob->getData(), $response->getObject()->getData());
+        $response = $this->fetchObject($blob->getHash(), $blobNamespace);
+        $this->assertFalse($response->getNotFound());
+        $this->assertEquals($blob->getData(), json_decode($response->getValue()->getValue()));
     }
 
     /**
      * @dataProvider adapterProvider
      *
      * @param BlobAdapterInterface $adapter
-     * @param Riak $riak
-     * @param Bucket $blobBucket
+     * @param RiakNamespace $blobNamespace
      * @param FactoryInterface $factory
      */
     public function testStoreBlobAlreadyExists(
         BlobAdapterInterface $adapter,
-        Riak $riak,
-        Bucket $blobBucket,
+        RiakNamespace $blobNamespace,
         FactoryInterface $factory
     ) {
-        $this->clearBucket($blobBucket, $riak);
+        $this->clearBucket($blobNamespace);
 
         $blob = $factory->createBlob('This is my data');
-        $this->storeObject($blob->getHash(), $blob->getData(), $blobBucket, $riak);
+        $this->storeObject($blob->getHash(), $blob->getData(), $blobNamespace);
 
         // no exception expected
-        $this->assertTrue($adapter->storeBlob($blob->getHash(), $blob->getData()));
+        $adapter->storeBlob($blob->getHash(), $blob->getData());
     }
 
     /**
@@ -84,19 +72,15 @@ class RiakBlobAdapterTest extends ProphecyTestCase
      * @expectedException \Symcloud\Component\BlobStorage\Exception\BlobNotFoundException
      *
      * @param BlobAdapterInterface $adapter
-     * @param Riak $riak
-     * @param Bucket $blobBucket
+     * @param RiakNamespace $blobNamespace
      * @param FactoryInterface $factory
      */
-    public function testFetchBlob(
+    public function testFetchBlobNotExists(
         BlobAdapterInterface $adapter,
-        Riak $riak,
-        Bucket $blobBucket,
+        RiakNamespace $blobNamespace,
         FactoryInterface $factory
     ) {
-        $this->clearBucket($blobBucket, $riak);
-
-        $blob = $factory->createBlob('This is my data');
+        $blob = $factory->createBlob('This is my not existing data');
         $adapter->fetchBlob($blob->getHash());
     }
 
@@ -104,20 +88,16 @@ class RiakBlobAdapterTest extends ProphecyTestCase
      * @dataProvider adapterProvider
      *
      * @param BlobAdapterInterface $adapter
-     * @param Riak $riak
-     * @param Bucket $blobBucket
+     * @param RiakNamespace $blobNamespace
      * @param FactoryInterface $factory
      */
-    public function testFetchBlobNotExists(
+    public function testFetchBlob(
         BlobAdapterInterface $adapter,
-        Riak $riak,
-        Bucket $blobBucket,
+        RiakNamespace $blobNamespace,
         FactoryInterface $factory
     ) {
-        $this->clearBucket($blobBucket, $riak);
-
         $blob = $factory->createBlob('This is my data');
-        $this->storeObject($blob->getHash(), $blob->getData(), $blobBucket, $riak);
+        $this->storeObject($blob->getHash(), $blob->getData(), $blobNamespace);
 
         $result = $adapter->fetchBlob($blob->getHash());
 
@@ -128,20 +108,18 @@ class RiakBlobAdapterTest extends ProphecyTestCase
      * @dataProvider adapterProvider
      *
      * @param BlobAdapterInterface $adapter
-     * @param Riak $riak
-     * @param Bucket $blobBucket
+     * @param RiakNamespace $blobNamespace
      * @param FactoryInterface $factory
      */
     public function testBlobExists(
         BlobAdapterInterface $adapter,
-        Riak $riak,
-        Bucket $blobBucket,
+        RiakNamespace $blobNamespace,
         FactoryInterface $factory
     ) {
-        $this->clearBucket($blobBucket, $riak);
+        $this->clearBucket($blobNamespace);
 
         $blob = $factory->createBlob('This is my data');
-        $this->storeObject($blob->getHash(), $blob->getData(), $blobBucket, $riak);
+        $this->storeObject($blob->getHash(), $blob->getData(), $blobNamespace);
 
         $this->assertTrue($adapter->blobExists($blob->getHash()));
     }
@@ -150,19 +128,17 @@ class RiakBlobAdapterTest extends ProphecyTestCase
      * @dataProvider adapterProvider
      *
      * @param BlobAdapterInterface $adapter
-     * @param Riak $riak
-     * @param Bucket $blobBucket
+     * @param RiakNamespace $blobNamespace
      * @param FactoryInterface $factory
      */
     public function testBlobNotExists(
         BlobAdapterInterface $adapter,
-        Riak $riak,
-        Bucket $blobBucket,
+        RiakNamespace $blobNamespace,
         FactoryInterface $factory
     ) {
-        $this->clearBucket($blobBucket, $riak);
+        $this->clearBucket($blobNamespace);
 
-        $blob = $factory->createBlob('This is my data');
+        $blob = $factory->createBlob('This is my not existing data');
 
         $this->assertFalse($adapter->blobExists($blob->getHash()));
     }

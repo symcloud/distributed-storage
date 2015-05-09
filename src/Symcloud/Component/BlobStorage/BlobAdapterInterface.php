@@ -16,8 +16,8 @@ use Symcloud\Component\BlobStorage\Exception\BlobNotFoundException;
 interface BlobAdapterInterface
 {
     /**
-     * @param $hash
-     * @param $data
+     * @param string $hash
+     * @param string $data
      *
      * @return bool
      */

@@ -2,11 +2,9 @@
 
 namespace Integration\Riak;
 
-use Basho\Riak;
-use Basho\Riak\Bucket;
-use Basho\Riak\Node\Builder;
 use Integration\Parts\BlobFileManagerTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
+use Riak\Client\Core\Query\RiakNamespace;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\FileStorage\BlobFileAdapterInterface;
 
@@ -16,7 +14,7 @@ class RiakBlobFileAdapterTest extends ProphecyTestCase
 
     protected function setUp()
     {
-        $this->clearBucket($this->getBlobFileBucket());
+        $this->clearBucket($this->getBlobFileNamespace());
 
         parent::setUp();
     }
@@ -24,7 +22,7 @@ class RiakBlobFileAdapterTest extends ProphecyTestCase
     public function adapterProvider()
     {
         return array(
-            array($this->getBlobFileAdapter(), $this->getBlobFileBucket(), $this->getFactory())
+            array($this->getBlobFileAdapter(), $this->getBlobFileNamespace(), $this->getFactory())
         );
     }
 
@@ -32,45 +30,39 @@ class RiakBlobFileAdapterTest extends ProphecyTestCase
      * @dataProvider adapterProvider
      *
      * @param BlobFileAdapterInterface $adapter
-     * @param Bucket $blobFileBucket
+     * @param RiakNamespace $blobFileNamespace
      * @param FactoryInterface $factory
      */
     public function testStoreFile(
         BlobFileAdapterInterface $adapter,
-        Bucket $blobFileBucket,
+        RiakNamespace $blobFileNamespace,
         FactoryInterface $factory
     ) {
         $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
-        $this->assertTrue($adapter->storeFile($file->getHash(), $file->getBlobs()));
+        $adapter->storeFile($file->getHash(), $file->getBlobs());
 
-        $response = $this->fetchBucketKeys($blobFileBucket);
-        $this->assertTrue($response->isSuccess());
-        $this->assertFalse($response->isNotFound());
-        $this->assertContains($file->getHash(), $response->getObject()->getData()->keys);
-
-        $response = $this->fetchObject($file->getHash(), $blobFileBucket);
-        $this->assertTrue($response->isSuccess());
-        $this->assertFalse($response->isNotFound());
-        $this->assertEquals($file->getBlobs(), $response->getObject()->getData());
+        $response = $this->fetchObject($file->getHash(), $blobFileNamespace);
+        $this->assertFalse($response->getNotFound());
+        $this->assertEquals($file->getBlobs(), json_decode($response->getValue()->getValue()));
     }
 
     /**
      * @dataProvider adapterProvider
      *
      * @param BlobFileAdapterInterface $adapter
-     * @param Bucket $blobFileBucket
+     * @param RiakNamespace $blobFileNamespace
      * @param FactoryInterface $factory
      */
     public function testStoreFileAlreadyExists(
         BlobFileAdapterInterface $adapter,
-        Bucket $blobFileBucket,
+        RiakNamespace $blobFileNamespace,
         FactoryInterface $factory
     ) {
         $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
-        $this->storeObject($file->getHash(), $file->getBlobs(), $blobFileBucket);
+        $this->storeObject($file->getHash(), $file->getBlobs(), $blobFileNamespace);
 
         // no exception expected
-        $this->assertTrue($adapter->storeFile($file->getHash(), $file->getBlobs()));
+        $adapter->storeFile($file->getHash(), $file->getBlobs());
     }
 
     /**
@@ -78,15 +70,15 @@ class RiakBlobFileAdapterTest extends ProphecyTestCase
      * @expectedException \Symcloud\Component\FileStorage\Exception\FileNotFoundException
      *
      * @param BlobFileAdapterInterface $adapter
-     * @param Bucket $blobFileBucket
+     * @param RiakNamespace $blobFileNamespace
      * @param FactoryInterface $factory
      */
-    public function testFetchFile(
+    public function testFetchFileNotExists(
         BlobFileAdapterInterface $adapter,
-        Bucket $blobFileBucket,
+        RiakNamespace $blobFileNamespace,
         FactoryInterface $factory
     ) {
-        $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
+        $file = $factory->createBlobFile('my-not-existing-hash', array('hash1', 'hash2'));
         $adapter->fetchFile($file->getHash());
     }
 
@@ -94,16 +86,16 @@ class RiakBlobFileAdapterTest extends ProphecyTestCase
      * @dataProvider adapterProvider
      *
      * @param BlobFileAdapterInterface $adapter
-     * @param Bucket $blobFileBucket
+     * @param RiakNamespace $blobFileNamespace
      * @param FactoryInterface $factory
      */
-    public function testFetchFileNotExists(
+    public function testFetchFile(
         BlobFileAdapterInterface $adapter,
-        Bucket $blobFileBucket,
+        RiakNamespace $blobFileNamespace,
         FactoryInterface $factory
     ) {
         $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
-        $this->storeObject($file->getHash(), $file->getBlobs(), $blobFileBucket);
+        $this->storeObject($file->getHash(), $file->getBlobs(), $blobFileNamespace);
 
         $result = $adapter->fetchFile($file->getHash());
 
@@ -114,16 +106,16 @@ class RiakBlobFileAdapterTest extends ProphecyTestCase
      * @dataProvider adapterProvider
      *
      * @param BlobFileAdapterInterface $adapter
-     * @param Bucket $blobFileBucket
+     * @param RiakNamespace $blobFileNamespace
      * @param FactoryInterface $factory
      */
     public function testFileExists(
         BlobFileAdapterInterface $adapter,
-        Bucket $blobFileBucket,
+        RiakNamespace $blobFileNamespace,
         FactoryInterface $factory
     ) {
         $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
-        $this->storeObject($file->getHash(), $file->getBlobs(), $blobFileBucket);
+        $this->storeObject($file->getHash(), $file->getBlobs(), $blobFileNamespace);
 
         $this->assertTrue($adapter->fileExists($file->getHash()));
     }
@@ -132,15 +124,15 @@ class RiakBlobFileAdapterTest extends ProphecyTestCase
      * @dataProvider adapterProvider
      *
      * @param BlobFileAdapterInterface $adapter
-     * @param Bucket $blobFileBucket
+     * @param RiakNamespace $blobFileNamespace
      * @param FactoryInterface $factory
      */
     public function testFileNotExists(
         BlobFileAdapterInterface $adapter,
-        Bucket $blobFileBucket,
+        RiakNamespace $blobFileNamespace,
         FactoryInterface $factory
     ) {
-        $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
+        $file = $factory->createBlobFile('my-not-existing-hash', array('hash1', 'hash2'));
 
         $this->assertFalse($adapter->fileExists($file->getHash()));
     }

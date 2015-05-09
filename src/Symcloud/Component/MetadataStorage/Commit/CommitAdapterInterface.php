@@ -17,8 +17,6 @@ interface CommitAdapterInterface
 {
     /**
      * @param CommitInterface $commit
-     *
-     * @return bool
      */
     public function storeCommit(CommitInterface $commit);
 

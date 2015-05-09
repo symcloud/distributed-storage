@@ -2,7 +2,7 @@
 
 namespace Integration\Parts;
 
-use Basho\Riak\Bucket;
+use Riak\Client\Core\Query\RiakNamespace;
 use Symcloud\Component\FileStorage\BlobFileAdapterInterface;
 use Symcloud\Component\FileStorage\BlobFileManager;
 use Symcloud\Component\FileStorage\BlobFileManagerInterface;
@@ -30,22 +30,22 @@ trait BlobFileManagerTrait
     private $blobFileAdapter;
 
     /**
-     * @var Bucket
+     * @var RiakNamespace
      */
-    private $blobFileBucket;
+    private $blobFileNamespace;
 
     protected function getBlobMaxLength()
     {
         return 100;
     }
 
-    protected function getBlobFileBucket()
+    protected function getBlobFileNamespace()
     {
-        if (!$this->blobFileBucket) {
-            $this->blobFileBucket = new Bucket('test-files');
+        if (!$this->blobFileNamespace) {
+            $this->blobFileNamespace = new RiakNamespace(RiakNamespace::DEFAULT_TYPE, 'test-files');
         }
 
-        return $this->blobFileBucket;
+        return $this->blobFileNamespace;
     }
 
     protected function getFileSplitter()
@@ -60,7 +60,7 @@ trait BlobFileManagerTrait
     protected function getBlobFileAdapter()
     {
         if (!$this->blobFileAdapter) {
-            $this->blobFileAdapter = new RiakBlobFileAdapter($this->getRiak(), $this->getBlobFileBucket());
+            $this->blobFileAdapter = new RiakBlobFileAdapter($this->getRiak(), $this->getBlobFileNamespace());
         }
 
         return $this->blobFileAdapter;
