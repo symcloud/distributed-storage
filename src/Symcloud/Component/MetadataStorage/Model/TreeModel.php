@@ -118,9 +118,9 @@ class TreeModel extends BaseTreeModel implements TreeInterface
     {
         $this->hash = null;
         if (!$this->isRoot()) {
-            $this->root = $this->getParent()->getRoot();
+            $this->setRoot($this->getParent()->getRoot());
         } else {
-            $this->root = $this;
+            $this->setRoot($this);
         }
 
         $children = $this->getChildren();
