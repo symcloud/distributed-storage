@@ -11,6 +11,8 @@
 
 namespace Symcloud\Component\MetadataStorage\Tree;
 
+use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Cache\Cache;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\FileStorage\BlobFileManagerInterface;
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
@@ -33,6 +35,11 @@ class TreeManager implements TreeManagerInterface
     private $blobFileManager;
 
     /**
+     * @var Cache
+     */
+    private $cache;
+
+    /**
      * @var FactoryInterface
      */
     private $factory;
@@ -52,6 +59,8 @@ class TreeManager implements TreeManagerInterface
         $this->treeAdapter = $treeAdapter;
         $this->blobFileManager = $blobFileManager;
         $this->factory = $factory;
+
+        $this->cache = new ArrayCache();
     }
 
     /**
@@ -120,6 +129,7 @@ class TreeManager implements TreeManagerInterface
      */
     private function storeNode(NodeInterface $child)
     {
+        $this->cache->save($child->getHash(), $child);
         $this->treeAdapter->storeTree($child);
     }
 
@@ -128,9 +138,15 @@ class TreeManager implements TreeManagerInterface
      */
     public function fetch($hash)
     {
-        $data = $this->treeAdapter->fetchTreeData($hash);
+        if ($this->cache->contains($hash)) {
+            return $this->cache->fetch($hash);
+        }
 
-        return $this->parseTreeData($hash, $data);
+        $data = $this->treeAdapter->fetchTreeData($hash);
+        $tree = $this->parseTreeData($hash, $data);
+        $this->cache->save($hash, $tree);
+
+        return $tree;
     }
 
     /**
@@ -179,6 +195,10 @@ class TreeManager implements TreeManagerInterface
      */
     public function fetchFile($hash)
     {
+        if ($this->cache->contains($hash)) {
+            return $this->cache->fetch($hash);
+        }
+
         $data = $this->treeAdapter->fetchTreeData($hash);
 
         $path = $data[NodeInterface::PATH_KEY];
@@ -193,7 +213,10 @@ class TreeManager implements TreeManagerInterface
         $metadata = $data[TreeFileInterface::METADATA_KEY];
         $parent = $this->fetchProxy($data[NodeInterface::PARENT_KEY]);
 
-        return $this->factory->createTreeFile($path, $name, $root, $parent, $blobFile, $metadata);
+        $treeFile = $this->factory->createTreeFile($path, $name, $root, $parent, $blobFile, $metadata);
+        $this->cache->save($hash, $treeFile);
+
+        return $treeFile;
     }
 
     /**
