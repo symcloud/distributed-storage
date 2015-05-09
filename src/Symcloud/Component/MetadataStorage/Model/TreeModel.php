@@ -14,11 +14,6 @@ namespace Symcloud\Component\MetadataStorage\Model;
 class TreeModel extends BaseTreeModel implements TreeInterface
 {
     /**
-     * @var TreeInterface
-     */
-    private $root;
-
-    /**
      * @var NodeInterface[]
      */
     private $children;
