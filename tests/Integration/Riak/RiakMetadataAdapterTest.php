@@ -2,11 +2,11 @@
 
 namespace Integration\Riak;
 
-use Basho\Riak\Bucket;
 use Integration\Parts\FactoryTrait;
 use Integration\Parts\MetadataAdapterTrait;
 use Integration\Parts\RiakTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
+use Riak\Client\Core\Query\RiakNamespace;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
@@ -20,7 +20,7 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
 
     protected function setUp()
     {
-        $this->clearBucket($this->getMetadataBucket());
+        $this->clearBucket($this->getMetadataNamespace());
 
         parent::setUp();
     }
@@ -28,7 +28,7 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
     public function adapterProvider()
     {
         return array(
-            array($this->getSerializeAdapter(), $this->getMetadataBucket(), $this->getFactory())
+            array($this->getSerializeAdapter(), $this->getMetadataNamespace(), $this->getFactory())
         );
     }
 
@@ -36,12 +36,12 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
      * @dataProvider adapterProvider
      *
      * @param RiakMetadataAdapter $adapter
-     * @param Bucket $metadataBucket
+     * @param RiakNamespace $metadataBucket
      * @param FactoryInterface $factory
      */
     public function testStoreCommit(
         RiakMetadataAdapter $adapter,
-        Bucket $metadataBucket,
+        RiakNamespace $metadataBucket,
         FactoryInterface $factory
     ) {
         $treeHash = 'tree-hash';
@@ -56,9 +56,10 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
         $user->getUsername()->willReturn($username);
 
         $commit = $factory->createCommit($tree->reveal(), $user->reveal(), $createdAt, $message);
-        $this->assertTrue($adapter->storeCommit($commit));
+        $adapter->storeCommit($commit);
 
         $response = $this->fetchObject($commit->getHash(), $metadataBucket);
+        $this->assertfalse($response->getNotFound());
         $this->assertEquals(
                 array(
                     CommitInterface::TREE_KEY => $treeHash,
@@ -67,7 +68,7 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
                     CommitInterface::COMMITTER_KEY => $username,
                     CommitInterface::CREATED_AT_KEY => $createdAt->format(\DateTime::ISO8601)
             ),
-            (array)$response->getObject()->getData()
+            json_decode($response->getValue()->getValue(), true)
         );
     }
 
@@ -75,12 +76,12 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
      * @dataProvider adapterProvider
      *
      * @param RiakMetadataAdapter $adapter
-     * @param Bucket $metadataBucket
+     * @param RiakNamespace $metadataBucket
      * @param FactoryInterface $factory
      */
     public function testStoreCommitWithParent(
         RiakMetadataAdapter $adapter,
-        Bucket $metadataBucket,
+        RiakNamespace $metadataBucket,
         FactoryInterface $factory
     ) {
         $this->markTestIncomplete('This test is not implemented until now');
@@ -90,12 +91,12 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
      * @dataProvider adapterProvider
      *
      * @param RiakMetadataAdapter $adapter
-     * @param Bucket $metadataBucket
+     * @param RiakNamespace $metadataNamespace
      * @param FactoryInterface $factory
      */
     public function testFetchCommit(
         RiakMetadataAdapter $adapter,
-        Bucket $metadataBucket,
+        RiakNamespace $metadataNamespace,
         FactoryInterface $factory
     ) {
         $treeHash = 'tree-hash';
@@ -118,28 +119,28 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
         $user = $this->prophesize(UserInterface::class);
         $user->getUsername()->willReturn($username);
 
-        $this->storeObject($commitHash, $data, $metadataBucket);
+        $this->storeObject($commitHash, $data, $metadataNamespace);
 
         $result = $adapter->fetchCommitData($commitHash);
         $this->assertEquals($data, $result);
 
-        $response = $this->fetchBucketKeys($metadataBucket);
-        $this->assertContains($commitHash, $response->getObject()->getData()->keys);
+        $response = $this->fetchObject($commitHash, $metadataNamespace);
+        $this->assertEquals($data, json_decode($response->getValue()->getValue(), true));
 
-        $response = $this->fetchObject($commitHash, $metadataBucket);
-        $this->assertEquals($data, (array) $response->getObject()->getData());
+        $keys = $this->fetchBucketKeys($metadataNamespace);
+        $this->assertContains($commitHash, $keys);
     }
 
     /**
      * @dataProvider adapterProvider
      *
      * @param RiakMetadataAdapter $adapter
-     * @param Bucket $metadataBucket
+     * @param RiakNamespace $metadataBucket
      * @param FactoryInterface $factory
      */
     public function testFetchCommitWithParent(
         RiakMetadataAdapter $adapter,
-        Bucket $metadataBucket,
+        RiakNamespace $metadataBucket,
         FactoryInterface $factory
     ) {
         $this->markTestIncomplete('This test is not implemented until now');
@@ -149,12 +150,12 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
      * @dataProvider adapterProvider
      *
      * @param RiakMetadataAdapter $adapter
-     * @param Bucket $metadataBucket
+     * @param RiakNamespace $metadataNamespace
      * @param FactoryInterface $factory
      */
     public function testStoreReference(
         RiakMetadataAdapter $adapter,
-        Bucket $metadataBucket,
+        RiakNamespace $metadataNamespace,
         FactoryInterface $factory
     ) {
         $username = 'johannes';
@@ -175,7 +176,7 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
 
         $reference = $factory->createReference($commit->reveal(), $user->reveal(), $referenceName);
 
-        $this->assertTrue($adapter->storeReference($reference));
+        $adapter->storeReference($reference);
 
         $this->assertEquals($referenceKey, $reference->getKey());
         $this->assertEquals($referenceName, $reference->getName());
@@ -183,23 +184,23 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
         $this->assertEquals($commit->reveal(), $reference->getCommit());
         $this->assertEquals($data, $reference->toArray());
 
-        $response = $this->fetchBucketKeys($metadataBucket);
-        $this->assertContains($referenceKey, $response->getObject()->getData()->keys);
+        $response = $this->fetchObject($referenceKey, $metadataNamespace);
+        $this->assertEquals($data, json_decode($response->getValue()->getValue(), true));
 
-        $response = $this->fetchObject($referenceKey, $metadataBucket);
-        $this->assertEquals($data, (array)$response->getObject()->getData());
+        $keys = $this->fetchBucketKeys($metadataNamespace);
+        $this->assertContains($referenceKey, $keys);
     }
 
     /**
      * @dataProvider adapterProvider
      *
      * @param RiakMetadataAdapter $adapter
-     * @param Bucket $metadataBucket
+     * @param RiakNamespace $metadataBucket
      * @param FactoryInterface $factory
      */
     public function testFetchReference(
         RiakMetadataAdapter $adapter,
-        Bucket $metadataBucket,
+        RiakNamespace $metadataBucket,
         FactoryInterface $factory
     ) {
         $username = 'johannes';

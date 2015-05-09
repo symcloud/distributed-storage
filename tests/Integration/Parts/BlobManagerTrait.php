@@ -2,7 +2,7 @@
 
 namespace Integration\Parts;
 
-use Basho\Riak\Bucket;
+use Riak\Client\Core\Query\RiakNamespace;
 use Symcloud\Component\BlobStorage\BlobAdapterInterface;
 use Symcloud\Component\BlobStorage\BlobManager;
 use Symcloud\Component\BlobStorage\BlobManagerInterface;
@@ -23,14 +23,14 @@ trait BlobManagerTrait
     private $blobAdapter;
 
     /**
-     * @var Bucket
+     * @var RiakNamespace
      */
-    private $blobBucket;
+    private $blobNamespace;
 
     protected function getBlobAdapter()
     {
         if (!$this->blobAdapter) {
-            $this->blobAdapter = new RiakBlobAdapter($this->getRiak(), $this->getBlobBucket());
+            $this->blobAdapter = new RiakBlobAdapter($this->getRiak(), $this->getBlobNamespace());
         }
 
         return $this->blobAdapter;
@@ -45,12 +45,12 @@ trait BlobManagerTrait
         return $this->blobManager;
     }
 
-    protected function getBlobBucket()
+    protected function getBlobNamespace()
     {
-        if (!$this->blobBucket) {
-            $this->blobBucket = new Bucket('test-blobs');
+        if (!$this->blobNamespace) {
+            $this->blobNamespace = new RiakNamespace(RiakNamespace::DEFAULT_TYPE, 'test-blobs');
         }
 
-        return $this->blobBucket;
+        return $this->blobNamespace;
     }
 }

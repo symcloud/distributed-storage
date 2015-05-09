@@ -17,8 +17,6 @@ interface TreeAdapterInterface
 {
     /**
      * @param NodeInterface $tree
-     *
-     * @return bool
      */
     public function storeTree(NodeInterface $tree);
 

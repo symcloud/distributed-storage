@@ -19,8 +19,6 @@ class BlobFileManagerTest extends ProphecyTestCase
 {
     public function testUpload()
     {
-        $proxyFactory = new LazyLoadingValueHolderFactory();
-
         $data = $this->generateString(200);
         $fileName = tempnam('', 'splitter-test-file');
         file_put_contents($fileName, $data);
@@ -79,8 +77,6 @@ class BlobFileManagerTest extends ProphecyTestCase
 
     public function testUploadExisting()
     {
-        $proxyFactory = new LazyLoadingValueHolderFactory();
-
         $data = $this->generateString(200);
         $fileName = tempnam('', 'splitter-test-file');
         file_put_contents($fileName, $data);

@@ -11,8 +11,8 @@
 
 namespace Symcloud\Riak;
 
-use Basho\Riak;
-use Basho\Riak\Bucket;
+use Riak\Client\Core\Query\RiakNamespace;
+use Riak\Client\RiakClient;
 use Symcloud\Component\MetadataStorage\Commit\CommitAdapterInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\NodeInterface;
@@ -24,21 +24,21 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterface, ReferenceAdapterInterface, TreeAdapterInterface
 {
     /**
-     * @var Bucket
+     * @var RiakNamespace
      */
-    private $metadataBucket;
+    private $metadataNamespace;
 
     /**
      * RiakMetadataAdapter constructor.
      *
-     * @param Riak   $riak
-     * @param Bucket $metadataBucket
+     * @param RiakClient $riak
+     * @param RiakNamespace $metadataNamespace
      */
-    public function __construct(Riak $riak, Bucket $metadataBucket)
+    public function __construct(RiakClient $riak, RiakNamespace $metadataNamespace)
     {
         parent::__construct($riak);
 
-        $this->metadataBucket = $metadataBucket;
+        $this->metadataNamespace = $metadataNamespace;
     }
 
     /**
@@ -46,7 +46,7 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
      */
     public function storeCommit(CommitInterface $commit)
     {
-        return $this->storeJson($commit->getHash(), $commit->toArray());
+        $this->storeJson($commit->getHash(), $commit->toArray());
     }
 
     /**
@@ -62,7 +62,7 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
      */
     public function storeReference(ReferenceInterface $reference)
     {
-        return $this->storeJson($reference->getKey(), $reference->toArray());
+        $this->storeJson($reference->getKey(), $reference->toArray());
     }
 
     /**
@@ -78,7 +78,7 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
      */
     public function storeTree(NodeInterface $tree)
     {
-        return $this->storeJson($tree->getHash(), $tree->toArray());
+        $this->storeJson($tree->getHash(), $tree->toArray());
     }
 
     /**
@@ -99,7 +99,7 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
      */
     protected function storeJson($hash, $data)
     {
-        return $this->storeObject($hash, $data, $this->metadataBucket)->isSuccess();
+        $this->storeObject($hash, json_encode($data), $this->metadataNamespace);
     }
 
     /**
@@ -109,6 +109,6 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
      */
     protected function fetchJson($hash)
     {
-        return (array) $this->fetchObject($hash, $this->metadataBucket)->getObject()->getData();
+        return json_decode($this->fetchObject($hash, $this->metadataNamespace)->getValue()->getValue(), true);
     }
 }

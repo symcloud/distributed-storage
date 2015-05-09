@@ -2,69 +2,102 @@
 
 namespace Integration\Parts;
 
-use Basho\Riak;
-use Basho\Riak\Bucket;
-use Basho\Riak\Node\Builder;
+use GuzzleHttp\Exception\ClientException;
+use Riak\Client\Command\Kv\DeleteValue;
+use Riak\Client\Command\Kv\FetchValue;
+use Riak\Client\Command\Kv\ListKeys;
+use Riak\Client\Command\Kv\Response\FetchValueResponse;
+use Riak\Client\Command\Kv\Response\ListKeysResponse;
+use Riak\Client\Command\Kv\StoreValue;
+use Riak\Client\Core\Query\RiakLocation;
+use Riak\Client\Core\Query\RiakNamespace;
+use Riak\Client\Core\Query\RiakObject;
+use Riak\Client\RiakClient;
+use Riak\Client\RiakClientBuilder;
 
 trait RiakTrait
 {
     /**
-     * @var Riak
+     * @var RiakClient
      */
     private $riak;
 
     protected function getRiak()
     {
         if (!$this->riak) {
-            $nodes = (new Builder())
-                ->buildLocalhost([8098]);
-
-            $this->riak = new Riak($nodes);
+            $builder = new RiakClientBuilder();
+            $this->riak = $builder->withNodeUri('http://localhost:8098')->build();
         }
 
         return $this->riak;
     }
 
-    protected function clearBucket(Bucket $bucket)
+    protected function clearBucket(RiakNamespace $namespace)
     {
-        $response = $this->fetchBucketKeys($bucket);
+        $response = $this->fetchBucketKeys($namespace);
 
-        foreach ($response->getObject()->getData()->keys as $key) {
-            $this->deleteObject($key, $bucket);
+        foreach ($response as $key) {
+            try {
+                $this->deleteObject($key, $namespace);
+            } catch (\Exception $ex) {
+            }
         }
     }
 
-    protected function fetchBucketKeys(Bucket $bucket)
+    /**
+     * @param RiakNamespace $namespace
+     * @return string[]
+     */
+    protected function fetchBucketKeys(RiakNamespace $namespace)
     {
-        $fetchObject = (new Riak\Command\Builder\FetchObject($this->getRiak()))
-            ->inBucket($bucket);
+        $fetch = ListKeys::builder($namespace)->build();
 
-        return (new Riak\Command\Bucket\Keys($fetchObject))
-            ->execute();
+        $keys = array();
+        /** @var ListKeysResponse $response */
+        $response = $this->getRiak()->execute($fetch);
+        foreach ($response->getIterator() as $location) {
+            $keys[] = $location->getKey();
+        }
+
+        return $keys;
     }
 
-    protected function fetchObject($key, Bucket $bucket)
+    /**
+     * @param $key
+     * @param RiakNamespace $namespace
+     * @return FetchValueResponse
+     */
+    protected function fetchObject($key, RiakNamespace $namespace)
     {
-        return (new Riak\Command\Builder\FetchObject($this->getRiak()))
-            ->atLocation(new Riak\Location($key, $bucket))
-            ->build()
-            ->execute();
+        $location = new RiakLocation($namespace, $key);
+        $fetch = FetchValue::builder($location)->build();
+
+        return $this->getRiak()->execute($fetch);
     }
 
-    protected function storeObject($key, $data, Bucket $bucket)
+    protected function storeObject($key, $data, RiakNamespace $namespace)
     {
-        return (new Riak\Command\Builder\StoreObject($this->getRiak()))
-            ->atLocation(new Riak\Location($key, $bucket))
-            ->buildJsonObject($data)
-            ->build()
-            ->execute();
+        $object = new RiakObject();
+        $location = new RiakLocation($namespace, $key);
+
+        if(!is_string($data)){
+            $data = json_encode($data);
+        }
+
+        $object->setValue($data);
+        $object->setContentType('application/json');
+
+        $store = StoreValue::builder($location, $object)->build();
+
+        return $this->getRiak()->execute($store);
     }
 
-    protected function deleteObject($key, Bucket $bucket)
+    protected function deleteObject($key, RiakNamespace $namespace)
     {
-        return (new Riak\Command\Builder\DeleteObject($this->getRiak()))
-            ->atLocation(new Riak\Location($key, $bucket))
-            ->build()
-            ->execute();
+        $location = new RiakLocation($namespace, $key);
+
+        $delete = DeleteValue::builder($location)->build();
+
+        return $this->getRiak()->execute($delete);
     }
 }

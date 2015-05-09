@@ -18,8 +18,6 @@ interface ReferenceAdapterInterface
 {
     /**
      * @param ReferenceInterface $reference
-     *
-     * @return bool
      */
     public function storeReference(ReferenceInterface $reference);
 

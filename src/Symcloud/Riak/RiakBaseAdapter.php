@@ -12,41 +12,64 @@
 namespace Symcloud\Riak;
 
 use Basho\Riak;
-use Basho\Riak\Bucket;
+use Riak\Client\Command\Kv\FetchValue;
+use Riak\Client\Command\Kv\Response\FetchValueResponse;
+use Riak\Client\Command\Kv\Response\StoreValueResponse;
+use Riak\Client\Command\Kv\StoreValue;
+use Riak\Client\Core\Query\RiakLocation;
+use Riak\Client\Core\Query\RiakNamespace;
+use Riak\Client\Core\Query\RiakObject;
+use Riak\Client\RiakClient;
 
-class RiakBaseAdapter
+abstract class RiakBaseAdapter
 {
     /**
-     * @var Riak
+     * @var RiakClient
      */
     protected $riak;
 
     /**
      * RiakBaseAdapter constructor.
      *
-     * @param Riak $riak
+     * @param RiakClient $riak
      */
-    public function __construct(Riak $riak)
+    public function __construct(RiakClient $riak)
     {
         $this->riak = $riak;
     }
 
-    protected function fetchObject($key, Bucket $bucket)
+    /**
+     * @param string $key
+     * @param RiakNamespace $namespace
+     *
+     * @return FetchValueResponse
+     */
+    protected function fetchObject($key, RiakNamespace $namespace)
     {
-        return (new Riak\Command\Builder\FetchObject($this->riak))
-            ->atLocation(new Riak\Location($key, $bucket))
-            ->build()
-            ->execute();
+        $location = new RiakLocation($namespace, $key);
+
+        $fetch = FetchValue::builder($location)->withNotFoundOk(true)->build();
+
+        return $this->riak->execute($fetch);
     }
 
-    protected function storeObject($key, $data, Bucket $bucket)
+    /**
+     * @param string $key
+     * @param string $data
+     * @param RiakNamespace $namespace
+     *
+     * @return StoreValueResponse
+     */
+    protected function storeObject($key, $data, RiakNamespace $namespace)
     {
-        $response = (new Riak\Command\Builder\StoreObject($this->riak))
-            ->atLocation(new Riak\Location($key, $bucket))
-            ->buildJsonObject($data)
-            ->build()
-            ->execute();
+        $object = new RiakObject();
+        $location = new RiakLocation($namespace, $key);
 
-        return $response;
+        $object->setValue($data);
+        $object->setContentType('application/json');
+
+        $store = StoreValue::builder($location, $object)->build();
+
+        return $this->riak->execute($store);
     }
 }

@@ -2,11 +2,7 @@
 
 namespace Integration\Parts;
 
-use Basho\Riak\Bucket;
-use Symcloud\Component\BlobStorage\BlobAdapterInterface;
-use Symcloud\Component\BlobStorage\BlobManager;
-use Symcloud\Component\BlobStorage\BlobManagerInterface;
-use Symcloud\Riak\RiakBlobAdapter;
+use Riak\Client\Core\Query\RiakNamespace;
 use Symcloud\Riak\RiakMetadataAdapter;
 
 trait MetadataAdapterTrait
@@ -17,26 +13,26 @@ trait MetadataAdapterTrait
     private $serializeAdapter;
 
     /**
-     * @var Bucket
+     * @var RiakNamespace
      */
-    private $metadataBucket;
+    private $metadataNamespace;
 
     protected function getSerializeAdapter()
     {
         if (!$this->serializeAdapter) {
-            $this->serializeAdapter = new RiakMetadataAdapter($this->getRiak(), $this->getMetadataBucket());
+            $this->serializeAdapter = new RiakMetadataAdapter($this->getRiak(), $this->getMetadataNamespace());
         }
 
         return $this->serializeAdapter;
     }
 
-    protected function getMetadataBucket()
+    protected function getMetadataNamespace()
     {
-        if (!$this->metadataBucket) {
-            $this->metadataBucket = new Bucket('test-metadata');
+        if (!$this->metadataNamespace) {
+            $this->metadataNamespace = new RiakNamespace(RiakNamespace::DEFAULT_TYPE, 'test-metadata');
         }
 
-        return $this->metadataBucket;
+        return $this->metadataNamespace;
     }
 
     public abstract function getRiak();

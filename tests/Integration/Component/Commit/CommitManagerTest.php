@@ -2,9 +2,9 @@
 
 namespace Integration\Component\Commit;
 
-use Basho\Riak\Bucket;
 use Integration\Parts\CommitManagerTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
+use Riak\Client\Core\Query\RiakNamespace;
 use Symcloud\Component\MetadataStorage\Commit\CommitManagerInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -21,7 +21,7 @@ class CommitManagerTest extends ProphecyTestCase
 
     protected function setUp()
     {
-        $this->clearBucket($this->getMetadataBucket());
+        $this->clearBucket($this->getMetadataNamespace());
 
         parent::setUp();
     }
@@ -29,7 +29,7 @@ class CommitManagerTest extends ProphecyTestCase
     public function adapterProvider()
     {
         return array(
-            array($this->getCommitManager(), $this->getMetadataBucket())
+            array($this->getCommitManager(), $this->getMetadataNamespace())
         );
     }
 
@@ -37,9 +37,9 @@ class CommitManagerTest extends ProphecyTestCase
      * @dataProvider adapterProvider
      *
      * @param CommitManagerInterface $commitManager
-     * @param Bucket $metadataBucket
+     * @param RiakNamespace $metadataNamespace
      */
-    public function testStoreCommit(CommitManagerInterface $commitManager, Bucket $metadataBucket)
+    public function testStoreCommit(CommitManagerInterface $commitManager, RiakNamespace $metadataNamespace)
     {
         $treeHash = 'tree-hash';
         $username = 'johannes';
@@ -52,11 +52,11 @@ class CommitManagerTest extends ProphecyTestCase
 
         $commit = $commitManager->commit($tree->reveal(), $user->reveal(), $message);
 
-        $response = $this->fetchBucketKeys($metadataBucket);
-        $this->assertContains($commit->getHash(), $response->getObject()->getData()->keys);
+        $keys = $this->fetchBucketKeys($metadataNamespace);
+        $this->assertContains($commit->getHash(), $keys);
 
-        $response = $this->fetchObject($commit->getHash(), $metadataBucket);
-        $this->assertEquals($commit->toArray(), (array)$response->getObject()->getData());
+        $response = $this->fetchObject($commit->getHash(), $metadataNamespace);
+        $this->assertEquals($commit->toArray(), json_decode($response->getValue()->getValue(), true));
 
         $this->assertEquals($tree->reveal(), $commit->getTree());
         $this->assertEquals($user->reveal(), $commit->getCommitter());
