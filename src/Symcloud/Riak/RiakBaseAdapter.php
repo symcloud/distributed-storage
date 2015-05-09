@@ -39,7 +39,7 @@ abstract class RiakBaseAdapter
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @param RiakNamespace $namespace
      *
      * @return FetchValueResponse

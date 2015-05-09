@@ -99,7 +99,7 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
      */
     protected function storeJson($hash, $data)
     {
-        return $this->storeObject($hash, json_encode($data), $this->metadataNamespace)->hasValues();
+        $this->storeObject($hash, json_encode($data), $this->metadataNamespace);
     }
 
     /**
