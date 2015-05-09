@@ -88,7 +88,7 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
      */
     public function fetchTreeData($hash)
     {
-        return $this->fetchJson($hash);
+        return array_merge(array(self::HASH_KEY => $hash), $this->fetchJson($hash));
     }
 
     /**

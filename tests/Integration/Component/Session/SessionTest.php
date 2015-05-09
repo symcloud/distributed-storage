@@ -10,6 +10,7 @@ use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symcloud\Component\Session\Session;
+use Symcloud\Component\Session\SessionInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -22,6 +23,31 @@ class SessionTest extends ProphecyTestCase
      */
     private $userProviderMock;
 
+    /**
+     * @var mixed
+     */
+    private $userMock;
+
+    /**
+     * @var UserInterface
+     */
+    private $user;
+
+    /**
+     * @var SessionInterface
+     */
+    private $session;
+
+    /**
+     * @var string
+     */
+    private $username = 'johannes';
+
+    /**
+     * @var string
+     */
+    private $referenceName = 'HEAD';
+
     protected function setUp()
     {
         parent::setUp();
@@ -29,36 +55,42 @@ class SessionTest extends ProphecyTestCase
         $this->clearBucket($this->getMetadataNamespace());
         $this->clearBucket($this->getBlobFileNamespace());
         $this->clearBucket($this->getBlobNamespace());
-    }
 
-    public function testInit()
-    {
-        $username = 'johannes';
-        $referenceName = 'HEAD';
+        /**
+         * setup
+         */
+        $this->userMock = $this->prophesize(UserInterface::class);
+        $this->userMock->getUsername()->willReturn($this->username);
+        $this->user = $this->userMock->reveal();
 
-        $userMock = $this->prophesize(UserInterface::class);
-        $userMock->getUsername()->willReturn($username);
-        $user = $userMock->reveal();
-
-        $session = new Session(
+        $this->session = new Session(
             $this->getBlobFileManager(),
             $this->getReferenceManager(),
             $this->getTreeManager(),
             $this->getCommitManager(),
-            $referenceName,
-            $user
+            $this->referenceName,
+            $this->user
         );
+    }
 
-        $session->init();
-        $root = $session->getRoot();
+    public function testInit()
+    {
+        /**
+         * do it
+         */
+        $this->session->init();
+        $root = $this->session->getRoot();
 
         $this->assertInstanceOf(TreeInterface::class, $root);
         $this->assertEquals('/', $root->getPath());
         $this->assertEquals(array(), $root->getChildren());
 
+        /**
+         * asserts on database
+         */
         $objects = $this->getObjects($this->getMetadataNamespace());
 
-        $referenceKey = $username . '-' . $referenceName;
+        $referenceKey = $this->username . '-' . $this->referenceName;
         $this->assertArrayHasKey($referenceKey, $objects);
 
         $reference = (array)$objects[$referenceKey];
@@ -89,29 +121,13 @@ class SessionTest extends ProphecyTestCase
         /**
          * setup
          */
-        $username = 'johannes';
-        $referenceName = 'HEAD';
-
         list($fileContent, $fileName) = $this->generateTestFile(200);
         $fileHash = $this->getFactory()->createFileHash($fileName);
-
-        $userMock = $this->prophesize(UserInterface::class);
-        $userMock->getUsername()->willReturn($username);
-        $user = $userMock->reveal();
-
-        $session = new Session(
-            $this->getBlobFileManager(),
-            $this->getReferenceManager(),
-            $this->getTreeManager(),
-            $this->getCommitManager(),
-            $referenceName,
-            $user
-        );
 
         /**
          * do it
          */
-        $blobFile = $session->upload($fileName);
+        $blobFile = $this->session->upload($fileName);
         $this->assertEquals($fileHash, $blobFile->getHash());
         $this->assertEquals($this->getFactory()->createHash($fileContent), $blobFile->getHash());
         $this->assertEquals($fileContent, $blobFile->getContent());
@@ -149,38 +165,21 @@ class SessionTest extends ProphecyTestCase
 
     public function testDownload()
     {
-        $this->markTestIncomplete('This test is not implemented until now');
-
         /**
          * setup
          */
-        $username = 'johannes';
-        $referenceName = 'HEAD';
-
         list($fileContent, $fileName) = $this->generateTestFile(200);
         $fileHash = $this->getFactory()->createFileHash($fileName);
 
-        $userMock = $this->prophesize(UserInterface::class);
-        $userMock->getUsername()->willReturn($username);
-        $user = $userMock->reveal();
-
-        $session = new Session(
-            $this->getBlobFileManager(),
-            $this->getReferenceManager(),
-            $this->getTreeManager(),
-            $this->getCommitManager(),
-            $referenceName,
-            $user
-        );
-        $session->init();
-        $blobFile = $session->upload($fileName);
-        $session->createOrUpdateFile('/test.txt', $blobFile->getHash());
-        $session->commit('added test.txt');
+        $this->session->init();
+        $blobFile = $this->session->upload($fileName);
+        $this->session->createOrUpdateFile('/test.txt', $blobFile->getHash());
+        $this->session->commit('added test.txt');
 
         /**
          * do it
          */
-        $result = $session->download('/test.txt');
+        $result = $this->session->download('/test.txt');
         $this->assertEquals($fileHash, $result->getHash());
         $this->assertEquals($fileHash, $this->getFactory()->createHash($result->getContent()));
         $this->assertEquals($fileContent, $result->getContent());
@@ -199,8 +198,148 @@ class SessionTest extends ProphecyTestCase
         $object1 = $this->fetchObject($hash1, $this->getBlobNamespace());
         $object2 = $this->fetchObject($hash2, $this->getBlobNamespace());
 
-        $this->assertEquals($blob1, json_decode($object1->getValue()->getValue(), true));
-        $this->assertEquals($blob2, json_decode($object2->getValue()->getValue(), true));
+        $this->assertEquals($blob1, $object1->getValue()->getValue()->getContents());
+        $this->assertEquals($blob2, $object2->getValue()->getValue()->getContents());
+    }
+
+    public function testDownloadMultipleFilesAndCommits()
+    {
+        /**
+         * setup
+         */
+        list($fileContent1, $fileName1) = $this->generateTestFile(200);
+        $fileHash1 = $this->getFactory()->createFileHash($fileName1);
+        list($fileContent2, $fileName2) = $this->generateTestFile(200);
+        $fileHash2 = $this->getFactory()->createFileHash($fileName2);
+
+        $this->session->init();
+        $blobFile1 = $this->session->upload($fileName1);
+        $this->session->createOrUpdateFile('/test1.txt', $blobFile1->getHash());
+        $this->session->commit('added test1.txt');
+
+        /**
+         * do it
+         */
+        $result = $this->session->download('/test1.txt');
+        $this->assertEquals($fileHash1, $result->getHash());
+        $this->assertEquals($fileHash1, $this->getFactory()->createHash($result->getContent()));
+        $this->assertEquals($fileContent1, $result->getContent());
+
+        /**
+         * setup second test
+         */
+        $blobFile2 = $this->session->upload($fileName2);
+        $this->session->createOrUpdateFile('/test2.txt', $blobFile2->getHash());
+        $this->session->commit('added test2.txt');
+
+        /**
+         * do it
+         */
+        $result = $this->session->download('/test1.txt');
+        $this->assertEquals($fileHash1, $result->getHash());
+        $this->assertEquals($fileHash1, $this->getFactory()->createHash($result->getContent()));
+        $this->assertEquals($fileContent1, $result->getContent());
+
+        $result = $this->session->download('/test2.txt');
+        $this->assertEquals($fileHash2, $result->getHash());
+        $this->assertEquals($fileHash2, $this->getFactory()->createHash($result->getContent()));
+        $this->assertEquals($fileContent2, $result->getContent());
+
+        /**
+         * asserts on database
+         */
+        $blob11 = substr($fileContent1, 0, 100);
+        $hash11 = $this->getFactory()->createHash($blob11);
+        $blob12 = substr($fileContent1, 100, 100);
+        $hash12 = $this->getFactory()->createHash($blob12);
+
+        $blobFile1 = json_decode(
+            $this->fetchObject($fileHash1, $this->getBlobFileNamespace())->getValue()->getValue(),
+            true
+        );
+        $this->assertEquals(array($hash11, $hash12), $blobFile1);
+
+        $object11 = $this->fetchObject($hash11, $this->getBlobNamespace());
+        $object12 = $this->fetchObject($hash12, $this->getBlobNamespace());
+
+        $this->assertEquals($blob11, $object11->getValue()->getValue()->getContents());
+        $this->assertEquals($blob12, $object12->getValue()->getValue()->getContents());
+
+        $blob21 = substr($fileContent2, 0, 100);
+        $hash21 = $this->getFactory()->createHash($blob21);
+        $blob22 = substr($fileContent2, 100, 100);
+        $hash22 = $this->getFactory()->createHash($blob22);
+
+        $blobFile2 = json_decode(
+            $this->fetchObject($fileHash2, $this->getBlobFileNamespace())->getValue()->getValue(),
+            true
+        );
+        $this->assertEquals(array($hash21, $hash22), $blobFile2);
+
+        $object21 = $this->fetchObject($hash21, $this->getBlobNamespace());
+        $object22 = $this->fetchObject($hash22, $this->getBlobNamespace());
+
+        $this->assertEquals($blob21, $object21->getValue()->getValue()->getContents());
+        $this->assertEquals($blob22, $object22->getValue()->getValue()->getContents());
+    }
+
+    public function testDownloadSingleFileAndCommits()
+    {
+        /**
+         * setup
+         */
+        list($fileContent1, $fileName1) = $this->generateTestFile(200);
+        $fileHash1 = $this->getFactory()->createFileHash($fileName1);
+        list($fileContent2, $fileName2) = $this->generateTestFile(200);
+        $fileHash2 = $this->getFactory()->createFileHash($fileName2);
+
+        $this->session->init();
+        $blobFile1 = $this->session->upload($fileName1);
+        $this->session->createOrUpdateFile('/test.txt', $blobFile1->getHash());
+        $this->session->commit('added test.txt');
+
+        /**
+         * do it
+         */
+        $result = $this->session->download('/test.txt');
+        $this->assertEquals($fileHash1, $result->getHash());
+        $this->assertEquals($fileHash1, $this->getFactory()->createHash($result->getContent()));
+        $this->assertEquals($fileContent1, $result->getContent());
+
+        /**
+         * setup second part
+         */
+        $blobFile2 = $this->session->upload($fileName2);
+        $this->session->createOrUpdateFile('/test.txt', $blobFile2->getHash());
+        $this->session->commit('updated test.txt');
+
+        /**
+         * do it second part
+         */
+        $result = $this->session->download('/test.txt');
+        $this->assertEquals($fileHash2, $result->getHash());
+        $this->assertEquals($fileHash2, $this->getFactory()->createHash($result->getContent()));
+        $this->assertEquals($fileContent2, $result->getContent());
+
+        /**
+         * asserts on database
+         */
+        $blob1 = substr($fileContent2, 0, 100);
+        $hash1 = $this->getFactory()->createHash($blob1);
+        $blob2 = substr($fileContent2, 100, 100);
+        $hash2 = $this->getFactory()->createHash($blob2);
+
+        $blobFile = json_decode(
+            $this->fetchObject($fileHash2, $this->getBlobFileNamespace())->getValue()->getValue(),
+            true
+        );
+        $this->assertEquals(array($hash1, $hash2), $blobFile);
+
+        $object1 = $this->fetchObject($hash1, $this->getBlobNamespace());
+        $object2 = $this->fetchObject($hash2, $this->getBlobNamespace());
+
+        $this->assertEquals($blob1, $object1->getValue()->getValue()->getContents());
+        $this->assertEquals($blob2, $object2->getValue()->getValue()->getContents());
     }
 
     private function getObjects(RiakNamespace $namespace)

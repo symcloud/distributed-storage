@@ -229,6 +229,8 @@ class Session implements SessionInterface
      */
     public function commit($message = '')
     {
+        $this->treeManager->store($this->getRoot());
+
         $this->referenceCommit = $this->commitManager->commit(
             $this->getRoot(),
             $this->user,

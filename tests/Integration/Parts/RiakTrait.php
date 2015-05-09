@@ -2,7 +2,6 @@
 
 namespace Integration\Parts;
 
-use GuzzleHttp\Exception\ClientException;
 use Riak\Client\Command\Kv\DeleteValue;
 use Riak\Client\Command\Kv\FetchValue;
 use Riak\Client\Command\Kv\ListKeys;

@@ -169,7 +169,7 @@ class TreeModel implements TreeInterface
      */
     public function isRoot()
     {
-        return $this === $this->getRoot();
+        return $this->getParent() === null;
     }
 
     /**

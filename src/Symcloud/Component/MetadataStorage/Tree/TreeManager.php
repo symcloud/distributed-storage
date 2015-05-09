@@ -59,7 +59,7 @@ class TreeManager implements TreeManagerInterface
      */
     public function getTreeWalker(TreeInterface $tree)
     {
-        return new MaterializedPathTreeWalker($tree, $this);
+        return new SequentialTreeWalker($tree, $this);
     }
 
     /**
@@ -75,7 +75,7 @@ class TreeManager implements TreeManagerInterface
      */
     public function createTree($name, TreeInterface $parent)
     {
-        $tree = $this->factory->createTree(sprintf('%s/%s', $parent->getPath(), $name), $parent->getRoot());
+        $tree = $this->factory->createTree(sprintf('%s/%s', $parent->getPath(), $name), $parent->getRoot(), $parent);
         $parent->setChild($name, $tree);
 
         return $tree;
@@ -130,16 +130,7 @@ class TreeManager implements TreeManagerInterface
     {
         $data = $this->treeAdapter->fetchTreeData($hash);
 
-        $path = $data[NodeInterface::PATH_KEY];
-        $type = $data[TreeInterface::TYPE_KEY];
-        if ($type !== NodeInterface::TREE_TYPE) {
-            throw new NotATreeException($hash, $path);
-        }
-
-        $root = $this->fetchProxy($data[TreeInterface::ROOT_KEY]);
-        $children = $this->deserializeChildren($data[TreeInterface::CHILDREN_KEY]);
-
-        return $this->factory->createTree($path, $root, $children);
+        return $this->parseTreeData($hash, $data);
     }
 
     /**
@@ -158,6 +149,28 @@ class TreeManager implements TreeManagerInterface
         }
 
         return $result;
+    }
+
+    /**
+     * @param string $hash
+     * @param array $data
+     *
+     * @return TreeInterface
+     *
+     * @throws NotATreeException
+     */
+    private function parseTreeData($hash, $data)
+    {
+        $path = $data[NodeInterface::PATH_KEY];
+        $type = $data[TreeInterface::TYPE_KEY];
+        if ($type !== NodeInterface::TREE_TYPE) {
+            throw new NotATreeException($hash, $path);
+        }
+
+        $root = $this->fetchProxy($data[TreeInterface::ROOT_KEY]);
+        $children = $this->deserializeChildren($data[TreeInterface::CHILDREN_KEY]);
+
+        return $this->factory->createTree($path, $root, $this->fetchByPathProxy(dirname($path), $root), $children);
     }
 
     /**
@@ -191,6 +204,16 @@ class TreeManager implements TreeManagerInterface
             TreeInterface::class,
             function () use ($hash) {
                 return $this->fetch($hash);
+            }
+        );
+    }
+
+    public function fetchByPathProxy($absolutePath, $root)
+    {
+        return $this->factory->createProxy(
+            TreeInterface::class,
+            function () use ($absolutePath, $root) {
+                return $this->fetchByPath($absolutePath, $root);
             }
         );
     }

@@ -15,6 +15,8 @@ use Symcloud\Component\MetadataStorage\Model\NodeInterface;
 
 interface TreeAdapterInterface
 {
+    const HASH_KEY = 'hash';
+
     /**
      * @param NodeInterface $tree
      */
