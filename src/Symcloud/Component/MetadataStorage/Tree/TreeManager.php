@@ -168,9 +168,10 @@ class TreeManager implements TreeManagerInterface
         }
 
         $root = $this->fetchProxy($data[TreeInterface::ROOT_KEY]);
+        $treeWalker = $this->getTreeWalker($root);
         $children = $this->deserializeChildren($data[TreeInterface::CHILDREN_KEY]);
 
-        return $this->factory->createTree($path, $root, $this->fetchByPathProxy(dirname($path), $root), $children);
+        return $this->factory->createTree($path, $root, $treeWalker->walk(dirname($path)), $children);
     }
 
     /**
