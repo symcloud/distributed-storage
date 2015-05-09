@@ -116,9 +116,9 @@ class TreeManager implements TreeManagerInterface
         foreach ($tree->getChildren() as $child) {
             if ($child instanceof TreeInterface) {
                 $this->store($child);
+            } else {
+                $this->storeNode($child);
             }
-
-            $this->storeNode($child);
         }
 
         $this->storeNode($tree);
@@ -129,8 +129,9 @@ class TreeManager implements TreeManagerInterface
      */
     private function storeNode(NodeInterface $child)
     {
-        $this->cache->save($child->getHash(), $child);
         $this->treeAdapter->storeTree($child);
+
+        $this->cache->save($child->getHash(), $child);
     }
 
     /**

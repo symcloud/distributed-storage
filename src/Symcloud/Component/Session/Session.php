@@ -19,7 +19,6 @@ use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symcloud\Component\MetadataStorage\Reference\ReferenceManagerInterface;
 use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
-use Symcloud\Component\MetadataStorage\Tree\TreeWalkerInterface;
 use Symcloud\Component\Session\Exception\FileNotExistsException;
 use Symcloud\Component\Session\Exception\NotAFileException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -67,11 +66,6 @@ class Session implements SessionInterface
     private $root;
 
     /**
-     * @var TreeWalkerInterface
-     */
-    private $treeWalker;
-
-    /**
      * @var UserInterface
      */
     private $user;
@@ -107,12 +101,12 @@ class Session implements SessionInterface
      */
     public function init()
     {
-        $this->root = $this->treeManager->createRootTree();
-        $this->treeManager->store($this->root);
-        $this->referenceCommit = $this->commitManager->commit($this->root, $this->user, 'init');
+        $root = $this->treeManager->createRootTree();
+        $this->treeManager->store($root);
+        $this->referenceCommit = $this->commitManager->commit($root, $this->user, 'init');
         $this->reference = $this->referenceManager->create($this->user, $this->referenceCommit, $this->referenceName);
 
-        return $this->root;
+        return $root;
     }
 
     /**
@@ -128,9 +122,9 @@ class Session implements SessionInterface
     /**
      * {@inheritdoc}
      */
-    public function download($filePath)
+    public function download($filePath, CommitInterface $commit = null)
     {
-        $node = $this->getFile($filePath);
+        $node = $this->getFile($filePath, $commit);
 
         return $node->getFile();
     }
@@ -141,21 +135,24 @@ class Session implements SessionInterface
     public function getRoot()
     {
         if (!$this->root) {
-            $this->reference = $this->referenceManager->getForUser($this->user, $this->referenceName);
-            $this->referenceCommit = $this->reference->getCommit();
             $this->root = $this->referenceCommit->getTree();
         }
 
         return $this->root;
     }
 
-    private function getTreeWalker()
+    private function getTreeWalker($clone = false)
     {
-        if (!$this->treeWalker) {
-            $this->treeWalker = $this->treeManager->getTreeWalker($this->getRoot());
+        $tree = $this->getRoot();
+
+        if ($clone) {
+            $tree = clone $tree;
+            $this->root = $tree;
         }
 
-        return $this->treeWalker;
+        $treeWalker = $this->treeManager->getTreeWalker($tree);
+
+        return $treeWalker;
     }
 
     /**
@@ -163,7 +160,7 @@ class Session implements SessionInterface
      */
     public function createOrUpdateFile($filePath, $fileHash)
     {
-        $treeWalker = $this->getTreeWalker();
+        $treeWalker = $this->getTreeWalker(true);
 
         $parentPath = dirname($filePath);
         $fileName = basename($filePath);
@@ -208,9 +205,14 @@ class Session implements SessionInterface
     /**
      * {@inheritdoc}
      */
-    public function getFile($filePath)
+    public function getFile($filePath, CommitInterface $commit = null)
     {
-        $treeWalker = $this->getTreeWalker();
+        if (!$commit) {
+            $treeWalker = $this->getTreeWalker();
+        } else {
+            $treeWalker = $this->treeManager->getTreeWalker($commit->getTree());
+        }
+
         $node = $treeWalker->walk($filePath);
 
         if ($node === null) {
@@ -237,6 +239,13 @@ class Session implements SessionInterface
             $message,
             $this->referenceCommit
         );
+
+        if (!$this->reference) {
+            $this->reference = $this->referenceManager->getForUser($this->user, $this->referenceName);
+        }
+
         $this->referenceManager->update($this->reference, $this->referenceCommit);
+
+        return $this->referenceCommit;
     }
 }

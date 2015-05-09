@@ -12,6 +12,7 @@
 namespace Symcloud\Component\Session;
 
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
+use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 
@@ -31,10 +32,11 @@ interface SessionInterface
 
     /**
      * @param $filePath
+     * @param CommitInterface $commit
      *
      * @return BlobFileInterface
      */
-    public function download($filePath);
+    public function download($filePath, CommitInterface $commit = null);
 
     /**
      * @return TreeInterface
@@ -51,15 +53,16 @@ interface SessionInterface
 
     /**
      * @param string $filePath
+     * @param CommitInterface $commit
      *
      * @return TreeFileInterface
      */
-    public function getFile($filePath);
+    public function getFile($filePath, CommitInterface $commit = null);
 
     /**
      * @param string $message
      *
-     * @return
+     * @return CommitInterface
      */
     public function commit($message = '');
 }

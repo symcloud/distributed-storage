@@ -268,4 +268,9 @@ class TreeFileModel implements TreeFileInterface
     {
         return $this->toArray();
     }
+
+    public function __clone()
+    {
+        $this->hash = null;
+    }
 }

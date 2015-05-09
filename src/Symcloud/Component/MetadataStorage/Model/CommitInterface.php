@@ -37,7 +37,7 @@ interface CommitInterface
     public function getParentCommit();
 
     /**
-     * @return TreeModel
+     * @return TreeInterface
      */
     public function getTree();
 

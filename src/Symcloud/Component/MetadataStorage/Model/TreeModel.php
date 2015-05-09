@@ -234,4 +234,23 @@ class TreeModel implements TreeInterface
     {
         return $this->toArray();
     }
+
+    public function __clone()
+    {
+        $this->hash = null;
+        if (!$this->isRoot()) {
+            $this->root = $this->getParent()->getRoot();
+        } else {
+            $this->root = $this;
+        }
+
+        $children = $this->getChildren();
+        $this->children = array();
+        foreach ($children as $name => $child) {
+            $newChild = clone $child;
+            $newChild->setParent($this);
+            $newChild->setRoot($this->getRoot());
+            $this->children[$name] = $newChild;
+        }
+    }
 }
