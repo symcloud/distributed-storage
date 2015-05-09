@@ -208,16 +208,6 @@ class TreeManager implements TreeManagerInterface
         );
     }
 
-    public function fetchByPathProxy($absolutePath, $root)
-    {
-        return $this->factory->createProxy(
-            TreeInterface::class,
-            function () use ($absolutePath, $root) {
-                return $this->fetchByPath($absolutePath, $root);
-            }
-        );
-    }
-
     /**
      * {@inheritdoc}
      */
