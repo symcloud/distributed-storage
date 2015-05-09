@@ -91,12 +91,12 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
      * @dataProvider adapterProvider
      *
      * @param RiakMetadataAdapter $adapter
-     * @param RiakNamespace $metadataBucket
+     * @param RiakNamespace $metadataNamespace
      * @param FactoryInterface $factory
      */
     public function testFetchCommit(
         RiakMetadataAdapter $adapter,
-        RiakNamespace $metadataBucket,
+        RiakNamespace $metadataNamespace,
         FactoryInterface $factory
     ) {
         $treeHash = 'tree-hash';
@@ -119,13 +119,16 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
         $user = $this->prophesize(UserInterface::class);
         $user->getUsername()->willReturn($username);
 
-        $this->storeObject($commitHash, $data, $metadataBucket);
+        $this->storeObject($commitHash, $data, $metadataNamespace);
 
         $result = $adapter->fetchCommitData($commitHash);
         $this->assertEquals($data, $result);
 
-        $response = $this->fetchObject($commitHash, $metadataBucket);
+        $response = $this->fetchObject($commitHash, $metadataNamespace);
         $this->assertEquals($data, json_decode($response->getValue()->getValue(), true));
+
+        $keys = $this->fetchBucketKeys($metadataNamespace);
+        $this->assertContains($commitHash, $keys);
     }
 
     /**
@@ -147,12 +150,12 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
      * @dataProvider adapterProvider
      *
      * @param RiakMetadataAdapter $adapter
-     * @param RiakNamespace $metadataBucket
+     * @param RiakNamespace $metadataNamespace
      * @param FactoryInterface $factory
      */
     public function testStoreReference(
         RiakMetadataAdapter $adapter,
-        RiakNamespace $metadataBucket,
+        RiakNamespace $metadataNamespace,
         FactoryInterface $factory
     ) {
         $username = 'johannes';
@@ -181,8 +184,11 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
         $this->assertEquals($commit->reveal(), $reference->getCommit());
         $this->assertEquals($data, $reference->toArray());
 
-        $response = $this->fetchObject($referenceKey, $metadataBucket);
+        $response = $this->fetchObject($referenceKey, $metadataNamespace);
         $this->assertEquals($data, json_decode($response->getValue()->getValue(), true));
+
+        $keys = $this->fetchBucketKeys($metadataNamespace);
+        $this->assertContains($referenceKey, $keys);
     }
 
     /**

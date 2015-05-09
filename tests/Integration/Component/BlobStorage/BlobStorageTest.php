@@ -54,6 +54,12 @@ class BlobStorageTest extends ProphecyTestCase
 
         $riakResponse = $this->fetchObject($blob->getHash(), $blobNamespace);
         $this->assertEquals($expectedBlob->getData(), $riakResponse->getValue()->getValue()->getContents());
+
+        $blobKeys = $this->fetchBucketKeys($blobNamespace);
+        $this->assertContains($blob->getHash(), $blobKeys);
+
+        $riakResponse = $this->fetchObject($blob->getHash(), $blobNamespace);
+        $this->assertEquals($expectedBlob->getData(), $riakResponse->getValue()->getValue()->getContents());
     }
 
     /**
@@ -74,5 +80,8 @@ class BlobStorageTest extends ProphecyTestCase
 
         $this->assertEquals($expectedBlob->getHash(), $blob->getHash());
         $this->assertEquals($expectedBlob->getData(), $blob->getData());
+
+        $blobKeys = $this->fetchBucketKeys($blobNamespace);
+        $this->assertContains($blob->getHash(), $blobKeys);
     }
 }

@@ -43,7 +43,10 @@ class RiakBlobAdapterTest extends ProphecyTestCase
 
         $response = $this->fetchObject($blob->getHash(), $blobNamespace);
         $this->assertFalse($response->getNotFound());
-        $this->assertEquals($blob->getData(), json_decode($response->getValue()->getValue()));
+        $this->assertEquals($blob->getData(), $response->getValue()->getValue()->getContents());
+
+        $keys = $this->fetchBucketKeys($blobNamespace);
+        $this->assertContains($blob->getHash(), $keys);
     }
 
     /**

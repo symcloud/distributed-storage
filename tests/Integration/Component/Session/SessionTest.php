@@ -133,8 +133,8 @@ class SessionTest extends ProphecyTestCase
         $object1 = $this->fetchObject($hash1, $this->getBlobNamespace());
         $object2 = $this->fetchObject($hash2, $this->getBlobNamespace());
 
-        $this->assertEquals($blob1, json_decode($object1->getValue()->getValue(), true));
-        $this->assertEquals($blob2, json_decode($object2->getValue()->getValue(), true));
+        $this->assertEquals($blob1, $object1->getValue()->getValue()->getContents());
+        $this->assertEquals($blob2, $object2->getValue()->getValue()->getContents());
     }
 
     public function testCreateOrUpdateFile()
@@ -209,9 +209,12 @@ class SessionTest extends ProphecyTestCase
 
         $objects = array();
         foreach ($keys as $key) {
-            $response = $this->fetchObject($key, $this->getMetadataNamespace());
-            if (!$response->getNotFound()) {
-                $objects[$key] = json_decode($response->getValue()->getValue());
+            try {
+                $response = $this->fetchObject($key, $this->getMetadataNamespace());
+                if (!$response->getNotFound()) {
+                    $objects[$key] = json_decode($response->getValue()->getValue());
+                }
+            } catch (\Exception $ex) {
             }
         }
 

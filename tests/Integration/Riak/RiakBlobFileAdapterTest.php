@@ -44,6 +44,9 @@ class RiakBlobFileAdapterTest extends ProphecyTestCase
         $response = $this->fetchObject($file->getHash(), $blobFileNamespace);
         $this->assertFalse($response->getNotFound());
         $this->assertEquals($file->getBlobs(), json_decode($response->getValue()->getValue()));
+
+        $keys = $this->fetchBucketKeys($blobFileNamespace);
+        $this->assertContains($file->getHash(), $keys);
     }
 
     /**

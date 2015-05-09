@@ -2,10 +2,12 @@
 
 namespace Integration\Parts;
 
+use GuzzleHttp\Exception\ClientException;
 use Riak\Client\Command\Kv\DeleteValue;
 use Riak\Client\Command\Kv\FetchValue;
 use Riak\Client\Command\Kv\ListKeys;
 use Riak\Client\Command\Kv\Response\FetchValueResponse;
+use Riak\Client\Command\Kv\Response\ListKeysResponse;
 use Riak\Client\Command\Kv\StoreValue;
 use Riak\Client\Core\Query\RiakLocation;
 use Riak\Client\Core\Query\RiakNamespace;
@@ -35,7 +37,10 @@ trait RiakTrait
         $response = $this->fetchBucketKeys($namespace);
 
         foreach ($response as $key) {
-            $this->deleteObject($key, $namespace);
+            try {
+                $this->deleteObject($key, $namespace);
+            } catch (\Exception $ex) {
+            }
         }
     }
 
@@ -48,8 +53,9 @@ trait RiakTrait
         $fetch = ListKeys::builder($namespace)->build();
 
         $keys = array();
+        /** @var ListKeysResponse $response */
         $response = $this->getRiak()->execute($fetch);
-        foreach ($response as $location) {
+        foreach ($response->getIterator() as $location) {
             $keys[] = $location->getKey();
         }
 

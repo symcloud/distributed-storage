@@ -91,11 +91,11 @@ class FileStorageTest extends ProphecyTestCase
 
         $this->assertEquals(
             $blobs[0]->getData(),
-            json_decode($this->fetchObject($blobs[0]->getHash(), $blobNamespace)->getValue()->getValue(), true)
+            $this->fetchObject($blobs[0]->getHash(), $blobNamespace)->getValue()->getValue()->getContents()
         );
         $this->assertEquals(
             $blobs[1]->getData(),
-            json_decode($this->fetchObject($blobs[1]->getHash(), $blobNamespace)->getValue()->getValue(), true)
+            $this->fetchObject($blobs[1]->getHash(), $blobNamespace)->getValue()->getValue()->getContents()
         );
 
         $this->assertEquals(
