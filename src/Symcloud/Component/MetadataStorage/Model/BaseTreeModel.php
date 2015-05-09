@@ -1,0 +1,150 @@
+<?php
+
+/*
+ * This file is part of the Symcloud Distributed-Storage.
+ *
+ * (c) Symcloud and Johannes Wachter
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
+namespace Symcloud\Component\MetadataStorage\Model;
+
+use Symcloud\Component\Common\FactoryInterface;
+
+abstract class BaseTreeModel implements NodeInterface
+{
+    /**
+     * @var string
+     */
+    protected $hash;
+
+    /**
+     * @var TreeInterface
+     */
+    private $root;
+
+    /**
+     * @var TreeInterface
+     */
+    private $parent;
+
+    /**
+     * @var string
+     */
+    private $path;
+
+    /**
+     * @var FactoryInterface
+     */
+    private $factory;
+
+    /**
+     * BaseTreeModel constructor.
+     *
+     * @param FactoryInterface $factory
+     */
+    public function __construct(FactoryInterface $factory)
+    {
+        $this->factory = $factory;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHash()
+    {
+        if (!$this->hash) {
+            $this->hash = $this->factory->createHash(json_encode($this->toArrayForHash()));
+        }
+
+        return $this->hash;
+    }
+
+    /**
+     * @return array
+     */
+    abstract protected function toArrayForHash();
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getRoot()
+    {
+        return $this->root;
+    }
+
+    /**
+     * @param TreeInterface $root
+     */
+    public function setRoot($root)
+    {
+        $this->root = $root;
+    }
+
+    /**
+     * @return TreeInterface
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * @param TreeInterface $parent
+     */
+    public function setParent($parent)
+    {
+        $this->parent = $parent;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @param string $path
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isFile()
+    {
+        return $this->getType() === self::FILE_TYPE;
+    }
+
+    /**
+     *
+     */
+    public function setDirty()
+    {
+        $this->hash = null;
+        if ($this->getParent() !== null) {
+            $this->getParent()->setDirty();
+        }
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.4.0)<br/>
+     * Specify data which should be serialized to JSON.
+     *
+     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
+     *
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+}

@@ -11,16 +11,10 @@
 
 namespace Symcloud\Component\MetadataStorage\Model;
 
-use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 
-class TreeFileModel implements TreeFileInterface
+class TreeFileModel extends BaseTreeModel implements TreeFileInterface
 {
-    /**
-     * @var string
-     */
-    private $hash;
-
     /**
      * @var BlobFileInterface
      */
@@ -35,55 +29,6 @@ class TreeFileModel implements TreeFileInterface
      * @var string
      */
     private $name;
-
-    /**
-     * @var TreeInterface
-     */
-    private $root;
-
-    /**
-     * @var TreeInterface
-     */
-    private $parent;
-
-    /**
-     * @var string
-     */
-    private $path;
-
-    /**
-     * @var FactoryInterface
-     */
-    private $factory;
-
-    /**
-     * TreeFileModel constructor.
-     *
-     * @param FactoryInterface $factory
-     */
-    public function __construct(FactoryInterface $factory)
-    {
-        $this->factory = $factory;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getHash()
-    {
-        if (!$this->hash) {
-            $this->hash = $this->factory->createHash(json_encode($this->toArrayForHash()));
-        }
-
-        return $this->hash;
-    }
-
-    public function setDirty()
-    {
-        $this->hash = null;
-
-        $this->getParent()->setDirty();
-    }
 
     /**
      * {@inheritdoc}
@@ -117,54 +62,6 @@ class TreeFileModel implements TreeFileInterface
     public function setName($name)
     {
         $this->name = $name;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getRoot()
-    {
-        return $this->root;
-    }
-
-    /**
-     * @param TreeInterface $root
-     */
-    public function setRoot($root)
-    {
-        $this->root = $root;
-    }
-
-    /**
-     * @return TreeInterface
-     */
-    public function getParent()
-    {
-        return $this->parent;
-    }
-
-    /**
-     * @param TreeInterface $parent
-     */
-    public function setParent($parent)
-    {
-        $this->parent = $parent;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    /**
-     * @param string $path
-     */
-    public function setPath($path)
-    {
-        $this->path = $path;
     }
 
     /**
@@ -228,14 +125,6 @@ class TreeFileModel implements TreeFileInterface
     /**
      * {@inheritdoc}
      */
-    public function isFile()
-    {
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function toArray()
     {
         return array(
@@ -251,7 +140,7 @@ class TreeFileModel implements TreeFileInterface
     /**
      * data which will be used to generate hash.
      */
-    private function toArrayForHash()
+    protected function toArrayForHash()
     {
         return array(
             self::TYPE_KEY => self::FILE_TYPE,
@@ -264,11 +153,6 @@ class TreeFileModel implements TreeFileInterface
     /**
      * {@inheritdoc}
      */
-    public function jsonSerialize()
-    {
-        return $this->toArray();
-    }
-
     public function __clone()
     {
         $this->hash = null;

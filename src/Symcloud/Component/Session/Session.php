@@ -248,4 +248,12 @@ class Session implements SessionInterface
 
         return $this->referenceCommit;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCurrentCommit()
+    {
+        return $this->referenceCommit;
+    }
 }

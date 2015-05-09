@@ -11,61 +11,17 @@
 
 namespace Symcloud\Component\MetadataStorage\Model;
 
-use Symcloud\Component\Common\FactoryInterface;
-
-class TreeModel implements TreeInterface
+class TreeModel extends BaseTreeModel implements TreeInterface
 {
-    /**
-     * @var string
-     */
-    private $hash;
-
     /**
      * @var TreeInterface
      */
     private $root;
 
     /**
-     * @var string
-     */
-    private $path;
-
-    /**
      * @var NodeInterface[]
      */
     private $children;
-
-    /**
-     * @var TreeInterface
-     */
-    private $parent;
-
-    /**
-     * @var FactoryInterface
-     */
-    private $factory;
-
-    /**
-     * TreeModel constructor.
-     *
-     * @param FactoryInterface $factory
-     */
-    public function __construct(FactoryInterface $factory)
-    {
-        $this->factory = $factory;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getHash()
-    {
-        if (!$this->hash) {
-            $this->hash = $this->factory->createHash(json_encode($this->toArrayForHash()));
-        }
-
-        return $this->hash;
-    }
 
     /**
      * {@inheritdoc}
@@ -106,65 +62,6 @@ class TreeModel implements TreeInterface
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function getRoot()
-    {
-        return $this->root;
-    }
-
-    /**
-     * @param TreeInterface $root
-     */
-    public function setRoot($root)
-    {
-        $this->root = $root;
-    }
-
-    /**
-     * @return TreeInterface
-     */
-    public function getParent()
-    {
-        return $this->parent;
-    }
-
-    /**
-     * @param TreeInterface $parent
-     */
-    public function setParent($parent)
-    {
-        $this->parent = $parent;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    /**
-     * @param string $path
-     */
-    public function setPath($path)
-    {
-        $this->path = $path;
-    }
-
-    /**
-     *
-     */
-    public function setDirty()
-    {
-        $this->hash = null;
-        if (!$this->isRoot()) {
-            $this->getParent()->setDirty();
-        }
-    }
-
-    /**
      * @return bool
      */
     public function isRoot()
@@ -178,14 +75,6 @@ class TreeModel implements TreeInterface
     public function getType()
     {
         return self::TREE_TYPE;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isFile()
-    {
-        return false;
     }
 
     /**
@@ -209,7 +98,7 @@ class TreeModel implements TreeInterface
         );
     }
 
-    private function toArrayForHash()
+    protected function toArrayForHash()
     {
         $children = array(
             NodeInterface::TREE_TYPE => array(),
@@ -230,11 +119,6 @@ class TreeModel implements TreeInterface
     /**
      * {@inheritdoc}
      */
-    public function jsonSerialize()
-    {
-        return $this->toArray();
-    }
-
     public function __clone()
     {
         $this->hash = null;

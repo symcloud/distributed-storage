@@ -65,4 +65,9 @@ interface SessionInterface
      * @return CommitInterface
      */
     public function commit($message = '');
+
+    /**
+     * @return CommitInterface
+     */
+    public function getCurrentCommit();
 }
