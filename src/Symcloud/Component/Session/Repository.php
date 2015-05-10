@@ -11,15 +11,66 @@
 
 namespace Symcloud\Component\Session;
 
+use Symcloud\Component\FileStorage\BlobFileManagerInterface;
+use Symcloud\Component\MetadataStorage\Commit\CommitManagerInterface;
+use Symcloud\Component\MetadataStorage\Reference\ReferenceManagerInterface;
+use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class Repository implements RepositoryInterface
 {
     /**
+     * @var BlobFileManagerInterface
+     */
+    private $blobFileManager;
+
+    /**
+     * @var ReferenceManagerInterface
+     */
+    private $referenceManager;
+
+    /**
+     * @var TreeManagerInterface
+     */
+    private $treeManager;
+
+    /**
+     * @var CommitManagerInterface
+     */
+    private $commitManager;
+
+    /**
+     * Repository constructor.
+     *
+     * @param BlobFileManagerInterface $blobFileManager
+     * @param ReferenceManagerInterface $referenceManager
+     * @param TreeManagerInterface $treeManager
+     * @param CommitManagerInterface $commitManager
+     */
+    public function __construct(
+        BlobFileManagerInterface $blobFileManager,
+        ReferenceManagerInterface $referenceManager,
+        TreeManagerInterface $treeManager,
+        CommitManagerInterface $commitManager
+    ) {
+        $this->blobFileManager = $blobFileManager;
+        $this->referenceManager = $referenceManager;
+        $this->treeManager = $treeManager;
+        $this->commitManager = $commitManager;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function login(UserInterface $user, $reference = 'HEAD')
     {
-        // TODO: Implement login() method.
+        return new Session(
+            $this->blobFileManager,
+            $this->referenceManager,
+            $this->treeManager,
+            $this->commitManager,
+            $reference,
+            $user
+        );
     }
 }
