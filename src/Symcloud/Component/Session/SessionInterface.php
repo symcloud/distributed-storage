@@ -90,6 +90,14 @@ interface SessionInterface
     public function getFile($filePath, CommitInterface $commit = null);
 
     /**
+     * @param string $path
+     * @param CommitInterface $commit
+     *
+     * @return TreeInterface
+     */
+    public function getDirectory($path, CommitInterface $commit = null);
+
+    /**
      * @param string $message
      *
      * @return CommitInterface

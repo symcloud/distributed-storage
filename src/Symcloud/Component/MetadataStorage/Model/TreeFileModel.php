@@ -41,6 +41,14 @@ class TreeFileModel extends BaseTreeModel implements TreeFileInterface
     /**
      * {@inheritdoc}
      */
+    public function getFileHash()
+    {
+        return $this->getFile()->getHash();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setFile(BlobFileInterface $file)
     {
         $this->file = $file;

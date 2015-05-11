@@ -20,6 +20,7 @@ use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeReferenceInterface;
 use Symcloud\Component\MetadataStorage\Reference\ReferenceManagerInterface;
 use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
+use Symcloud\Component\Session\Exception\DirectoryNotExistsException;
 use Symcloud\Component\Session\Exception\FileNotExistsException;
 use Symcloud\Component\Session\Exception\NotAFileException;
 use Symcloud\Component\Session\Exception\NotAReferenceException;
@@ -315,6 +316,30 @@ class Session implements SessionInterface
 
         if (!$node->isFile()) {
             throw new NotAFileException($filePath);
+        }
+
+        return $node;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDirectory($path, CommitInterface $commit = null)
+    {
+        if (!$commit) {
+            $treeWalker = $this->getTreeWalker();
+        } else {
+            $treeWalker = $this->treeManager->getTreeWalker($commit->getTree());
+        }
+
+        $node = $treeWalker->walk($path, $this->referenceManager);
+
+        if ($node === null) {
+            throw new DirectoryNotExistsException($path);
+        }
+
+        if ($node->isFile()) {
+            throw new NotATreeException($path);
         }
 
         return $node;

@@ -522,6 +522,19 @@ class SessionTest extends ProphecyTestCase
         $this->assertEquals($fileHash2, $file2->getHash());
     }
 
+    /**
+     * 1.  Create session for user 2
+     * 2.  Upload test1.txt as user 2
+     * 3.  Upload test2.txt as user 2
+     * 4.  Commit as user 2
+     * 5.  Upload test.txt as user 1
+     * 6.  Commit as user 1
+     * 7.  Mount as user 1 HEAD of user 2 to /test
+     * 8.  Commit as user 1
+     * 9.  Download /test/test1.txt
+     * 10. Download /test/test2.txt
+     * 11. Download /test.txt
+     */
     public function testMount()
     {
         /**
@@ -576,6 +589,35 @@ class SessionTest extends ProphecyTestCase
         $this->assertEquals($fileHash1, $file1->getHash());
         $this->assertEquals($fileHash2, $file2->getHash());
         $this->assertEquals($fileHash3, $file3->getHash());
+    }
+
+    /**
+     * 1. Upload /test/test1.txt
+     * 2. Upload /test/test2.txt
+     * 3. Commit
+     * 4. Get  /test
+     */
+    public function testGetDirectory()
+    {
+
+        /**
+         * setup
+         */
+        list($fileContent1, $fileName1) = $this->generateTestFile(200);
+        $fileHash1 = $this->getFactory()->createFileHash($fileName1);
+        list($fileContent2, $fileName2) = $this->generateTestFile(200);
+        $fileHash2 = $this->getFactory()->createFileHash($fileName2);
+
+        $this->session->init();
+        $blobFile1 = $this->session->upload($fileName1);
+        $blobFile2 = $this->session->upload($fileName2);
+        $this->session->createOrUpdateFile('/test/test1.txt', $blobFile1->getHash());
+        $this->session->createOrUpdateFile('/test/test2.txt', $blobFile2->getHash());
+        $this->session->commit('init test data');
+
+        $directory = $this->session->getDirectory('/test');
+        $this->assertEquals($fileHash1, $directory->getChild('test1.txt')->getFileHash());
+        $this->assertEquals($fileHash2, $directory->getChild('test2.txt')->getFileHash());
     }
 
     private function getObjects(RiakNamespace $namespace)
