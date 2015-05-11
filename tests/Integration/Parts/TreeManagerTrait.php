@@ -20,6 +20,7 @@ trait TreeManagerTrait
             $this->treeManager = new TreeManager(
                 $this->getTreeAdapter(),
                 $this->getBlobFileManager(),
+                $this->getUserProvider(),
                 $this->getFactory()
             );
         }
@@ -31,4 +32,6 @@ trait TreeManagerTrait
     {
         return $this->getSerializeAdapter();
     }
+
+    protected abstract function getUserProvider();
 }

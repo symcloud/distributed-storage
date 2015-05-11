@@ -28,4 +28,12 @@ interface ReferenceAdapterInterface
      * @return array
      */
     public function fetchReferenceData(UserInterface $user, $name = 'HEAD');
+
+    /**
+     * @param string $username
+     * @param string $name
+     *
+     * @return array
+     */
+    public function fetchReferenceDataByUsername($username, $name = 'HEAD');
 }

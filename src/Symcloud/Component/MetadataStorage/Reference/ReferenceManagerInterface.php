@@ -26,6 +26,14 @@ interface ReferenceManagerInterface
     public function getForUser(UserInterface $user, $name = 'HEAD');
 
     /**
+     * @param string $username
+     * @param string        $name
+     *
+     * @return ReferenceInterface
+     */
+    public function getForUsername($username, $name = 'HEAD');
+
+    /**
      * @param UserInterface   $user
      * @param CommitInterface $commit
      * @param string          $name

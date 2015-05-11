@@ -11,30 +11,30 @@
 
 namespace Symcloud\Component\Session\Exception;
 
-class NotAFileException extends \Exception
+class NotAReferenceException extends \Exception
 {
     /**
      * @var string string
      */
-    private $filePath;
+    private $path;
 
     /**
-     * NotAFileException constructor.
+     * NotAReferenceException constructor.
      *
      * @param string $path
      */
     public function __construct($path)
     {
-        parent::__construct(sprintf('Path "%s" is not a file', $path));
+        parent::__construct(sprintf('Path "%s" is not a reference', $path));
 
-        $this->filePath = $path;
+        $this->path = $path;
     }
 
     /**
      * @return string
      */
-    public function getFilePath()
+    public function getPath()
     {
-        return $this->filePath;
+        return $this->path;
     }
 }

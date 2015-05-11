@@ -70,7 +70,15 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
      */
     public function fetchReferenceData(UserInterface $user, $name = 'HEAD')
     {
-        return $this->fetchJson(sprintf('%s-%s', $user->getUsername(), $name));
+        return $this->fetchReferenceDataByUsername($user->getUsername(), $name);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchReferenceDataByUsername($username, $name = 'HEAD')
+    {
+        return $this->fetchJson(sprintf('%s-%s', $username, $name));
     }
 
     /**
@@ -78,7 +86,9 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
      */
     public function storeTree(NodeInterface $tree)
     {
-        $this->storeJson($tree->getHash(), $tree->toArray());
+        $hash = $tree->getHash();
+        $data = $tree->toArray();
+        $this->storeJson($hash, $data);
     }
 
     /**

@@ -57,6 +57,14 @@ class TreeModel extends BaseTreeModel implements TreeInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function removeChild($name)
+    {
+        unset($this->children[$name]);
+    }
+
+    /**
      * @return bool
      */
     public function isRoot()
@@ -93,6 +101,9 @@ class TreeModel extends BaseTreeModel implements TreeInterface
         );
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function toArrayForHash()
     {
         $children = array(

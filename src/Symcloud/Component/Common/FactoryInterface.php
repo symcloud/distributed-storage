@@ -17,6 +17,7 @@ use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
+use Symcloud\Component\MetadataStorage\Model\TreeReferenceInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 interface FactoryInterface
@@ -83,6 +84,25 @@ interface FactoryInterface
         TreeInterface $parent,
         BlobFileInterface $blobFile,
         $metadata = array()
+    );
+
+    /**
+     * @param string $path
+     * @param string $name
+     * @param TreeInterface $root
+     * @param TreeInterface $parent
+     * @param string $referenceName
+     * @param UserInterface $user
+     *
+     * @return TreeReferenceInterface
+     */
+    public function createTreeReference(
+        $path,
+        $name,
+        TreeInterface $root,
+        TreeInterface $parent,
+        $referenceName,
+        UserInterface $user
     );
 
     /**

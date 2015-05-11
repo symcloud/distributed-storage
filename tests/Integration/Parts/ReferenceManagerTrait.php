@@ -20,6 +20,7 @@ trait ReferenceManagerTrait
             $this->referenceManager = new ReferenceManager(
                 $this->getReferenceAdapter(),
                 $this->getCommitManager(),
+                $this->getUserProvider(),
                 $this->getFactory()
             );
         }

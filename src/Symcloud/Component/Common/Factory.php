@@ -21,6 +21,7 @@ use Symcloud\Component\MetadataStorage\Model\ReferenceModel;
 use Symcloud\Component\MetadataStorage\Model\TreeFileModel;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeModel;
+use Symcloud\Component\MetadataStorage\Model\TreeReferenceModel;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class Factory implements FactoryInterface
@@ -169,6 +170,25 @@ class Factory implements FactoryInterface
         $file->setAllMetadata($metadata);
 
         return $file;
+    }
+
+    public function createTreeReference(
+        $path,
+        $name,
+        TreeInterface $root,
+        TreeInterface $parent,
+        $referenceName,
+        UserInterface $user
+    ) {
+        $reference = new TreeReferenceModel($this);
+        $reference->setPath($path);
+        $reference->setName($name);
+        $reference->setRoot($root);
+        $reference->setParent($parent);
+        $reference->setReferenceName($referenceName);
+        $reference->setUser($user);
+
+        return $reference;
     }
 
     /**

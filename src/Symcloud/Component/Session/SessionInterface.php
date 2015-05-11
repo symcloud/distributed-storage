@@ -13,8 +13,12 @@ namespace Symcloud\Component\Session;
 
 use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
+use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
+use Symcloud\Component\MetadataStorage\Model\TreeReferenceInterface;
+use Symcloud\Component\Session\Exception\NotAFileException;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 interface SessionInterface
 {
@@ -39,9 +43,11 @@ interface SessionInterface
     public function download($filePath, CommitInterface $commit = null);
 
     /**
+     * @param CommitInterface $commit
+     *
      * @return TreeInterface
      */
-    public function getRoot();
+    public function getRoot(CommitInterface $commit = null);
 
     /**
      * @param string $filePath
@@ -50,6 +56,30 @@ interface SessionInterface
      * @return TreeFileInterface
      */
     public function createOrUpdateFile($filePath, $fileHash);
+
+    /**
+     * @param string $filePath
+     *
+     * @throws NotAFileException
+     */
+    public function deleteFile($filePath);
+
+    /**
+     * @param string $path
+     * @param UserInterface $user
+     * @param string $referenceName
+     *
+     * @return TreeReferenceInterface
+     */
+    public function mount($path, UserInterface $user, $referenceName);
+
+    /**
+     * @param string $path
+     * @param string $referenceName
+     *
+     * @return ReferenceInterface
+     */
+    public function split($path, $referenceName);
 
     /**
      * @param string $filePath

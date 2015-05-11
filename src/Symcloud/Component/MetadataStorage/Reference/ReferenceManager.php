@@ -16,6 +16,7 @@ use Symcloud\Component\MetadataStorage\Commit\CommitManagerInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class ReferenceManager implements ReferenceManagerInterface
 {
@@ -30,6 +31,11 @@ class ReferenceManager implements ReferenceManagerInterface
     private $commitManager;
 
     /**
+     * @var UserProviderInterface
+     */
+    private $userProvider;
+
+    /**
      * @var FactoryInterface
      */
     private $factory;
@@ -38,17 +44,20 @@ class ReferenceManager implements ReferenceManagerInterface
      * ReferenceManager constructor.
      *
      * @param ReferenceAdapterInterface $adapter
-     * @param CommitManagerInterface    $commitManager
-     * @param FactoryInterface          $factory
+     * @param CommitManagerInterface $commitManager
+     * @param UserProviderInterface $userProvider
+     * @param FactoryInterface $factory
      */
     public function __construct(
         ReferenceAdapterInterface $adapter,
         CommitManagerInterface $commitManager,
+        UserProviderInterface $userProvider,
         FactoryInterface $factory
     ) {
         $this->adapter = $adapter;
         $this->commitManager = $commitManager;
         $this->factory = $factory;
+        $this->userProvider = $userProvider;
     }
 
     /**
@@ -78,6 +87,22 @@ class ReferenceManager implements ReferenceManagerInterface
     public function getForUser(UserInterface $user, $name = 'HEAD')
     {
         $referenceData = $this->adapter->fetchReferenceData($user, $name);
+
+        return $this->createReference($referenceData, $user);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getForUsername($username, $name = 'HEAD')
+    {
+        $referenceData = $this->adapter->fetchReferenceDataByUsername($username, $name);
+
+        return $this->createReference($referenceData, $this->userProvider->loadUserByUsername($username));
+    }
+
+    private function createReference($referenceData, UserInterface $user)
+    {
         $commit = $this->commitManager->fetchProxy($referenceData[ReferenceInterface::COMMIT_KEY]);
 
         return $this->factory->createReference($commit, $user, $referenceData[ReferenceInterface::NAME_KEY]);

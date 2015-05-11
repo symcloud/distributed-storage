@@ -11,10 +11,18 @@ use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
 use Symcloud\Component\MetadataStorage\Reference\ReferenceAdapterInterface;
 use Symcloud\Component\MetadataStorage\Reference\ReferenceManager;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class ReferenceManagerTest extends ProphecyTestCase
 {
     use FactoryTrait;
+
+    private function getUserProvider()
+    {
+        $mock = $this->prophesize(UserProviderInterface::class);
+
+        return $mock->reveal();
+    }
 
     public function testGetForUserReference()
     {
@@ -42,7 +50,12 @@ class ReferenceManagerTest extends ProphecyTestCase
         $commitManager = $this->prophesize(CommitManagerInterface::class);
         $commitManager->fetchProxy($commitHash)->willReturn($commit->reveal());
 
-        $manager = new ReferenceManager($referenceAdapter->reveal(), $commitManager->reveal(), $factory);
+        $manager = new ReferenceManager(
+            $referenceAdapter->reveal(),
+            $commitManager->reveal(),
+            $this->getUserProvider(),
+            $factory
+        );
         $reference = $manager->getForUser($user->reveal());
 
         $this->assertEquals($user->reveal(), $reference->getUser());
@@ -78,7 +91,12 @@ class ReferenceManagerTest extends ProphecyTestCase
         $commitManager = $this->prophesize(CommitManagerInterface::class);
         $commitManager->fetchProxy($commitHash)->willReturn($commit->reveal());
 
-        $manager = new ReferenceManager($referenceAdapter->reveal(), $commitManager->reveal(), $factory);
+        $manager = new ReferenceManager(
+            $referenceAdapter->reveal(),
+            $commitManager->reveal(),
+            $this->getUserProvider(),
+            $factory
+        );
         $reference = $manager->getForUser($user->reveal(), $referenceName);
 
         $this->assertEquals($user->reveal(), $reference->getUser());
@@ -112,7 +130,12 @@ class ReferenceManagerTest extends ProphecyTestCase
         $referenceAdapter->storeReference($reference->reveal())->shouldBeCalled()->willReturn(true);
         $commitManager = $this->prophesize(CommitManagerInterface::class);
 
-        $manager = new ReferenceManager($referenceAdapter->reveal(), $commitManager->reveal(), $factory);
+        $manager = new ReferenceManager(
+            $referenceAdapter->reveal(),
+            $commitManager->reveal(),
+            $this->getUserProvider(),
+            $factory
+        );
         $this->assertTrue($manager->update($reference->reveal(), $commitNew->reveal()));
     }
 
@@ -147,7 +170,12 @@ class ReferenceManagerTest extends ProphecyTestCase
         );
         $commitManager = $this->prophesize(CommitManagerInterface::class);
 
-        $manager = new ReferenceManager($referenceAdapter->reveal(), $commitManager->reveal(), $factory);
+        $manager = new ReferenceManager(
+            $referenceAdapter->reveal(),
+            $commitManager->reveal(),
+            $this->getUserProvider(),
+            $factory
+        );
         $reference = $manager->create($user->reveal(), $commit->reveal());
 
         $this->assertEquals($user->reveal(), $reference->getUser());
@@ -188,7 +216,12 @@ class ReferenceManagerTest extends ProphecyTestCase
         );
         $commitManager = $this->prophesize(CommitManagerInterface::class);
 
-        $manager = new ReferenceManager($referenceAdapter->reveal(), $commitManager->reveal(), $factory);
+        $manager = new ReferenceManager(
+            $referenceAdapter->reveal(),
+            $commitManager->reveal(),
+            $this->getUserProvider(),
+            $factory
+        );
         $reference = $manager->create($user->reveal(), $commit->reveal(), $referenceName);
 
         $this->assertEquals($user->reveal(), $reference->getUser());

@@ -20,6 +20,7 @@ interface NodeInterface extends \JsonSerializable
 
     const TREE_TYPE = 'tree';
     const FILE_TYPE = 'file';
+    const REFERENCE_TYPE = 'reference';
 
     /**
      * @return string

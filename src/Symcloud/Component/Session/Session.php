@@ -17,10 +17,13 @@ use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
+use Symcloud\Component\MetadataStorage\Model\TreeReferenceInterface;
 use Symcloud\Component\MetadataStorage\Reference\ReferenceManagerInterface;
 use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
 use Symcloud\Component\Session\Exception\FileNotExistsException;
 use Symcloud\Component\Session\Exception\NotAFileException;
+use Symcloud\Component\Session\Exception\NotAReferenceException;
+use Symcloud\Component\Session\Exception\NotATreeException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class Session implements SessionInterface
@@ -132,8 +135,17 @@ class Session implements SessionInterface
     /**
      * {@inheritdoc}
      */
-    public function getRoot()
+    public function getRoot(CommitInterface $commit = null)
     {
+        if ($commit !== null) {
+            return $commit->getTree();
+        }
+
+        if (!$this->reference) {
+            $this->reference = $this->referenceManager->getForUser($this->user, $this->referenceName);
+            $this->referenceCommit = $this->reference->getCommit();
+        }
+
         if (!$this->root) {
             $this->root = $this->referenceCommit->getTree();
         }
@@ -186,7 +198,89 @@ class Session implements SessionInterface
     }
 
     /**
-     * @param $path
+     * {@inheritdoc}
+     */
+    public function deleteFile($filePath)
+    {
+        // TODO cleanup
+        $treeWalker = $this->getTreeWalker(true);
+
+        $parentPath = dirname($filePath);
+        $fileName = basename($filePath);
+        if (!($parentTree = $treeWalker->walk($parentPath)) || !($parentTree instanceof TreeInterface)) {
+            throw new NotAFileException($filePath);
+        }
+
+        $parentTree->removeChild($fileName);
+    }
+
+    /**
+     * {@inheritdoc.
+     */
+    public function mount($path, UserInterface $user, $referenceName)
+    {
+        $treeWalker = $this->getTreeWalker(true);
+
+        $parentPath = dirname($path);
+        $name = basename($path);
+        if (!($parentTree = $treeWalker->walk($parentPath))) {
+            $parentTree = $this->createRecursive($parentPath);
+        }
+
+        $child = $parentTree->getChild($name);
+
+        if (!$child) {
+            return $this->treeManager->createTreeReference(
+                $name,
+                $parentTree,
+                $this->referenceManager->getForUser($user, $referenceName)
+            );
+        }
+
+        if (!($child instanceof TreeReferenceInterface)) {
+            throw new NotAReferenceException($path);
+        }
+
+        $child->setReferenceName($referenceName);
+        $child->setUser($user);
+
+        return $child;
+    }
+
+    /**
+     * {@inheritdoc.
+     */
+    public function split($path, $referenceName)
+    {
+        $treeWalker = $this->getTreeWalker(true);
+
+        $parentPath = dirname($path);
+        $name = basename($path);
+        $tree = $treeWalker->walk($path);
+        $parentTree = $treeWalker->walk($parentPath);
+
+        if (!$tree || !($tree instanceof TreeInterface) || !($parentTree instanceof TreeInterface)) {
+            throw new NotATreeException($path);
+        }
+
+        $parentTree->removeChild($name);
+
+        $message = sprintf(
+            'split path "%s" from user "%s" and reference "%s"',
+            $path,
+            $this->user->getUsername(),
+            $this->referenceName
+        );
+        $commit = $this->commitManager->commit($tree, $this->user, $message);
+        $reference = $this->referenceManager->create($this->user, $commit, $referenceName);
+
+        $this->treeManager->createTreeReference($name, $parentTree, $reference);
+
+        return $this->referenceManager->getForUser($this->user, $referenceName);
+    }
+
+    /**
+     * @param string $path
      *
      * @return TreeInterface
      */
@@ -213,7 +307,7 @@ class Session implements SessionInterface
             $treeWalker = $this->treeManager->getTreeWalker($commit->getTree());
         }
 
-        $node = $treeWalker->walk($filePath);
+        $node = $treeWalker->walk($filePath, $this->referenceManager);
 
         if ($node === null) {
             throw new FileNotExistsException($filePath);

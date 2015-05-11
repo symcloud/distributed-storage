@@ -19,8 +19,12 @@ use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\MetadataStorage\Exception\NotAFileException;
 use Symcloud\Component\MetadataStorage\Exception\NotATreeException;
 use Symcloud\Component\MetadataStorage\Model\NodeInterface;
+use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
 use Symcloud\Component\MetadataStorage\Model\TreeInterface;
+use Symcloud\Component\MetadataStorage\Model\TreeReferenceInterface;
+use Symcloud\Component\Session\Exception\NotAReferenceException;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class TreeManager implements TreeManagerInterface
 {
@@ -33,6 +37,11 @@ class TreeManager implements TreeManagerInterface
      * @var BlobFileManagerInterface
      */
     private $blobFileManager;
+
+    /**
+     * @var UserProviderInterface
+     */
+    private $userProvider;
 
     /**
      * @var Cache
@@ -49,15 +58,18 @@ class TreeManager implements TreeManagerInterface
      *
      * @param TreeAdapterInterface $treeAdapter
      * @param BlobFileManagerInterface $blobFileManager
+     * @param UserProviderInterface $userProvider
      * @param FactoryInterface $factory
      */
     public function __construct(
         TreeAdapterInterface $treeAdapter,
         BlobFileManagerInterface $blobFileManager,
+        UserProviderInterface $userProvider,
         FactoryInterface $factory
     ) {
         $this->treeAdapter = $treeAdapter;
         $this->blobFileManager = $blobFileManager;
+        $this->userProvider = $userProvider;
         $this->factory = $factory;
 
         $this->cache = new ArrayCache();
@@ -102,6 +114,24 @@ class TreeManager implements TreeManagerInterface
             $parent,
             $blobFile,
             $metadata
+        );
+        $parent->setChild($name, $file);
+
+        return $file;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createTreeReference($name, TreeInterface $parent, ReferenceInterface $reference)
+    {
+        $file = $this->factory->createTreeReference(
+            ltrim(sprintf('%s/%s', $parent->getPath(), $name), '/'),
+            $name,
+            $parent->getRoot(),
+            $parent,
+            $reference->getName(),
+            $reference->getUser()
         );
         $parent->setChild($name, $file);
 
@@ -164,6 +194,9 @@ class TreeManager implements TreeManagerInterface
         foreach ($children[TreeInterface::FILE_TYPE] as $childHash) {
             $result[] = $this->fetchFileProxy($childHash);
         }
+        foreach ($children[TreeInterface::REFERENCE_TYPE] as $childHash) {
+            $result[] = $this->fetchReferenceProxy($childHash);
+        }
 
         return $result;
     }
@@ -220,6 +253,33 @@ class TreeManager implements TreeManagerInterface
         return $treeFile;
     }
 
+    public function fetchReference($hash)
+    {
+        if ($this->cache->contains($hash)) {
+            return $this->cache->fetch($hash);
+        }
+
+        $data = $this->treeAdapter->fetchTreeData($hash);
+
+        $path = $data[NodeInterface::PATH_KEY];
+        $type = $data[TreeInterface::TYPE_KEY];
+        if ($type !== NodeInterface::REFERENCE_TYPE) {
+            throw new NotAReferenceException($path);
+        }
+
+        $name = basename($path);
+        $root = $this->fetchProxy($data[TreeInterface::ROOT_KEY]);
+        $parent = $this->fetchProxy($data[NodeInterface::PARENT_KEY]);
+        $referenceName = $data[TreeReferenceInterface::NAME_KEY];
+        $username = $data[TreeReferenceInterface::USERNAME_KEY];
+        $user = $this->userProvider->loadUserByUsername($username);
+
+        $treeReference = $this->factory->createTreeReference($path, $name, $root, $parent, $referenceName, $user);
+        $this->cache->save($hash, $treeReference);
+
+        return $treeReference;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -242,6 +302,19 @@ class TreeManager implements TreeManagerInterface
             TreeInterface::class,
             function () use ($hash) {
                 return $this->fetchFile($hash);
+            }
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchReferenceProxy($hash)
+    {
+        return $this->factory->createProxy(
+            TreeInterface::class,
+            function () use ($hash) {
+                return $this->fetchReference($hash);
             }
         );
     }

@@ -138,7 +138,7 @@ class TreeFileModel extends BaseTreeModel implements TreeFileInterface
     }
 
     /**
-     * data which will be used to generate hash.
+     * {@inheritdoc}
      */
     protected function toArrayForHash()
     {
