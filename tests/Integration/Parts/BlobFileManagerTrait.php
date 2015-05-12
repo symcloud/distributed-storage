@@ -73,8 +73,7 @@ trait BlobFileManagerTrait
                 $this->getFileSplitter(),
                 $this->getBlobManager(),
                 $this->getFactory(),
-                $this->getBlobFileAdapter(),
-                $this->getProxyFactory()
+                $this->getBlobFileAdapter()
             );
         }
 

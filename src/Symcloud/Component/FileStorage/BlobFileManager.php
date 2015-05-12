@@ -11,7 +11,6 @@
 
 namespace Symcloud\Component\FileStorage;
 
-use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use Symcloud\Component\BlobStorage\BlobManagerInterface;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\Common\FactoryInterface;
@@ -40,31 +39,23 @@ class BlobFileManager implements BlobFileManagerInterface
     private $adapter;
 
     /**
-     * @var LazyLoadingValueHolderFactory
-     */
-    private $proxyFactory;
-
-    /**
      * BlobFileManager constructor.
      *
      * @param FileSplitterInterface         $fileSplitter
      * @param BlobManagerInterface          $blobManager
      * @param FactoryInterface              $factory
      * @param BlobFileAdapterInterface      $adapter
-     * @param LazyLoadingValueHolderFactory $proxyFactory
      */
     public function __construct(
         FileSplitterInterface $fileSplitter,
         BlobManagerInterface $blobManager,
         FactoryInterface $factory,
-        BlobFileAdapterInterface $adapter,
-        LazyLoadingValueHolderFactory $proxyFactory
+        BlobFileAdapterInterface $adapter
     ) {
         $this->fileSplitter = $fileSplitter;
         $this->blobManager = $blobManager;
         $this->factory = $factory;
         $this->adapter = $adapter;
-        $this->proxyFactory = $proxyFactory;
     }
 
     /**
