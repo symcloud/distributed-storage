@@ -109,6 +109,7 @@ class TreeModel extends BaseTreeModel implements TreeInterface
         $children = array(
             NodeInterface::TREE_TYPE => array(),
             NodeInterface::FILE_TYPE => array(),
+            NodeInterface::REFERENCE_TYPE => array(),
         );
 
         foreach ($this->getChildren() as $name => $child) {
