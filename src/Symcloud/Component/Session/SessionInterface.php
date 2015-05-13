@@ -35,12 +35,19 @@ interface SessionInterface
     public function upload($fileName);
 
     /**
-     * @param $filePath
+     * @param string $filePath
      * @param CommitInterface $commit
      *
      * @return BlobFileInterface
      */
     public function download($filePath, CommitInterface $commit = null);
+
+    /**
+     * @param string $hash
+     *
+     * @return BlobFileInterface
+     */
+    public function downloadByHash($hash);
 
     /**
      * @param CommitInterface $commit

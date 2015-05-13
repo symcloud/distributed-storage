@@ -136,6 +136,14 @@ class Session implements SessionInterface
     /**
      * {@inheritdoc}
      */
+    public function downloadByHash($hash)
+    {
+        return $this->blobFileManager->download($hash);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getRoot(CommitInterface $commit = null)
     {
         if ($commit !== null) {
