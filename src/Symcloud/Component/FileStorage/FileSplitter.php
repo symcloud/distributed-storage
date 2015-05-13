@@ -38,7 +38,7 @@ class FileSplitter implements FileSplitterInterface
         $index = 0;
 
         while (!feof($handle)) {
-            $buffer = fgets($handle, $this->maxLength + 1);
+            $buffer = fread($handle, $this->maxLength + 1);
 
             if ($buffer !== false) {
                 $callback($index++, $buffer);
