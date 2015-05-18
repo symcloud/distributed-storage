@@ -73,6 +73,7 @@ interface FactoryInterface
      * @param TreeInterface $root
      * @param TreeInterface $parent
      * @param BlobFileInterface $blobFile
+     * @param int $version
      * @param array $metadata
      *
      * @return TreeFileInterface
@@ -83,6 +84,7 @@ interface FactoryInterface
         TreeInterface $root,
         TreeInterface $parent,
         BlobFileInterface $blobFile,
+        $version,
         $metadata = array()
     );
 

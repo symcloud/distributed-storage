@@ -113,6 +113,7 @@ class TreeManager implements TreeManagerInterface
             $parent->getRoot(),
             $parent,
             $blobFile,
+            1,
             $metadata
         );
         $parent->setChild($name, $file);
@@ -236,7 +237,7 @@ class TreeManager implements TreeManagerInterface
         $data = $this->treeAdapter->fetchTreeData($hash);
 
         $path = $data[NodeInterface::PATH_KEY];
-        $type = $data[TreeInterface::TYPE_KEY];
+        $type = $data[TreeFileInterface::TYPE_KEY];
         if ($type !== NodeInterface::FILE_TYPE) {
             throw new NotAFileException($hash, $path);
         }
@@ -246,8 +247,9 @@ class TreeManager implements TreeManagerInterface
         $blobFile = $this->blobFileManager->downloadProxy($data[TreeFileInterface::FILE_KEY]);
         $metadata = $data[TreeFileInterface::METADATA_KEY];
         $parent = $this->fetchProxy($data[NodeInterface::PARENT_KEY]);
+        $version = $data[TreeFileInterface::VERSION_KEY];
 
-        $treeFile = $this->factory->createTreeFile($path, $name, $root, $parent, $blobFile, $metadata);
+        $treeFile = $this->factory->createTreeFile($path, $name, $root, $parent, $blobFile, $version, $metadata);
         $this->cache->save($hash, $treeFile);
 
         return $treeFile;

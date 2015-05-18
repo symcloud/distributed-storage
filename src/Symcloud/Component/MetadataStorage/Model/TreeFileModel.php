@@ -31,6 +31,11 @@ class TreeFileModel extends BaseTreeModel implements TreeFileInterface
     private $name;
 
     /**
+     * @var int
+     */
+    private $version;
+
+    /**
      * {@inheritdoc}
      */
     public function getFile()
@@ -123,6 +128,29 @@ class TreeFileModel extends BaseTreeModel implements TreeFileInterface
     }
 
     /**
+     * @return mixed
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
+    public function increaseVersion()
+    {
+        $this->setDirty();
+
+        $this->version += 1;
+    }
+
+    /**
+     * @param mixed $version
+     */
+    public function setVersion($version)
+    {
+        $this->version = $version;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getType()
@@ -142,6 +170,7 @@ class TreeFileModel extends BaseTreeModel implements TreeFileInterface
             self::ROOT_KEY => $this->getRoot()->getHash(),
             self::METADATA_KEY => $this->getAllMetadata(),
             self::PARENT_KEY => $this->getParent()->getHash(),
+            self::VERSION_KEY => $this->getVersion(),
         );
     }
 
@@ -155,6 +184,7 @@ class TreeFileModel extends BaseTreeModel implements TreeFileInterface
             self::FILE_KEY => $this->getFile()->getHash(),
             self::PATH_KEY => $this->getPath(),
             self::METADATA_KEY => $this->getAllMetadata(),
+            self::VERSION_KEY => $this->getVersion(),
         );
     }
 

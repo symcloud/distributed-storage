@@ -17,6 +17,7 @@ interface TreeFileInterface extends NodeInterface
 {
     const FILE_KEY = 'file';
     const METADATA_KEY = 'metadata';
+    const VERSION_KEY = 'version';
 
     /**
      * @return BlobFileInterface
@@ -62,4 +63,14 @@ interface TreeFileInterface extends NodeInterface
      * @return array
      */
     public function getAllMetadata();
+
+    /**
+     * @return int
+     */
+    public function getVersion();
+
+    /**
+     *
+     */
+    public function increaseVersion();
 }

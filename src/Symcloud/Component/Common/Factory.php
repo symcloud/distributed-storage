@@ -159,6 +159,7 @@ class Factory implements FactoryInterface
         TreeInterface $root,
         TreeInterface $parent,
         BlobFileInterface $blobFile,
+        $version,
         $metadata = array()
     ) {
         $file = new TreeFileModel($this);
@@ -167,6 +168,7 @@ class Factory implements FactoryInterface
         $file->setRoot($root);
         $file->setParent($parent);
         $file->setFile($blobFile);
+        $file->setVersion($version);
         if ($metadata !== null) {
             $file->setAllMetadata($metadata);
         }

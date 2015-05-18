@@ -201,6 +201,11 @@ class Session implements SessionInterface
             throw new NotAFileException($filePath);
         }
 
+        if ($child->getFileHash() === $fileHash) {
+            return $child;
+        }
+
+        $child->increaseVersion();
         $child->setFile($this->blobFileManager->downloadProxy($fileHash));
 
         return $child;
