@@ -167,7 +167,9 @@ class Factory implements FactoryInterface
         $file->setRoot($root);
         $file->setParent($parent);
         $file->setFile($blobFile);
-        $file->setAllMetadata($metadata);
+        if ($metadata !== null) {
+            $file->setAllMetadata($metadata);
+        }
 
         return $file;
     }

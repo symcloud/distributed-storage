@@ -38,9 +38,19 @@ interface NodeInterface extends \JsonSerializable
     public function getRoot();
 
     /**
+     * @param TreeInterface $root
+     */
+    public function setRoot(TreeInterface $root);
+
+    /**
      * @return TreeInterface
      */
     public function getParent();
+
+    /**
+     * @param TreeInterface $parent
+     */
+    public function setParent(TreeInterface $parent);
 
     /**
      * @return string

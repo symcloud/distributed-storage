@@ -23,7 +23,7 @@ class TreeFileModel extends BaseTreeModel implements TreeFileInterface
     /**
      * @var array
      */
-    private $metadata;
+    private $metadata = array();
 
     /**
      * @var string

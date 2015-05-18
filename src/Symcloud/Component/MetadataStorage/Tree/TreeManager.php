@@ -108,7 +108,7 @@ class TreeManager implements TreeManagerInterface
     public function createTreeFile($name, TreeInterface $parent, BlobFileInterface $blobFile, $metadata = array())
     {
         $file = $this->factory->createTreeFile(
-            ltrim(sprintf('%s/%s', $parent->getPath(), $name), '/'),
+            '/' . ltrim(sprintf('%s/%s', $parent->getPath(), $name), '/'),
             $name,
             $parent->getRoot(),
             $parent,
@@ -188,14 +188,14 @@ class TreeManager implements TreeManagerInterface
     private function deserializeChildren($children)
     {
         $result = array();
-        foreach ($children[TreeInterface::TREE_TYPE] as $childHash) {
-            $result[] = $this->fetchProxy($childHash);
+        foreach ($children[TreeInterface::TREE_TYPE] as $name => $childHash) {
+            $result[$name] = $this->fetchProxy($childHash);
         }
-        foreach ($children[TreeInterface::FILE_TYPE] as $childHash) {
-            $result[] = $this->fetchFileProxy($childHash);
+        foreach ($children[TreeInterface::FILE_TYPE] as $name => $childHash) {
+            $result[$name] = $this->fetchFileProxy($childHash);
         }
-        foreach ($children[TreeInterface::REFERENCE_TYPE] as $childHash) {
-            $result[] = $this->fetchReferenceProxy($childHash);
+        foreach ($children[TreeInterface::REFERENCE_TYPE] as $name => $childHash) {
+            $result[$name] = $this->fetchReferenceProxy($childHash);
         }
 
         return $result;
@@ -299,7 +299,7 @@ class TreeManager implements TreeManagerInterface
     public function fetchFileProxy($hash)
     {
         return $this->factory->createProxy(
-            TreeInterface::class,
+            TreeFileInterface::class,
             function () use ($hash) {
                 return $this->fetchFile($hash);
             }

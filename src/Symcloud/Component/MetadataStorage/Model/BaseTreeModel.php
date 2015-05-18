@@ -78,8 +78,9 @@ abstract class BaseTreeModel implements NodeInterface
     /**
      * @param TreeInterface $root
      */
-    public function setRoot($root)
+    public function setRoot(TreeInterface $root)
     {
+        $this->setDirty();
         $this->root = $root;
     }
 
@@ -94,8 +95,9 @@ abstract class BaseTreeModel implements NodeInterface
     /**
      * @param TreeInterface $parent
      */
-    public function setParent($parent)
+    public function setParent(TreeInterface $parent)
     {
+        $this->setDirty();
         $this->parent = $parent;
     }
 
