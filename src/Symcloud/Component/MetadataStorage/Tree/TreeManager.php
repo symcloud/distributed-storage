@@ -190,16 +190,22 @@ class TreeManager implements TreeManagerInterface
     {
         $result = array();
         foreach ($children[TreeInterface::TREE_TYPE] as $name => $childHash) {
-            $result[$name] = $this->fetchProxy($childHash);
+            $result[$this->cleanName($name)] = $this->fetchProxy($childHash);
         }
         foreach ($children[TreeInterface::FILE_TYPE] as $name => $childHash) {
-            $result[$name] = $this->fetchFileProxy($childHash);
+            $result[$this->cleanName($name)] = $this->fetchFileProxy($childHash);
         }
         foreach ($children[TreeInterface::REFERENCE_TYPE] as $name => $childHash) {
-            $result[$name] = $this->fetchReferenceProxy($childHash);
+            $result[$this->cleanName($name)] = $this->fetchReferenceProxy($childHash);
         }
 
         return $result;
+    }
+
+    private function cleanName($name)
+    {
+        // TODO add ß, ä, ö, perhaps other special chars
+        return urldecode(str_replace(array('u%CC%88'), array('ü'), urlencode($name)));
     }
 
     /**

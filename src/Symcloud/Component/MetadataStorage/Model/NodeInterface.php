@@ -11,7 +11,7 @@
 
 namespace Symcloud\Component\MetadataStorage\Model;
 
-interface NodeInterface extends \JsonSerializable
+interface NodeInterface
 {
     const TYPE_KEY = 'type';
     const ROOT_KEY = 'root';
