@@ -109,7 +109,7 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
      */
     protected function storeJson($hash, $data)
     {
-        $this->storeObject($hash, json_encode($data), $this->metadataNamespace);
+        $this->storeObject($hash, base64_encode(json_encode($data)), $this->metadataNamespace);
     }
 
     /**
@@ -119,6 +119,9 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
      */
     protected function fetchJson($hash)
     {
-        return json_decode($this->fetchObject($hash, $this->metadataNamespace)->getValue()->getValue(), true);
+        $object = $this->fetchObject($hash, $this->metadataNamespace);
+        $content = $object->getValue()->getValue()->getContents();
+
+        return json_decode(base64_decode($content), true);
     }
 }

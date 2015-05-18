@@ -81,6 +81,19 @@ class TreeModel extends BaseTreeModel implements TreeInterface
     }
 
     /**
+     * @param TreeInterface $parent
+     */
+    public function setParent(TreeInterface $parent)
+    {
+        parent::setParent($parent);
+
+        $this->setRoot($parent->getRoot());
+        foreach ($this->children as $child) {
+            $child->setParent($this);
+        }
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function toArray()

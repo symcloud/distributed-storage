@@ -57,6 +57,10 @@ class SequentialTreeWalker implements TreeWalkerInterface
                 $reference = $referenceManager->getForUser($tree->getUser(), $tree->getReferenceName());
                 $tree = $reference->getCommit()->getTree();
             }
+
+            if ($tree === null) {
+                return;
+            }
         }
 
         return $tree;
