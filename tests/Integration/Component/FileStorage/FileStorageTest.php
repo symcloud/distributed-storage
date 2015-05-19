@@ -9,6 +9,7 @@ use Riak\Client\Core\Query\RiakNamespace;
 use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\FileStorage\BlobFileManagerInterface;
+use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 
 class FileStorageTest extends ProphecyTestCase
 {
@@ -69,13 +70,15 @@ class FileStorageTest extends ProphecyTestCase
         RiakNamespace $blobNamespace,
         FactoryInterface $factory
     ) {
-        $result = $manager->upload($fileName);
+        $result = $manager->upload($fileName, 'application/json', 999);
 
         $this->assertEquals($factory->createHash($data), $result->getHash());
         $this->assertEquals($blobs[0]->getHash(), $result->getBlobs()[0]->getHash());
         $this->assertEquals($blobs[0]->getData(), $result->getBlobs()[0]->getData());
         $this->assertEquals($blobs[1]->getHash(), $result->getBlobs()[1]->getHash());
         $this->assertEquals($blobs[1]->getData(), $result->getBlobs()[1]->getData());
+        $this->assertEquals('application/json', $result->getMimeType());
+        $this->assertEquals(999, $result->getSize());
         $this->assertEquals($data, $result->getContent());
 
         $fileKeys = $this->fetchBucketKeys($fileNamespace);
@@ -99,7 +102,11 @@ class FileStorageTest extends ProphecyTestCase
         );
 
         $this->assertEquals(
-            array($blobs[0]->getHash(), $blobs[1]->getHash()),
+            array(
+                BlobFileInterface::SIZE_KEY => 999,
+                BlobFileInterface::MIME_TYPE_KEY => 'application/json',
+                BlobFileInterface::BLOBS_KEY => array($blobs[0]->getHash(), $blobs[1]->getHash()),
+            ),
             json_decode($this->fetchObject($fileHash, $fileNamespace)->getValue()->getValue(), true)
         );
     }
@@ -126,14 +133,27 @@ class FileStorageTest extends ProphecyTestCase
         RiakNamespace $blobNamespace,
         FactoryInterface $factory
     ) {
+        $mimeType = 'application/json';
+        $size = 999;
+
         $this->storeObject($blobs[0]->getHash(), $blobs[0]->getData(), $blobNamespace);
         $this->storeObject($blobs[1]->getHash(), $blobs[1]->getData(), $blobNamespace);
-        $this->storeObject($fileHash, array($blobs[0]->getHash(), $blobs[1]->getHash()), $fileNamespace);
+        $this->storeObject(
+            $fileHash,
+            array(
+                BlobFileInterface::MIME_TYPE_KEY => $mimeType,
+                BlobFileInterface::SIZE_KEY => $size,
+                BlobFileInterface::BLOBS_KEY => array($blobs[0]->getHash(), $blobs[1]->getHash()),
+            ),
+            $fileNamespace
+        );
 
         $result = $manager->download($fileHash);
 
-        $this->assertEquals($result->getHash(), $result->getHash());
-        $this->assertEquals($result->getContent(), $data);
+        $this->assertEquals($fileHash, $result->getHash());
+        $this->assertEquals($data, $result->getContent());
+        $this->assertEquals($mimeType, $result->getMimeType());
+        $this->assertEquals($size, $result->getSize());
 
         $this->assertCount(count($blobs), $result->getBlobs());
 

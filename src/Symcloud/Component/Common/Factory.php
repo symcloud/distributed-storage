@@ -74,11 +74,13 @@ class Factory implements FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createBlobFile($hash, $blobs = array())
+    public function createBlobFile($hash, $blobs = array(), $mimeType, $size)
     {
         $blobFile = new BlobFileModel();
         $blobFile->setHash($hash);
         $blobFile->setBlobs($blobs);
+        $blobFile->setMimeType($mimeType);
+        $blobFile->setSize($size);
 
         return $blobFile;
     }

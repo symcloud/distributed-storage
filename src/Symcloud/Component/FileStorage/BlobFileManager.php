@@ -61,7 +61,7 @@ class BlobFileManager implements BlobFileManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function upload($filePath)
+    public function upload($filePath, $mimeType, $size)
     {
         $fileHash = $this->factory->createFileHash($filePath);
 
@@ -84,8 +84,8 @@ class BlobFileManager implements BlobFileManagerInterface
             }
         );
 
-        $file = $this->factory->createBlobFile($fileHash, $blobs);
-        $this->adapter->storeFile($file->getHash(), $blobKeys);
+        $file = $this->factory->createBlobFile($fileHash, $blobs, $mimeType, $size);
+        $this->adapter->storeFile($file->getHash(), $file->toArray());
 
         return $file;
     }
@@ -95,14 +95,16 @@ class BlobFileManager implements BlobFileManagerInterface
      */
     public function download($fileHash)
     {
-        $blobKeys = $this->adapter->fetchFile($fileHash);
-        $blobs = array();
+        $data = $this->adapter->fetchFile($fileHash);
+        $mimeType = $data[BlobFileInterface::MIME_TYPE_KEY];
+        $size = $data[BlobFileInterface::SIZE_KEY];
 
-        foreach ($blobKeys as $key) {
+        $blobs = array();
+        foreach ($data[BlobFileInterface::BLOBS_KEY] as $key) {
             $blobs[] = $this->getBlobProxy($key);
         }
 
-        return $this->factory->createBlobFile($fileHash, $blobs);
+        return $this->factory->createBlobFile($fileHash, $blobs, $mimeType, $size);
     }
 
     /**
@@ -118,6 +120,11 @@ class BlobFileManager implements BlobFileManagerInterface
         );
     }
 
+    /**
+     * @param $hash
+     *
+     * @return mixed
+     */
     private function getBlobProxy($hash)
     {
         return $this->factory->createProxy(
@@ -128,6 +135,11 @@ class BlobFileManager implements BlobFileManagerInterface
         );
     }
 
+    /**
+     * @param $data
+     *
+     * @return BlobInterface
+     */
     private function uploadChunk($data)
     {
         return $this->blobManager->uploadBlob($data);

@@ -32,7 +32,7 @@ interface SessionInterface
      *
      * @return BlobFileInterface
      */
-    public function upload($fileName);
+    public function upload($fileName, $mimeType, $size);
 
     /**
      * @param string $filePath

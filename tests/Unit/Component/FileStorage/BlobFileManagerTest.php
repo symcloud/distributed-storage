@@ -19,6 +19,9 @@ class BlobFileManagerTest extends ProphecyTestCase
 {
     public function testUpload()
     {
+        $mimeType = 'application/json';
+        $size = 999;
+
         $data = $this->generateString(200);
         $fileName = tempnam('', 'splitter-test-file');
         file_put_contents($fileName, $data);
@@ -36,6 +39,8 @@ class BlobFileManagerTest extends ProphecyTestCase
         $file = new BlobFileModel();
         $file->setHash($fileHash);
         $file->setBlobs(array($blob1, $blob2));
+        $file->setMimeType($mimeType);
+        $file->setSize($size);
 
         $fileSplitter = new FileSplitter(100);
         $blobManager = $this->prophesize(BlobManagerInterface::class);
@@ -50,14 +55,14 @@ class BlobFileManagerTest extends ProphecyTestCase
         $factory->createBlob()->should(new NoCallsPrediction());
         $factory->createHash()->should(new NoCallsPrediction());
         $factory->createFileHash($fileName)->willReturn($fileHash);
-        $factory->createBlobFile($fileHash, Argument::size(2))->willReturn($file);
+        $factory->createBlobFile($fileHash, Argument::size(2), $mimeType, $size)->willReturn($file);
         $factory->createProxy(Argument::type('string'), Argument::type('callable'))->will(
             function ($args) use ($proxyFactory) {
                 return $proxyFactory->createProxy($args[0], $args[1]);
             }
         );
 
-        $adapter->storeFile($fileHash, Argument::size(2))->willReturn(true);
+        $adapter->storeFile($fileHash, Argument::size(3))->willReturn(true);
         $adapter->fileExists($fileHash)->willReturn(false);
         $adapter->fetchFile()->should(new NoCallsPrediction());
 
@@ -69,14 +74,19 @@ class BlobFileManagerTest extends ProphecyTestCase
             $proxyFactory
         );
 
-        $result = $manager->upload($fileName);
+        $result = $manager->upload($fileName, $mimeType, $size);
 
         $this->assertEquals($file->getHash(), $result->getHash());
         $this->assertEquals($file->getBlobs(), $result->getBlobs());
+        $this->assertEquals('application/json', $result->getMimeType());
+        $this->assertEquals(999, $result->getSize());
     }
 
     public function testUploadExisting()
     {
+        $mimeType = 'application/json';
+        $size = 999;
+
         $data = $this->generateString(200);
         $fileName = tempnam('', 'splitter-test-file');
         file_put_contents($fileName, $data);
@@ -94,6 +104,8 @@ class BlobFileManagerTest extends ProphecyTestCase
         $file = new BlobFileModel();
         $file->setHash($fileHash);
         $file->setBlobs(array($blob1, $blob2));
+        $file->setSize($size);
+        $file->setMimeType($mimeType);
 
         $fileSplitter = new FileSplitter(100);
         $blobManager = $this->prophesize(BlobManagerInterface::class);
@@ -107,7 +119,7 @@ class BlobFileManagerTest extends ProphecyTestCase
         $factory->createBlob()->should(new NoCallsPrediction());
         $factory->createHash()->should(new NoCallsPrediction());
         $factory->createFileHash($fileName)->willReturn($fileHash);
-        $factory->createBlobFile($fileHash, Argument::size(2))->willReturn($file);
+        $factory->createBlobFile($fileHash, Argument::size(2), $mimeType, $size)->willReturn($file);
         $factory->createProxy(Argument::type('string'), Argument::type('callable'))->will(
             function ($args) use ($proxyFactory) {
                 return $proxyFactory->createProxy($args[0], $args[1]);
@@ -116,7 +128,7 @@ class BlobFileManagerTest extends ProphecyTestCase
 
         $adapter->storeFile()->should(new NoCallsPrediction());
         $adapter->fileExists($fileHash)->willReturn(true);
-        $adapter->fetchFile($fileHash)->willReturn(array($blob1->getHash(), $blob2->getHash()));
+        $adapter->fetchFile($fileHash)->willReturn($file->toArray());
 
         $manager = new BlobFileManager(
             $fileSplitter,
@@ -126,15 +138,18 @@ class BlobFileManagerTest extends ProphecyTestCase
             $proxyFactory
         );
 
-        $result = $manager->upload($fileName);
+        $result = $manager->upload($fileName, $mimeType, $size);
 
         $this->assertEquals($file->getHash(), $result->getHash());
         $this->assertEquals($file->getBlobs(), $result->getBlobs());
+        $this->assertEquals($file->getMimeType(), $result->getMimeType());
+        $this->assertEquals($file->getSize(), $result->getSize());
     }
 
     public function testDownload()
     {
-        $proxyFactory = new LazyLoadingValueHolderFactory();
+        $mimeType = 'application/json';
+        $size = 999;
 
         $data = $this->generateString(200);
         $fileName = tempnam('', 'splitter-test-file');
@@ -153,6 +168,8 @@ class BlobFileManagerTest extends ProphecyTestCase
         $file = new BlobFileModel();
         $file->setHash($fileHash);
         $file->setBlobs(array($blob1, $blob2));
+        $file->setSize($size);
+        $file->setMimeType($mimeType);
 
         $fileSplitter = new FileSplitter(100);
         $blobManager = $this->prophesize(BlobManagerInterface::class);
@@ -166,7 +183,7 @@ class BlobFileManagerTest extends ProphecyTestCase
         $factory->createBlob()->should(new NoCallsPrediction());
         $factory->createHash()->should(new NoCallsPrediction());
         $factory->createFileHash()->should(new NoCallsPrediction());
-        $factory->createBlobFile($fileHash, Argument::size(2))->willReturn($file);
+        $factory->createBlobFile($fileHash, Argument::size(2), $mimeType, $size)->willReturn($file);
         $factory->createProxy(Argument::type('string'), Argument::type('callable'))->will(
             function ($args) use ($proxyFactory) {
                 return $proxyFactory->createProxy($args[0], $args[1]);
@@ -175,7 +192,7 @@ class BlobFileManagerTest extends ProphecyTestCase
 
         $adapter->storeFile()->should(new NoCallsPrediction());
         $adapter->fileExists()->should(new NoCallsPrediction());
-        $adapter->fetchFile($fileHash)->willReturn(array($blob1->getHash(), $blob2->getHash()));
+        $adapter->fetchFile($fileHash)->willReturn($file->toArray());
 
         $manager = new BlobFileManager(
             $fileSplitter,

@@ -116,9 +116,9 @@ class Session implements SessionInterface
     /**
      * {@inheritdoc}
      */
-    public function upload($fileName)
+    public function upload($fileName, $mimeType, $size)
     {
-        $blobFile = $this->blobFileManager->upload($fileName);
+        $blobFile = $this->blobFileManager->upload($fileName, $mimeType, $size);
 
         return $blobFile;
     }

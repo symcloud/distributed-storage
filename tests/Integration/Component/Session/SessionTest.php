@@ -6,6 +6,7 @@ use Integration\Parts\ReferenceManagerTrait;
 use Integration\Parts\TestFileTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Riak\Client\Core\Query\RiakNamespace;
+use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\NodeInterface;
 use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
@@ -130,10 +131,12 @@ class SessionTest extends ProphecyTestCase
         /**
          * do it
          */
-        $blobFile = $this->session->upload($fileName);
+        $blobFile = $this->session->upload($fileName, 'application/json', 999);
         $this->assertEquals($fileHash, $blobFile->getHash());
         $this->assertEquals($this->getFactory()->createHash($fileContent), $blobFile->getHash());
         $this->assertEquals($fileContent, $blobFile->getContent());
+        $this->assertEquals('application/json', $blobFile->getMimeType());
+        $this->assertEquals(999, $blobFile->getSize());
 
         /**
          * asserts on database
@@ -147,7 +150,14 @@ class SessionTest extends ProphecyTestCase
             $this->fetchObject($fileHash, $this->getBlobFileNamespace())->getValue()->getValue(),
             true
         );
-        $this->assertEquals(array($hash1, $hash2), $blobFile);
+        $this->assertEquals(
+            array(
+                BlobFileInterface::MIME_TYPE_KEY => 'application/json',
+                BlobFileInterface::SIZE_KEY => 999,
+                BlobFileInterface::BLOBS_KEY => array($hash1, $hash2)
+            ),
+            $blobFile
+        );
 
         $object1 = $this->fetchObject($hash1, $this->getBlobNamespace());
         $object2 = $this->fetchObject($hash2, $this->getBlobNamespace());
@@ -173,6 +183,9 @@ class SessionTest extends ProphecyTestCase
      */
     public function testDownload()
     {
+        $size = 999;
+        $mimeType = 'application/json';
+
         /**
          * setup
          */
@@ -180,7 +193,7 @@ class SessionTest extends ProphecyTestCase
         $fileHash = $this->getFactory()->createFileHash($fileName);
 
         $this->session->init();
-        $blobFile = $this->session->upload($fileName);
+        $blobFile = $this->session->upload($fileName, $mimeType, $size);
         $this->session->createOrUpdateFile('/test.txt', $blobFile->getHash());
         $this->session->commit('added test.txt');
 
@@ -191,6 +204,8 @@ class SessionTest extends ProphecyTestCase
         $this->assertEquals($fileHash, $result->getHash());
         $this->assertEquals($fileHash, $this->getFactory()->createHash($result->getContent()));
         $this->assertEquals($fileContent, $result->getContent());
+        $this->assertEquals($mimeType, $result->getMimeType());
+        $this->assertEquals($size, $result->getSize());
 
         /**
          * asserts on database
@@ -201,7 +216,14 @@ class SessionTest extends ProphecyTestCase
         $hash2 = $this->getFactory()->createHash($blob2);
 
         $blobFile = json_decode($this->fetchObject($fileHash, $this->getBlobFileNamespace())->getValue()->getValue(),true);
-        $this->assertEquals(array($hash1, $hash2), $blobFile);
+        $this->assertEquals(
+            array(
+                BlobFileInterface::MIME_TYPE_KEY => 'application/json',
+                BlobFileInterface::SIZE_KEY => 999,
+                BlobFileInterface::BLOBS_KEY => array($hash1, $hash2)
+            ),
+            $blobFile
+        );
 
         $object1 = $this->fetchObject($hash1, $this->getBlobNamespace());
         $object2 = $this->fetchObject($hash2, $this->getBlobNamespace());
@@ -220,6 +242,9 @@ class SessionTest extends ProphecyTestCase
      */
     public function testDownloadMultipleFilesAndCommits()
     {
+        $size = 999;
+        $mimeType = 'application/json';
+
         /**
          * setup
          */
@@ -229,7 +254,7 @@ class SessionTest extends ProphecyTestCase
         $fileHash2 = $this->getFactory()->createFileHash($fileName2);
 
         $this->session->init();
-        $blobFile1 = $this->session->upload($fileName1);
+        $blobFile1 = $this->session->upload($fileName1, $mimeType, $size);
         $this->session->createOrUpdateFile('/test1.txt', $blobFile1->getHash());
         $this->session->commit('added test1.txt');
 
@@ -244,7 +269,7 @@ class SessionTest extends ProphecyTestCase
         /**
          * setup second test
          */
-        $blobFile2 = $this->session->upload($fileName2);
+        $blobFile2 = $this->session->upload($fileName2, $mimeType, $size);
         $this->session->createOrUpdateFile('/test2.txt', $blobFile2->getHash());
         $this->session->commit('added test2.txt');
 
@@ -273,7 +298,14 @@ class SessionTest extends ProphecyTestCase
             $this->fetchObject($fileHash1, $this->getBlobFileNamespace())->getValue()->getValue(),
             true
         );
-        $this->assertEquals(array($hash11, $hash12), $blobFile1);
+        $this->assertEquals(
+            array(
+                BlobFileInterface::MIME_TYPE_KEY => 'application/json',
+                BlobFileInterface::SIZE_KEY => 999,
+                BlobFileInterface::BLOBS_KEY => array($hash11, $hash12)
+            ),
+            $blobFile1
+        );
 
         $object11 = $this->fetchObject($hash11, $this->getBlobNamespace());
         $object12 = $this->fetchObject($hash12, $this->getBlobNamespace());
@@ -290,7 +322,14 @@ class SessionTest extends ProphecyTestCase
             $this->fetchObject($fileHash2, $this->getBlobFileNamespace())->getValue()->getValue(),
             true
         );
-        $this->assertEquals(array($hash21, $hash22), $blobFile2);
+        $this->assertEquals(
+            array(
+                BlobFileInterface::MIME_TYPE_KEY => 'application/json',
+                BlobFileInterface::SIZE_KEY => 999,
+                BlobFileInterface::BLOBS_KEY => array($hash21, $hash22)
+            ),
+            $blobFile2
+        );
 
         $object21 = $this->fetchObject($hash21, $this->getBlobNamespace());
         $object22 = $this->fetchObject($hash22, $this->getBlobNamespace());
@@ -309,6 +348,9 @@ class SessionTest extends ProphecyTestCase
      */
     public function testDownloadSingleFileAndCommits()
     {
+        $size = 999;
+        $mimeType = 'application/json';
+
         /**
          * setup
          */
@@ -318,7 +360,7 @@ class SessionTest extends ProphecyTestCase
         $fileHash2 = $this->getFactory()->createFileHash($fileName2);
 
         $this->session->init();
-        $blobFile1 = $this->session->upload($fileName1);
+        $blobFile1 = $this->session->upload($fileName1, $mimeType, $size);
         $this->session->createOrUpdateFile('/test.txt', $blobFile1->getHash());
         $commit1 = $this->session->commit('added test.txt');
 
@@ -333,7 +375,7 @@ class SessionTest extends ProphecyTestCase
         /**
          * setup second part
          */
-        $blobFile2 = $this->session->upload($fileName2);
+        $blobFile2 = $this->session->upload($fileName2, $mimeType, $size);
         $this->session->createOrUpdateFile('/test.txt', $blobFile2->getHash());
         $commit2 = $this->session->commit('updated test.txt');
 
@@ -369,7 +411,14 @@ class SessionTest extends ProphecyTestCase
             $this->fetchObject($fileHash2, $this->getBlobFileNamespace())->getValue()->getValue(),
             true
         );
-        $this->assertEquals(array($hash1, $hash2), $blobFile);
+        $this->assertEquals(
+            array(
+                BlobFileInterface::MIME_TYPE_KEY => 'application/json',
+                BlobFileInterface::SIZE_KEY => 999,
+                BlobFileInterface::BLOBS_KEY => array($hash1, $hash2)
+            ),
+            $blobFile
+        );
 
         $object1 = $this->fetchObject($hash1, $this->getBlobNamespace());
         $object2 = $this->fetchObject($hash2, $this->getBlobNamespace());
@@ -385,6 +434,9 @@ class SessionTest extends ProphecyTestCase
      */
     public function testDownloadFromTree()
     {
+        $size = 999;
+        $mimeType = 'application/json';
+
         /**
          * setup
          */
@@ -392,7 +444,7 @@ class SessionTest extends ProphecyTestCase
         $fileHash = $this->getFactory()->createFileHash($fileName);
 
         $this->session->init();
-        $blobFile = $this->session->upload($fileName);
+        $blobFile = $this->session->upload($fileName, $mimeType, $size);
         $this->session->createOrUpdateFile('/test/test.txt', $blobFile->getHash());
         $this->session->commit('added test.txt');
 
@@ -413,7 +465,14 @@ class SessionTest extends ProphecyTestCase
         $hash2 = $this->getFactory()->createHash($blob2);
 
         $blobFile = json_decode($this->fetchObject($fileHash, $this->getBlobFileNamespace())->getValue()->getValue(),true);
-        $this->assertEquals(array($hash1, $hash2), $blobFile);
+        $this->assertEquals(
+            array(
+                BlobFileInterface::MIME_TYPE_KEY => $mimeType,
+                BlobFileInterface::SIZE_KEY => $size,
+                BlobFileInterface::BLOBS_KEY => array($hash1, $hash2),
+            ),
+            $blobFile
+        );
 
         $object1 = $this->fetchObject($hash1, $this->getBlobNamespace());
         $object2 = $this->fetchObject($hash2, $this->getBlobNamespace());
@@ -433,6 +492,9 @@ class SessionTest extends ProphecyTestCase
      */
     public function testDelete()
     {
+        $size = 999;
+        $mimeType = 'application/json';
+
         /**
          * setup
          */
@@ -440,7 +502,7 @@ class SessionTest extends ProphecyTestCase
         $fileHash = $this->getFactory()->createFileHash($fileName);
 
         $this->session->init();
-        $blobFile = $this->session->upload($fileName);
+        $blobFile = $this->session->upload($fileName, $mimeType, $size);
         $this->session->createOrUpdateFile('/test.txt', $blobFile->getHash());
         $commit1 = $this->session->commit('added test.txt');
 
@@ -464,6 +526,9 @@ class SessionTest extends ProphecyTestCase
      */
     public function testSplit()
     {
+        $size = 999;
+        $mimeType = 'application/json';
+
         /**
          * setup
          */
@@ -475,9 +540,9 @@ class SessionTest extends ProphecyTestCase
         $fileHash3 = $this->getFactory()->createFileHash($fileName3);
 
         $this->session->init();
-        $blobFile1 = $this->session->upload($fileName1);
-        $blobFile2 = $this->session->upload($fileName2);
-        $blobFile3 = $this->session->upload($fileName3);
+        $blobFile1 = $this->session->upload($fileName1, $mimeType, $size);
+        $blobFile2 = $this->session->upload($fileName2, $mimeType, $size);
+        $blobFile3 = $this->session->upload($fileName3, $mimeType, $size);
         $this->session->createOrUpdateFile('/test/test1.txt', $blobFile1->getHash());
         $this->session->createOrUpdateFile('/test/test2.txt', $blobFile2->getHash());
         $this->session->createOrUpdateFile('/test.txt', $blobFile3->getHash());
@@ -539,6 +604,9 @@ class SessionTest extends ProphecyTestCase
      */
     public function testMount()
     {
+        $size = 999;
+        $mimeType = 'application/json';
+
         /**
          * setup
          */
@@ -564,14 +632,14 @@ class SessionTest extends ProphecyTestCase
         );
 
         $sessionUser2->init();
-        $blobFile1 = $sessionUser2->upload($fileName1);
-        $blobFile2 = $sessionUser2->upload($fileName2);
+        $blobFile1 = $sessionUser2->upload($fileName1, $mimeType, $size);
+        $blobFile2 = $sessionUser2->upload($fileName2, $mimeType, $size);
         $sessionUser2->createOrUpdateFile('/test1.txt', $blobFile1->getHash());
         $sessionUser2->createOrUpdateFile('/test2.txt', $blobFile2->getHash());
         $sessionUser2->commit('init test data');
 
         $this->session->init();
-        $blobFile3 = $this->session->upload($fileName3);
+        $blobFile3 = $this->session->upload($fileName3, $mimeType, $size);
         $this->session->createOrUpdateFile('/test.txt', $blobFile3->getHash());
         $this->session->commit('init test data');
 
@@ -601,6 +669,9 @@ class SessionTest extends ProphecyTestCase
      */
     public function testGetDirectory()
     {
+        $size = 999;
+        $mimeType = 'application/json';
+
         /**
          * setup
          */
@@ -610,8 +681,8 @@ class SessionTest extends ProphecyTestCase
         $fileHash2 = $this->getFactory()->createFileHash($fileName2);
 
         $this->session->init();
-        $blobFile1 = $this->session->upload($fileName1);
-        $blobFile2 = $this->session->upload($fileName2);
+        $blobFile1 = $this->session->upload($fileName1, $mimeType, $size);
+        $blobFile2 = $this->session->upload($fileName2, $mimeType, $size);
         $this->session->createOrUpdateFile('/test/test1.txt', $blobFile1->getHash());
         $this->session->createOrUpdateFile('/test/test2.txt', $blobFile2->getHash());
         $this->session->commit('init test data');

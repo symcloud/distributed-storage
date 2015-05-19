@@ -45,12 +45,14 @@ interface FactoryInterface
     public function createFileHash($filePath);
 
     /**
-     * @param string          $hash
+     * @param string $hash
      * @param BlobInterface[] $blobs
+     * @param string $mimeType
+     * @param int $size
      *
      * @return BlobFileInterface
      */
-    public function createBlobFile($hash, $blobs = array());
+    public function createBlobFile($hash, $blobs = array(), $mimeType, $size);
 
     /**
      * @param string $path

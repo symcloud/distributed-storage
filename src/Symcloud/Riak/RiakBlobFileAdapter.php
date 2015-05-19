@@ -39,9 +39,9 @@ class RiakBlobFileAdapter extends RiakBaseAdapter implements BlobFileAdapterInte
     /**
      * {@inheritdoc}
      */
-    public function storeFile($hash, $blobs)
+    public function storeFile($hash, $data)
     {
-        $this->storeObject($hash, json_encode($blobs), $this->fileNamespace);
+        $this->storeObject($hash, json_encode($data), $this->fileNamespace);
     }
 
     /**
@@ -65,6 +65,6 @@ class RiakBlobFileAdapter extends RiakBaseAdapter implements BlobFileAdapterInte
             throw new FileNotFoundException($hash);
         }
 
-        return json_decode($response->getValue()->getValue());
+        return json_decode($response->getValue()->getValue()->getContents(), true);
     }
 }

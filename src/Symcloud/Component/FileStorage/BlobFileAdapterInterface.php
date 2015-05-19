@@ -15,11 +15,11 @@ interface BlobFileAdapterInterface
 {
     /**
      * @param string   $hash
-     * @param string[] $blobs
+     * @param array $data
      *
      * @return bool
      */
-    public function storeFile($hash, $blobs);
+    public function storeFile($hash, $data);
 
     /**
      * @param string $hash
@@ -31,7 +31,7 @@ interface BlobFileAdapterInterface
     /**
      * @param string $hash
      *
-     * @return string[]
+     * @return array
      */
     public function fetchFile($hash);
 }

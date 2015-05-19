@@ -17,10 +17,12 @@ interface BlobFileManagerInterface
 {
     /**
      * @param string $filePath
+     * @param $mimeType
+     * @param $size
      *
      * @return BlobFileInterface
      */
-    public function upload($filePath);
+    public function upload($filePath, $mimeType, $size);
 
     /**
      * @param string $fileHash

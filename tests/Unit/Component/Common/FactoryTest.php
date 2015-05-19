@@ -46,11 +46,13 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $blob->setData($this->data);
 
         $factory = new Factory($this->algo, $this->secret);
-        $result = $factory->createBlobFile($fileHash, array($blob));
+        $result = $factory->createBlobFile($fileHash, array($blob), 'application/json', 999);
 
         $this->assertEquals($fileHash, $result->getHash());
         $this->assertEquals(array($blob), $result->getBlobs());
         $this->assertEquals($this->data, $result->getContent());
+        $this->assertEquals('application/json', $result->getMimeType());
+        $this->assertEquals(999, $result->getSize());
     }
 
     public function testCreateBlobFileMultipleBlob()
@@ -69,11 +71,13 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $blobs[1]->setData(strrev($this->data));
 
         $factory = new Factory($this->algo, $this->secret);
-        $result = $factory->createBlobFile($fileHash, $blobs);
+        $result = $factory->createBlobFile($fileHash, $blobs, 'application/json', 999);
 
         $this->assertEquals($fileHash, $result->getHash());
         $this->assertEquals($blobs, $result->getBlobs());
         $this->assertEquals($this->data . strrev($this->data), $result->getContent());
+        $this->assertEquals('application/json', $result->getMimeType());
+        $this->assertEquals(999, $result->getSize());
     }
 
     public function testCreateFile()

@@ -21,6 +21,16 @@ class BlobFileModel implements BlobFileInterface
     private $blobs;
 
     /**
+     * @var int
+     */
+    private $size;
+
+    /**
+     * @var string
+     */
+    private $mimeType;
+
+    /**
      * @var string
      */
     private $hash;
@@ -58,6 +68,38 @@ class BlobFileModel implements BlobFileInterface
     }
 
     /**
+     * @return int
+     */
+    public function getSize()
+    {
+        return $this->size;
+    }
+
+    /**
+     * @param int $size
+     */
+    public function setSize($size)
+    {
+        $this->size = $size;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMimeType()
+    {
+        return $this->mimeType;
+    }
+
+    /**
+     * @param string $mimeType
+     */
+    public function setMimeType($mimeType)
+    {
+        $this->mimeType = $mimeType;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getContent($length = -1, $offset = 0)
@@ -72,5 +114,22 @@ class BlobFileModel implements BlobFileInterface
         }
 
         return $content;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        $blobs = array();
+        foreach ($this->getBlobs() as $blob) {
+            $blobs[] = $blob->getHash();
+        }
+
+        return array(
+            self::BLOBS_KEY => $blobs,
+            self::MIME_TYPE_KEY => $this->getMimeType(),
+            self::SIZE_KEY => $this->getSize(),
+        );
     }
 }

@@ -5,8 +5,10 @@ namespace Integration\Riak;
 use Integration\Parts\BlobFileManagerTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Riak\Client\Core\Query\RiakNamespace;
+use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\FileStorage\BlobFileAdapterInterface;
+use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 
 class RiakBlobFileAdapterTest extends ProphecyTestCase
 {
@@ -38,12 +40,24 @@ class RiakBlobFileAdapterTest extends ProphecyTestCase
         RiakNamespace $blobFileNamespace,
         FactoryInterface $factory
     ) {
-        $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
-        $adapter->storeFile($file->getHash(), $file->getBlobs());
+        $blob1 = $this->prophesize(BlobInterface::class);
+        $blob1->getHash()->willReturn('hash1');
+        $blob2 = $this->prophesize(BlobInterface::class);
+        $blob2->getHash()->willReturn('hash2');
+
+        $file = $factory->createBlobFile('my-hash', array($blob1->reveal(), $blob2->reveal()), 'application/json', 999);
+        $adapter->storeFile($file->getHash(), $file->toArray());
 
         $response = $this->fetchObject($file->getHash(), $blobFileNamespace);
         $this->assertFalse($response->getNotFound());
-        $this->assertEquals($file->getBlobs(), json_decode($response->getValue()->getValue()));
+        $this->assertEquals(
+            array(
+                BlobFileInterface::MIME_TYPE_KEY => 'application/json',
+                BlobFileInterface::SIZE_KEY => 999,
+                BlobFileInterface::BLOBS_KEY => array('hash1', 'hash2'),
+            ),
+            json_decode($response->getValue()->getValue()->getContents(), true)
+        );
 
         $keys = $this->fetchBucketKeys($blobFileNamespace);
         $this->assertContains($file->getHash(), $keys);
@@ -61,11 +75,16 @@ class RiakBlobFileAdapterTest extends ProphecyTestCase
         RiakNamespace $blobFileNamespace,
         FactoryInterface $factory
     ) {
-        $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
-        $this->storeObject($file->getHash(), $file->getBlobs(), $blobFileNamespace);
+        $blob1 = $this->prophesize(BlobInterface::class);
+        $blob1->getHash()->willReturn('hash1');
+        $blob2 = $this->prophesize(BlobInterface::class);
+        $blob2->getHash()->willReturn('hash2');
+
+        $file = $factory->createBlobFile('my-hash', array($blob1->reveal(), $blob2->reveal()), 'application/json', 999);
+        $this->storeObject($file->getHash(), $file->toArray(), $blobFileNamespace);
 
         // no exception expected
-        $adapter->storeFile($file->getHash(), $file->getBlobs());
+        $adapter->storeFile($file->getHash(), $file->toArray());
     }
 
     /**
@@ -81,7 +100,17 @@ class RiakBlobFileAdapterTest extends ProphecyTestCase
         RiakNamespace $blobFileNamespace,
         FactoryInterface $factory
     ) {
-        $file = $factory->createBlobFile('my-not-existing-hash', array('hash1', 'hash2'));
+        $blob1 = $this->prophesize(BlobInterface::class);
+        $blob1->getHash()->willReturn('hash1');
+        $blob2 = $this->prophesize(BlobInterface::class);
+        $blob2->getHash()->willReturn('hash2');
+
+        $file = $factory->createBlobFile(
+            'my-not-existing-hash',
+            array($blob1->reveal(), $blob2->reveal()),
+            'application/json',
+            999
+        );
         $adapter->fetchFile($file->getHash());
     }
 
@@ -97,12 +126,17 @@ class RiakBlobFileAdapterTest extends ProphecyTestCase
         RiakNamespace $blobFileNamespace,
         FactoryInterface $factory
     ) {
-        $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
-        $this->storeObject($file->getHash(), $file->getBlobs(), $blobFileNamespace);
+        $blob1 = $this->prophesize(BlobInterface::class);
+        $blob1->getHash()->willReturn('hash1');
+        $blob2 = $this->prophesize(BlobInterface::class);
+        $blob2->getHash()->willReturn('hash2');
+
+        $file = $factory->createBlobFile('my-hash', array($blob1->reveal(), $blob2->reveal()), 'application/json', 999);
+        $this->storeObject($file->getHash(), $file->toArray(), $blobFileNamespace);
 
         $result = $adapter->fetchFile($file->getHash());
 
-        $this->assertEquals($file->getBlobs(), $result);
+        $this->assertEquals($file->toArray(), $result);
     }
 
     /**
@@ -117,8 +151,13 @@ class RiakBlobFileAdapterTest extends ProphecyTestCase
         RiakNamespace $blobFileNamespace,
         FactoryInterface $factory
     ) {
-        $file = $factory->createBlobFile('my-hash', array('hash1', 'hash2'));
-        $this->storeObject($file->getHash(), $file->getBlobs(), $blobFileNamespace);
+        $blob1 = $this->prophesize(BlobInterface::class);
+        $blob1->getHash()->willReturn('hash1');
+        $blob2 = $this->prophesize(BlobInterface::class);
+        $blob2->getHash()->willReturn('hash2');
+
+        $file = $factory->createBlobFile('my-hash', array($blob1->reveal(), $blob2->reveal()), 'application/json', 999);
+        $this->storeObject($file->getHash(), $file->toArray(), $blobFileNamespace);
 
         $this->assertTrue($adapter->fileExists($file->getHash()));
     }
@@ -135,7 +174,17 @@ class RiakBlobFileAdapterTest extends ProphecyTestCase
         RiakNamespace $blobFileNamespace,
         FactoryInterface $factory
     ) {
-        $file = $factory->createBlobFile('my-not-existing-hash', array('hash1', 'hash2'));
+        $blob1 = $this->prophesize(BlobInterface::class);
+        $blob1->getHash()->willReturn('hash1');
+        $blob2 = $this->prophesize(BlobInterface::class);
+        $blob2->getHash()->willReturn('hash2');
+
+        $file = $factory->createBlobFile(
+            'my-not-existing-hash',
+            array($blob1->reveal(), $blob2->reveal()),
+            'application/json',
+            999
+        );
 
         $this->assertFalse($adapter->fileExists($file->getHash()));
     }
