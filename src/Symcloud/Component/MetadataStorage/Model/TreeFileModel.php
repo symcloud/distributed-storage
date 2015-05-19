@@ -57,8 +57,6 @@ class TreeFileModel extends BaseTreeModel implements TreeFileInterface
     public function setFile(BlobFileInterface $file)
     {
         $this->file = $file;
-
-        $this->setDirty();
     }
 
     /**
@@ -103,8 +101,6 @@ class TreeFileModel extends BaseTreeModel implements TreeFileInterface
         }
 
         $this->metadata[$name] = $value;
-
-        $this->setDirty();
     }
 
     /**
@@ -123,22 +119,21 @@ class TreeFileModel extends BaseTreeModel implements TreeFileInterface
         foreach ($metadata as $name => $value) {
             $this->setMetadata($name, $value);
         }
-
-        $this->setDirty();
     }
 
     /**
-     * @return mixed
+     * {@inheritdoc}
      */
     public function getVersion()
     {
         return $this->version;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function increaseVersion()
     {
-        $this->setDirty();
-
         $this->version += 1;
     }
 
@@ -167,32 +162,8 @@ class TreeFileModel extends BaseTreeModel implements TreeFileInterface
             self::TYPE_KEY => self::FILE_TYPE,
             self::FILE_KEY => $this->getFile()->getHash(),
             self::PATH_KEY => $this->getPath(),
-            self::ROOT_KEY => $this->getRoot()->getHash(),
-            self::METADATA_KEY => $this->getAllMetadata(),
-            self::PARENT_KEY => $this->getParent()->getHash(),
-            self::VERSION_KEY => $this->getVersion(),
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function toArrayForHash()
-    {
-        return array(
-            self::TYPE_KEY => self::FILE_TYPE,
-            self::FILE_KEY => $this->getFile()->getHash(),
-            self::PATH_KEY => $this->getPath(),
             self::METADATA_KEY => $this->getAllMetadata(),
             self::VERSION_KEY => $this->getVersion(),
         );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __clone()
-    {
-        $this->hash = null;
     }
 }

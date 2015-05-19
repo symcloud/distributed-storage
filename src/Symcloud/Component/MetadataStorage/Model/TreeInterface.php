@@ -37,14 +37,4 @@ interface TreeInterface extends NodeInterface
      * @param string $name
      */
     public function removeChild($name);
-
-    /**
-     * @return bool
-     */
-    public function isRoot();
-
-    /**
-     *
-     */
-    public function setDirty();
 }

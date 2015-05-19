@@ -106,11 +106,9 @@ class SessionTest extends ProphecyTestCase
         $this->assertArrayHasKey(TreeInterface::TYPE_KEY, $tree);
         $this->assertArrayHasKey(TreeInterface::CHILDREN_KEY, $tree);
         $this->assertArrayHasKey(TreeInterface::PATH_KEY, $tree);
-        $this->assertArrayHasKey(TreeInterface::ROOT_KEY, $tree);
 
         $this->assertEquals(TreeInterface::TREE_TYPE, $tree[TreeInterface::TYPE_KEY]);
         $this->assertEquals('/', $tree[TreeInterface::PATH_KEY]);
-        $this->assertNull($tree[TreeInterface::ROOT_KEY]);
         $this->assertEquals(
             array(
                 TreeInterface::TREE_TYPE => array(),
@@ -603,7 +601,6 @@ class SessionTest extends ProphecyTestCase
      */
     public function testGetDirectory()
     {
-
         /**
          * setup
          */

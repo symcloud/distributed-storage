@@ -44,8 +44,6 @@ class TreeReferenceModel extends BaseTreeModel implements TreeReferenceInterface
     public function setUser(UserInterface $user)
     {
         $this->user = $user;
-
-        $this->setDirty();
     }
 
     /**
@@ -62,8 +60,6 @@ class TreeReferenceModel extends BaseTreeModel implements TreeReferenceInterface
     public function setReferenceName($referenceName)
     {
         $this->referenceName = $referenceName;
-
-        $this->setDirty();
     }
 
     /**
@@ -113,20 +109,10 @@ class TreeReferenceModel extends BaseTreeModel implements TreeReferenceInterface
         return array(
             self::TYPE_KEY => self::FILE_TYPE,
             self::PATH_KEY => $this->getPath(),
-            self::ROOT_KEY => $this->getRoot()->getHash(),
-            self::PARENT_KEY => $this->getParent()->getHash(),
             self::REFERENCE_KEY => array(
                 self::USERNAME_KEY => $this->getUser()->getUsername(),
                 self::NAME_KEY => $this->getReferenceName(),
             ),
         );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __clone()
-    {
-        $this->hash = null;
     }
 }

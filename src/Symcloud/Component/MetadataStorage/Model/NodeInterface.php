@@ -14,9 +14,7 @@ namespace Symcloud\Component\MetadataStorage\Model;
 interface NodeInterface
 {
     const TYPE_KEY = 'type';
-    const ROOT_KEY = 'root';
     const PATH_KEY = 'path';
-    const PARENT_KEY = 'parent';
 
     const TREE_TYPE = 'tree';
     const FILE_TYPE = 'file';
@@ -31,26 +29,6 @@ interface NodeInterface
      * @return string
      */
     public function getPath();
-
-    /**
-     * @return TreeInterface
-     */
-    public function getRoot();
-
-    /**
-     * @param TreeInterface $root
-     */
-    public function setRoot(TreeInterface $root);
-
-    /**
-     * @return TreeInterface
-     */
-    public function getParent();
-
-    /**
-     * @param TreeInterface $parent
-     */
-    public function setParent(TreeInterface $parent);
 
     /**
      * @return string

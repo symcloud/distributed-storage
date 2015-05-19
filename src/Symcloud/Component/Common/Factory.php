@@ -127,11 +127,10 @@ class Factory implements FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createTree($path, TreeInterface $root, TreeInterface $parent, $children = array())
+    public function createTree($path, $children = array())
     {
         $tree = new TreeModel($this);
         $tree->setPath($path);
-        $tree->setRoot($root);
         $tree->setChildren($children);
 
         return $tree;
@@ -144,7 +143,6 @@ class Factory implements FactoryInterface
     {
         $tree = new TreeModel($this);
         $tree->setPath('/');
-        $tree->setRoot($tree);
         $tree->setChildren(array());
 
         return $tree;
@@ -156,8 +154,6 @@ class Factory implements FactoryInterface
     public function createTreeFile(
         $path,
         $name,
-        TreeInterface $root,
-        TreeInterface $parent,
         BlobFileInterface $blobFile,
         $version,
         $metadata = array()
@@ -165,8 +161,6 @@ class Factory implements FactoryInterface
         $file = new TreeFileModel($this);
         $file->setPath($path);
         $file->setName($name);
-        $file->setRoot($root);
-        $file->setParent($parent);
         $file->setFile($blobFile);
         $file->setVersion($version);
         if ($metadata !== null) {
@@ -176,19 +170,18 @@ class Factory implements FactoryInterface
         return $file;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function createTreeReference(
         $path,
         $name,
-        TreeInterface $root,
-        TreeInterface $parent,
         $referenceName,
         UserInterface $user
     ) {
         $reference = new TreeReferenceModel($this);
         $reference->setPath($path);
         $reference->setName($name);
-        $reference->setRoot($root);
-        $reference->setParent($parent);
         $reference->setReferenceName($referenceName);
         $reference->setUser($user);
 

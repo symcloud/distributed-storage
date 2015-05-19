@@ -54,13 +54,11 @@ interface FactoryInterface
 
     /**
      * @param string $path
-     * @param TreeInterface $root
-     * @param TreeInterface $parent
      * @param array $children
      *
      * @return TreeInterface
      */
-    public function createTree($path, TreeInterface $root, TreeInterface $parent, $children = array());
+    public function createTree($path, $children = array());
 
     /**
      * @return TreeInterface
@@ -70,8 +68,6 @@ interface FactoryInterface
     /**
      * @param string $path
      * @param string $name
-     * @param TreeInterface $root
-     * @param TreeInterface $parent
      * @param BlobFileInterface $blobFile
      * @param int $version
      * @param array $metadata
@@ -81,8 +77,6 @@ interface FactoryInterface
     public function createTreeFile(
         $path,
         $name,
-        TreeInterface $root,
-        TreeInterface $parent,
         BlobFileInterface $blobFile,
         $version,
         $metadata = array()
@@ -91,8 +85,6 @@ interface FactoryInterface
     /**
      * @param string $path
      * @param string $name
-     * @param TreeInterface $root
-     * @param TreeInterface $parent
      * @param string $referenceName
      * @param UserInterface $user
      *
@@ -101,8 +93,6 @@ interface FactoryInterface
     public function createTreeReference(
         $path,
         $name,
-        TreeInterface $root,
-        TreeInterface $parent,
         $referenceName,
         UserInterface $user
     );

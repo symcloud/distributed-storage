@@ -31,7 +31,6 @@ class TreeModel extends BaseTreeModel implements TreeInterface
      */
     public function setChildren($children)
     {
-        $this->setDirty();
         $this->children = $children;
     }
 
@@ -65,14 +64,6 @@ class TreeModel extends BaseTreeModel implements TreeInterface
     }
 
     /**
-     * @return bool
-     */
-    public function isRoot()
-    {
-        return $this->getParent() === null;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function getType()
@@ -81,43 +72,9 @@ class TreeModel extends BaseTreeModel implements TreeInterface
     }
 
     /**
-     * @param TreeInterface $parent
-     */
-    public function setParent(TreeInterface $parent)
-    {
-        parent::setParent($parent);
-
-        $this->setRoot($parent->getRoot());
-        foreach ($this->children as $child) {
-            $child->setParent($this);
-        }
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function toArray()
-    {
-        $rootHash = null;
-        $parentHash = null;
-        if (!$this->isRoot()) {
-            $rootHash = $this->getRoot()->getHash();
-            $parentHash = $this->getParent()->getHash();
-        }
-
-        return array_merge(
-            array(
-                self::ROOT_KEY => $rootHash,
-                self::PARENT_KEY => $parentHash,
-            ),
-            $this->toArrayForHash()
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function toArrayForHash()
     {
         $children = array(
             NodeInterface::TREE_TYPE => array(),
@@ -141,19 +98,10 @@ class TreeModel extends BaseTreeModel implements TreeInterface
      */
     public function __clone()
     {
-        $this->hash = null;
-        if (!$this->isRoot()) {
-            $this->setRoot($this->getParent()->getRoot());
-        } else {
-            $this->setRoot($this);
-        }
-
         $children = $this->getChildren();
         $this->children = array();
         foreach ($children as $name => $child) {
             $newChild = clone $child;
-            $newChild->setParent($this);
-            $newChild->setRoot($this->getRoot());
             $this->children[$name] = $newChild;
         }
     }
