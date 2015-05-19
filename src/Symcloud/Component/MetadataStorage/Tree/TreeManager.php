@@ -205,7 +205,7 @@ class TreeManager implements TreeManagerInterface
     private function cleanName($name)
     {
         // TODO add ß, ä, ö, perhaps other special chars
-        return urldecode(str_replace(array('u%CC%88'), array('ü'), urlencode($name)));
+        return urldecode(str_replace(array('u%CC%88', 'a%CC%88', 'o%CC%88', '%C3%9F'), array('ü', 'ä', 'ö', 'ß'), urlencode($name)));
     }
 
     /**
