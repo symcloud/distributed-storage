@@ -112,7 +112,11 @@ class SessionTest extends ProphecyTestCase
         $this->assertEquals('/', $tree[TreeInterface::PATH_KEY]);
         $this->assertNull($tree[TreeInterface::ROOT_KEY]);
         $this->assertEquals(
-            array(TreeInterface::TREE_TYPE => array(), TreeInterface::FILE_TYPE => array()),
+            array(
+                TreeInterface::TREE_TYPE => array(),
+                TreeInterface::FILE_TYPE => array(),
+                TreeInterface::REFERENCE_TYPE => array()
+            ),
             (array)$tree[TreeInterface::CHILDREN_KEY]
         );
     }
@@ -629,7 +633,7 @@ class SessionTest extends ProphecyTestCase
             try {
                 $response = $this->fetchObject($key, $this->getMetadataNamespace());
                 if (!$response->getNotFound()) {
-                    $objects[$key] = json_decode($response->getValue()->getValue());
+                    $objects[$key] = json_decode($response->getValue()->getValue()->getContents(), true);
                 }
             } catch (\Exception $ex) {
             }

@@ -68,7 +68,7 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
                     CommitInterface::COMMITTER_KEY => $username,
                     CommitInterface::CREATED_AT_KEY => $createdAt->format(\DateTime::ISO8601)
             ),
-            json_decode($response->getValue()->getValue(), true)
+            json_decode($response->getValue()->getValue()->getContents(), true)
         );
     }
 
@@ -125,7 +125,7 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
         $this->assertEquals($data, $result);
 
         $response = $this->fetchObject($commitHash, $metadataNamespace);
-        $this->assertEquals($data, json_decode($response->getValue()->getValue(), true));
+        $this->assertEquals($data, json_decode($response->getValue()->getValue()->getContents(), true));
 
         $keys = $this->fetchBucketKeys($metadataNamespace);
         $this->assertContains($commitHash, $keys);
@@ -185,7 +185,7 @@ class RiakMetadataAdapterTest extends ProphecyTestCase
         $this->assertEquals($data, $reference->toArray());
 
         $response = $this->fetchObject($referenceKey, $metadataNamespace);
-        $this->assertEquals($data, json_decode($response->getValue()->getValue(), true));
+        $this->assertEquals($data, json_decode($response->getValue()->getValue()->getContents(), true));
 
         $keys = $this->fetchBucketKeys($metadataNamespace);
         $this->assertContains($referenceKey, $keys);

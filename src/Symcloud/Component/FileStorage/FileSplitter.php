@@ -38,9 +38,9 @@ class FileSplitter implements FileSplitterInterface
         $index = 0;
 
         while (!feof($handle)) {
-            $buffer = fread($handle, $this->maxLength + 1);
+            $buffer = fread($handle, $this->maxLength);
 
-            if ($buffer !== false) {
+            if ($buffer !== false && $buffer !== '') {
                 $callback($index++, $buffer);
             }
         }

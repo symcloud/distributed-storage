@@ -79,7 +79,7 @@ trait RiakTrait
         $object = new RiakObject();
         $location = new RiakLocation($namespace, $key);
 
-        if(!is_string($data)){
+        if (!is_string($data)) {
             $data = json_encode($data);
         }
 
