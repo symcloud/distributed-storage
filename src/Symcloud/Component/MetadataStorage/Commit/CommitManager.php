@@ -99,7 +99,7 @@ class CommitManager implements CommitManagerInterface
             $parentCommit = $this->fetchProxy($data[CommitInterface::PARENT_COMMIT_KEY]);
         }
 
-        return $this->factory->createCommit($tree, $user, $createdAt, $message, $parentCommit);
+        return $this->factory->createCommit($tree, $user, $createdAt, $message, $parentCommit, $hash);
     }
 
     /**

@@ -100,11 +100,12 @@ interface FactoryInterface
     );
 
     /**
-     * @param TreeInterface   $tree
-     * @param UserInterface   $user
-     * @param \DateTime       $createdAt
-     * @param string          $message
+     * @param TreeInterface $tree
+     * @param UserInterface $user
+     * @param \DateTime $createdAt
+     * @param string $message
      * @param CommitInterface $parentCommit
+     * @param null $hash
      *
      * @return CommitInterface
      */
@@ -113,7 +114,8 @@ interface FactoryInterface
         UserInterface $user,
         \DateTime $createdAt,
         $message = '',
-        CommitInterface $parentCommit = null
+        CommitInterface $parentCommit = null,
+        $hash = null
     );
 
     /**
