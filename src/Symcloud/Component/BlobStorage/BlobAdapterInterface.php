@@ -12,8 +12,9 @@
 namespace Symcloud\Component\BlobStorage;
 
 use Symcloud\Component\BlobStorage\Exception\BlobNotFoundException;
+use Symcloud\Component\Common\AdapterInterface;
 
-interface BlobAdapterInterface
+interface BlobAdapterInterface extends AdapterInterface
 {
     /**
      * @param string $hash

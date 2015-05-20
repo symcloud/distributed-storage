@@ -11,9 +11,10 @@
 
 namespace Symcloud\Component\MetadataStorage\Commit;
 
+use Symcloud\Component\Common\AdapterInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 
-interface CommitAdapterInterface
+interface CommitAdapterInterface extends AdapterInterface
 {
     /**
      * @param CommitInterface $commit

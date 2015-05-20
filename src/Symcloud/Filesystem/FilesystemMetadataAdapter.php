@@ -11,7 +11,6 @@
 
 namespace Symcloud\Filesystem;
 
-use Doctrine\Common\Cache\FilesystemCache;
 use Symcloud\Component\MetadataStorage\Commit\CommitAdapterInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\NodeInterface;
@@ -20,7 +19,7 @@ use Symcloud\Component\MetadataStorage\Reference\ReferenceAdapterInterface;
 use Symcloud\Component\MetadataStorage\Tree\TreeAdapterInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class FilesystemMetadataAdape extends FilesystemCache implements CommitAdapterInterface, ReferenceAdapterInterface, TreeAdapterInterface
+class FilesystemMetadataAdapter extends FilesystemBaseAdapter implements CommitAdapterInterface, ReferenceAdapterInterface, TreeAdapterInterface
 {
     const FILE_EXTENSION = '.symcloud.metadata.json';
 

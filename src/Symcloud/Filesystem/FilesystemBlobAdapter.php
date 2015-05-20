@@ -11,11 +11,10 @@
 
 namespace Symcloud\Filesystem;
 
-use Doctrine\Common\Cache\FilesystemCache;
 use Symcloud\Component\BlobStorage\BlobAdapterInterface;
 use Symcloud\Component\BlobStorage\Exception\BlobNotFoundException;
 
-class FilesystemBlobAdapter extends FilesystemCache implements BlobAdapterInterface
+class FilesystemBlobAdapter extends FilesystemBaseAdapter implements BlobAdapterInterface
 {
     const FILE_EXTENSION = '.symcloud.blob.dat';
 
@@ -30,10 +29,7 @@ class FilesystemBlobAdapter extends FilesystemCache implements BlobAdapterInterf
     }
 
     /**
-     * @param string $hash
-     * @param string $data
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function storeBlob($hash, $data)
     {
@@ -41,21 +37,19 @@ class FilesystemBlobAdapter extends FilesystemCache implements BlobAdapterInterf
     }
 
     /**
-     * @param string $hash
-     *
-     * @return string
-     *
-     * @throws BlobNotFoundException
+     * {@inheritdoc}
      */
     public function fetchBlob($hash)
     {
+        if (!$this->blobExists($hash)) {
+            throw new BlobNotFoundException($hash);
+        }
+
         return $this->fetch($hash);
     }
 
     /**
-     * @param string $hash
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function blobExists($hash)
     {

@@ -11,7 +11,9 @@
 
 namespace Symcloud\Component\FileStorage;
 
-interface BlobFileAdapterInterface
+use Symcloud\Component\Common\AdapterInterface;
+
+interface BlobFileAdapterInterface extends AdapterInterface
 {
     /**
      * @param string   $hash

@@ -11,10 +11,10 @@
 
 namespace Symcloud\Filesystem;
 
-use Doctrine\Common\Cache\FilesystemCache;
 use Symcloud\Component\FileStorage\BlobFileAdapterInterface;
+use Symcloud\Component\FileStorage\Exception\FileNotFoundException;
 
-class FilesystemBlobFileAdapter extends FilesystemCache implements BlobFileAdapterInterface
+class FilesystemBlobFileAdapter extends FilesystemBaseAdapter implements BlobFileAdapterInterface
 {
     const FILE_EXTENSION = '.symcloud.blob-file.json';
 
@@ -29,10 +29,7 @@ class FilesystemBlobFileAdapter extends FilesystemCache implements BlobFileAdapt
     }
 
     /**
-     * @param string $hash
-     * @param array $data
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function storeFile($hash, $data)
     {
@@ -40,9 +37,7 @@ class FilesystemBlobFileAdapter extends FilesystemCache implements BlobFileAdapt
     }
 
     /**
-     * @param string $hash
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function fileExists($hash)
     {
@@ -50,12 +45,14 @@ class FilesystemBlobFileAdapter extends FilesystemCache implements BlobFileAdapt
     }
 
     /**
-     * @param string $hash
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function fetchFile($hash)
     {
-        return json_decode($this->fetch($hash));
+        if (!$this->fileExists($hash)) {
+            throw new FileNotFoundException($hash);
+        }
+
+        return json_decode($this->fetch($hash), true);
     }
 }

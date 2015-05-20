@@ -11,10 +11,11 @@
 
 namespace Symcloud\Component\MetadataStorage\Reference;
 
+use Symcloud\Component\Common\AdapterInterface;
 use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-interface ReferenceAdapterInterface
+interface ReferenceAdapterInterface extends AdapterInterface
 {
     /**
      * @param ReferenceInterface $reference

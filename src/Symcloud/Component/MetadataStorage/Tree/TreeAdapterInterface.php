@@ -11,9 +11,10 @@
 
 namespace Symcloud\Component\MetadataStorage\Tree;
 
+use Symcloud\Component\Common\AdapterInterface;
 use Symcloud\Component\MetadataStorage\Model\NodeInterface;
 
-interface TreeAdapterInterface
+interface TreeAdapterInterface extends AdapterInterface
 {
     const HASH_KEY = 'hash';
 
