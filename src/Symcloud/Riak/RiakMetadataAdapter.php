@@ -102,6 +102,22 @@ class RiakMetadataAdapter extends RiakBaseAdapter implements CommitAdapterInterf
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function remove($hash)
+    {
+        $this->deleteObject($hash, $this->metadataNamespace);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchHashes()
+    {
+        return $this->fetchNamespaceKeys($this->metadataNamespace);
+    }
+
+    /**
      * @param string $hash
      * @param mixed  $data
      *

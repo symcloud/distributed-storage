@@ -67,4 +67,20 @@ class RiakBlobAdapter extends RiakBaseAdapter implements BlobAdapterInterface
 
         return $response->getValue()->getValue()->getContents();
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function remove($hash)
+    {
+        $this->deleteObject($hash, $this->blobNamespace);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchHashes()
+    {
+        return $this->fetchNamespaceKeys($this->blobNamespace);
+    }
 }

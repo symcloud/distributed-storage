@@ -67,4 +67,20 @@ class RiakBlobFileAdapter extends RiakBaseAdapter implements BlobFileAdapterInte
 
         return json_decode($response->getValue()->getValue()->getContents(), true);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function remove($hash)
+    {
+        $this->deleteObject($hash, $this->fileNamespace);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchHashes()
+    {
+        return $this->fetchNamespaceKeys($this->fileNamespace);
+    }
 }
