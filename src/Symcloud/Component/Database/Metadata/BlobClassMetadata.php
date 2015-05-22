@@ -35,4 +35,9 @@ class BlobClassMetadata extends ClassMetadata
     {
         return 'blob';
     }
+
+    public function isHashGenerated()
+    {
+        return false;
+    }
 }

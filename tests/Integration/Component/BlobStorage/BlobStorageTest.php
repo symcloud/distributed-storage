@@ -5,83 +5,71 @@ namespace Integration\Component\BlobStorage;
 use Integration\Parts\BlobManagerTrait;
 use Integration\Parts\TestFileTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
-use Riak\Client\Core\Query\RiakNamespace;
-use Symcloud\Component\BlobStorage\BlobManagerInterface;
-use Symcloud\Component\BlobStorage\Model\BlobInterface;
+use Symcloud\Component\Database\Model\Blob;
+use Symcloud\Component\Database\Model\BlobInterface;
+use Symcloud\Component\Database\Model\Policy;
 
 class BlobStorageTest extends ProphecyTestCase
 {
     use TestFileTrait, BlobManagerTrait;
-
-    protected function setUp()
-    {
-        $this->clearBucket($this->getBlobNamespace());
-
-        parent::setUp();
-    }
 
     public function storageProvider()
     {
         $length = 200;
         $data = $this->generateString($length);
 
-        $expectedBlob = $this->getFactory()->createBlob($data);
+        $expectedBlob = new Blob();
+        $expectedBlob->setData($data);
+        $expectedBlob->setHash($this->getFactory()->createHash($data));
+        $expectedBlob->setLength($length);
+        $expectedBlob->setPolicy(new Policy());
 
-        $blobManager = $this->getBlobManager();
-        $blobNamespace = $this->getBlobNamespace();
+        $this->getDatabase()->deleteAll();
 
         return array(
-            array($blobManager, $expectedBlob, $blobNamespace)
+            array($expectedBlob)
         );
     }
 
     /**
      * @dataProvider storageProvider
      *
-     * @param BlobManagerInterface $blobManager
      * @param BlobInterface $expectedBlob
-     * @param RiakNamespace $blobNamespace
      */
     public function testUpload(
-        BlobManagerInterface $blobManager,
-        BlobInterface $expectedBlob,
-        RiakNamespace $blobNamespace
+        BlobInterface $expectedBlob
     ) {
-        $blob = $blobManager->uploadBlob($expectedBlob->getData());
+        $blobManager = $this->getBlobManager();
+        $blob = $blobManager->upload($expectedBlob->getData());
 
         $this->assertEquals($expectedBlob->getHash(), $blob->getHash());
         $this->assertEquals($expectedBlob->getData(), $blob->getData());
+        $this->assertEquals($expectedBlob->getLength(), $blob->getLength());
 
-        $riakResponse = $this->fetchObject($blob->getHash(), $blobNamespace);
-        $this->assertEquals($expectedBlob->getData(), $riakResponse->getValue()->getValue()->getContents());
+        $database = $this->getDatabase();
+        $data = $database->fetch($expectedBlob->getHash(), Blob::class);
 
-        $blobKeys = $this->fetchBucketKeys($blobNamespace);
-        $this->assertContains($blob->getHash(), $blobKeys);
-
-        $riakResponse = $this->fetchObject($blob->getHash(), $blobNamespace);
-        $this->assertEquals($expectedBlob->getData(), $riakResponse->getValue()->getValue()->getContents());
+        $this->assertEquals($expectedBlob->getHash(), $data->getHash());
+        $this->assertEquals($expectedBlob->getData(), $data->getData());
+        $this->assertEquals($expectedBlob->getLength(), $data->getLength());
     }
 
     /**
      * @dataProvider storageProvider
      *
-     * @param BlobManagerInterface $blobManager
      * @param BlobInterface $expectedBlob
-     * @param RiakNamespace $blobNamespace
      */
     public function testDownload(
-        BlobManagerInterface $blobManager,
-        BlobInterface $expectedBlob,
-        RiakNamespace $blobNamespace
+        BlobInterface $expectedBlob
     ) {
-        $this->storeObject($expectedBlob->getHash(), $expectedBlob->getData(), $blobNamespace);
+        $blobManager = $this->getBlobManager();
+        $database = $this->getDatabase();
+        $database->store($expectedBlob);
 
-        $blob = $blobManager->downloadBlob($expectedBlob->getHash());
+        $blob = $blobManager->download($expectedBlob->getHash());
 
         $this->assertEquals($expectedBlob->getHash(), $blob->getHash());
         $this->assertEquals($expectedBlob->getData(), $blob->getData());
-
-        $blobKeys = $this->fetchBucketKeys($blobNamespace);
-        $this->assertContains($blob->getHash(), $blobKeys);
+        $this->assertEquals($expectedBlob->getLength(), $blob->getLength());
     }
 }

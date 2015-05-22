@@ -27,4 +27,9 @@ interface ClassMetadataInterface
      * @return string
      */
     public function getContext();
+
+    /**
+     * @return bool
+     */
+    public function isHashGenerated();
 }

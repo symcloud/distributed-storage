@@ -84,7 +84,12 @@ class Database implements DatabaseInterface
         $metadata = $this->metadataManager->loadByObject($model);
         $data = $this->serializer->serialize($model, $metadata->getDataFields());
         $objectMetadata = $this->serializer->serialize($model, $metadata->getMetadataFields());
-        $hash = $this->factory->createHash($data);
+
+        if ($metadata->isHashGenerated()) {
+            $hash = $this->factory->createHash(json_encode($data));
+        } elseif (!($hash = $model->getHash())) {
+            throw new \Exception('Hash not specified');
+        }
 
         $this->storageAdapter->store(
             $hash,
@@ -102,10 +107,14 @@ class Database implements DatabaseInterface
         return $model;
     }
 
-    public function fetch($hash)
+    public function fetch($hash, $className = null)
     {
         $data = $this->storageAdapter->fetch($hash);
         $metadata = $this->metadataManager->loadByClassname($data['class']);
+
+        if ($className !== null && $data['class'] !== $className) {
+            throw new \Exception('Classname not match!');
+        }
 
         $model = $this->getModel($data['class']);
         $this->accessor->setValue($model, 'hash', $hash);
@@ -114,7 +123,7 @@ class Database implements DatabaseInterface
         $this->serializer->deserialize($model, $data['metadata'], $metadata->getMetadataFields());
         $this->serializer->deserialize($model, $data['data'], $metadata->getDataFields());
 
-        return $hash;
+        return $model;
     }
 
     public function delete($hash)

@@ -33,7 +33,7 @@ class BlobManagerTest extends ProphecyTestCase
 
         $manager = new BlobManager($factory->reveal(), $adapter->reveal());
 
-        $result = $manager->uploadBlob($data);
+        $result = $manager->upload($data);
 
         $this->assertEquals($blob->getHash(), $result->getHash());
         $this->assertEquals($blob->getData(), $result->getData());
@@ -59,7 +59,7 @@ class BlobManagerTest extends ProphecyTestCase
 
         $manager = new BlobManager($factory->reveal(), $adapter->reveal());
 
-        $result = $manager->uploadBlob($data);
+        $result = $manager->upload($data);
 
         $this->assertEquals($blob->getHash(), $result->getHash());
         $this->assertEquals($blob->getData(), $result->getData());
@@ -85,7 +85,7 @@ class BlobManagerTest extends ProphecyTestCase
 
         $manager = new BlobManager($factory->reveal(), $adapter->reveal());
 
-        $result = $manager->downloadBlob('my-hash');
+        $result = $manager->download('my-hash');
 
         $this->assertEquals($blob->getHash(), $result->getHash());
         $this->assertEquals($blob->getData(), $result->getData());
@@ -114,6 +114,6 @@ class BlobManagerTest extends ProphecyTestCase
 
         $manager = new BlobManager($factory->reveal(), $adapter->reveal());
 
-        $manager->downloadBlob('my-hash');
+        $manager->download('my-hash');
     }
 }

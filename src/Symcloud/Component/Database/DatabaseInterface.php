@@ -19,7 +19,7 @@ interface DatabaseInterface
 
     public function store(ModelInterface $model);
 
-    public function fetch($hash);
+    public function fetch($hash, $className = null);
 
     public function delete($hash);
 

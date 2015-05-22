@@ -11,7 +11,7 @@
 
 namespace Symcloud\Component\BlobStorage;
 
-use Symcloud\Component\BlobStorage\Model\BlobInterface;
+use Symcloud\Component\Database\Model\BlobInterface;
 
 interface BlobManagerInterface
 {
@@ -20,12 +20,19 @@ interface BlobManagerInterface
      *
      * @return BlobInterface
      */
-    public function uploadBlob($data);
+    public function upload($data);
 
     /**
      * @param string $hash
      *
      * @return BlobInterface
      */
-    public function downloadBlob($hash);
+    public function download($hash);
+
+    /**
+     * @param string $hash
+     *
+     * @return BlobInterface
+     */
+    public function downloadProxy($hash);
 }

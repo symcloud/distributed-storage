@@ -12,7 +12,7 @@ use Symcloud\Riak\RiakBlobFileAdapter;
 
 trait BlobFileManagerTrait
 {
-    use BlobManagerTrait;
+    use BlobManagerTrait, RiakTrait;
 
     /**
      * @var BlobFileManagerInterface

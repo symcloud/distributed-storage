@@ -130,7 +130,7 @@ class BlobFileManager implements BlobFileManagerInterface
         return $this->factory->createProxy(
             BlobInterface::class,
             function () use ($hash) {
-                return $this->blobManager->downloadBlob($hash);
+                return $this->blobManager->download($hash);
             }
         );
     }
@@ -142,6 +142,6 @@ class BlobFileManager implements BlobFileManagerInterface
      */
     private function uploadChunk($data)
     {
-        return $this->blobManager->uploadBlob($data);
+        return $this->blobManager->upload($data);
     }
 }
