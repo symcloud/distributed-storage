@@ -12,7 +12,7 @@ use Symcloud\Riak\RiakBlobFileAdapter;
 
 trait BlobFileManagerTrait
 {
-    use BlobManagerTrait, RiakTrait;
+    use BlobManagerTrait;
 
     /**
      * @var BlobFileManagerInterface
@@ -24,28 +24,9 @@ trait BlobFileManagerTrait
      */
     private $fileSplitter;
 
-    /**
-     * @var BlobFileAdapterInterface
-     */
-    private $blobFileAdapter;
-
-    /**
-     * @var RiakNamespace
-     */
-    private $blobFileNamespace;
-
     protected function getBlobMaxLength()
     {
         return 100;
-    }
-
-    protected function getBlobFileNamespace()
-    {
-        if (!$this->blobFileNamespace) {
-            $this->blobFileNamespace = new RiakNamespace(RiakNamespace::DEFAULT_TYPE, 'test-files');
-        }
-
-        return $this->blobFileNamespace;
     }
 
     protected function getFileSplitter()
@@ -57,15 +38,6 @@ trait BlobFileManagerTrait
         return $this->fileSplitter;
     }
 
-    protected function getBlobFileAdapter()
-    {
-        if (!$this->blobFileAdapter) {
-            $this->blobFileAdapter = new RiakBlobFileAdapter($this->getRiak(), $this->getBlobFileNamespace());
-        }
-
-        return $this->blobFileAdapter;
-    }
-
     protected function getBlobFileManager()
     {
         if (!$this->blobFileManager) {
@@ -73,7 +45,7 @@ trait BlobFileManagerTrait
                 $this->getFileSplitter(),
                 $this->getBlobManager(),
                 $this->getFactory(),
-                $this->getBlobFileAdapter()
+                $this->getDatabase()
             );
         }
 

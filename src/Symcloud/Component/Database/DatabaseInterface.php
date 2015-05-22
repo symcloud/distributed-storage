@@ -21,6 +21,10 @@ interface DatabaseInterface
 
     public function fetch($hash, $className = null);
 
+    public function fetchProxy($hash, $className);
+
+    public function contains($hash);
+
     public function delete($hash);
 
     public function deleteAll();

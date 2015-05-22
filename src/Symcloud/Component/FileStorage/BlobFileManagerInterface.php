@@ -11,7 +11,7 @@
 
 namespace Symcloud\Component\FileStorage;
 
-use Symcloud\Component\FileStorage\Model\BlobFileInterface;
+use Symcloud\Component\Database\Model\BlobFileInterface;
 
 interface BlobFileManagerInterface
 {

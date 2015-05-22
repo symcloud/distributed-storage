@@ -17,6 +17,8 @@ interface StorageAdapterInterface
 
     public function fetch($hash);
 
+    public function contains($hash);
+
     public function delete($hash);
 
     public function deleteAll();

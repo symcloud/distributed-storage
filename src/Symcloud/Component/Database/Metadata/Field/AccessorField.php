@@ -9,23 +9,19 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Symcloud\Component\Database\Metadata;
+namespace Symcloud\Component\Database\Metadata\Field;
 
+use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\ModelInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 
-class AccessorField implements FieldInterface
+class AccessorField extends Field implements FieldInterface
 {
     /**
      * @var PropertyAccessor
      */
     private $accessor;
-
-    /**
-     * @var string
-     */
-    private $name;
 
     /**
      * AccessorField constructor.
@@ -34,16 +30,9 @@ class AccessorField implements FieldInterface
      */
     public function __construct($name)
     {
-        $this->accessor = PropertyAccess::createPropertyAccessor();
-        $this->name = $name;
-    }
+        parent::__construct($name);
 
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
+        $this->accessor = PropertyAccess::createPropertyAccessor();
     }
 
     /**
@@ -59,8 +48,9 @@ class AccessorField implements FieldInterface
     /**
      * @param ModelInterface $model
      * @param mixed $value
+     * @param DatabaseInterface $database
      */
-    public function setValue(ModelInterface $model, $value)
+    public function setValue(ModelInterface $model, $value, DatabaseInterface $database)
     {
         $this->accessor->setValue($model, $this->getName(), $value);
     }

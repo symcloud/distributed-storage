@@ -19,6 +19,7 @@ interface MetadataManagerInterface
      * @return ClassMetadataInterface
      */
     public function loadByObject($object);
+
     /**
      * @param string $className
      *

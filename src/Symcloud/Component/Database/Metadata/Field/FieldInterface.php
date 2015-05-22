@@ -9,8 +9,9 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Symcloud\Component\Database\Metadata;
+namespace Symcloud\Component\Database\Metadata\Field;
 
+use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\ModelInterface;
 
 interface FieldInterface
@@ -30,6 +31,7 @@ interface FieldInterface
     /**
      * @param ModelInterface $model
      * @param mixed $value
+     * @param DatabaseInterface $database
      */
-    public function setValue(ModelInterface $model, $value);
+    public function setValue(ModelInterface $model, $value, DatabaseInterface $database);
 }

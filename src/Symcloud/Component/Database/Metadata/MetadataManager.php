@@ -12,6 +12,7 @@
 namespace Symcloud\Component\Database\Metadata;
 
 use Symcloud\Component\Database\Model\Blob;
+use Symcloud\Component\Database\Model\BlobFile;
 
 class MetadataManager implements MetadataManagerInterface
 {
@@ -27,6 +28,7 @@ class MetadataManager implements MetadataManagerInterface
     {
         $this->metadata = array(
             Blob::class => new BlobClassMetadata(),
+            BlobFile::class => new BlobFileClassMetadata(),
         );
     }
 

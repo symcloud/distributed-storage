@@ -12,20 +12,23 @@
 namespace Symcloud\Component\Database\Metadata;
 
 use Symcloud\Component\Database\Metadata\Field\AccessorField;
+use Symcloud\Component\Database\Metadata\Field\ReferenceArrayField;
+use Symcloud\Component\Database\Model\Blob;
 
-class BlobClassMetadata extends ClassMetadata
+class BlobFileClassMetadata extends ClassMetadata
 {
     /**
-     * BlobClassMetadata constructor.
+     * BlobFileClassMetadata constructor.
      */
     public function __construct()
     {
         parent::__construct(
             array(
-                new AccessorField('data'),
+                new ReferenceArrayField('blobs', Blob::class),
             ),
             array(
-                new AccessorField('length'),
+                new AccessorField('size'),
+                new AccessorField('mimetype'),
             )
         );
     }
@@ -35,9 +38,12 @@ class BlobClassMetadata extends ClassMetadata
      */
     public function getContext()
     {
-        return 'blob';
+        return 'file';
     }
 
+    /**
+     * @return bool
+     */
     public function isHashGenerated()
     {
         return false;

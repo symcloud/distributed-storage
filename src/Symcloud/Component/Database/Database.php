@@ -120,10 +120,25 @@ class Database implements DatabaseInterface
         $this->accessor->setValue($model, 'hash', $hash);
         $this->accessor->setValue($model, 'policy', new Policy($data['policy']));
 
-        $this->serializer->deserialize($model, $data['metadata'], $metadata->getMetadataFields());
-        $this->serializer->deserialize($model, $data['data'], $metadata->getDataFields());
+        $this->serializer->deserialize($model, $data['metadata'], $metadata->getMetadataFields(), $this);
+        $this->serializer->deserialize($model, $data['data'], $metadata->getDataFields(), $this);
 
         return $model;
+    }
+
+    public function fetchProxy($hash, $className)
+    {
+        return $this->factory->createProxy(
+            $className,
+            function () use ($hash, $className) {
+                return $this->fetch($hash, $className);
+            }
+        );
+    }
+
+    public function contains($hash)
+    {
+        return $this->storageAdapter->contains($hash);
     }
 
     public function delete($hash)

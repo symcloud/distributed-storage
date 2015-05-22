@@ -25,6 +25,11 @@ class ArrayStorage implements StorageAdapterInterface
         return $this->data[$hash];
     }
 
+    public function contains($hash)
+    {
+        return array_key_exists($hash, $this->data);
+    }
+
     public function delete($hash)
     {
         unset($this->data[$hash]);

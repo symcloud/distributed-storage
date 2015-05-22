@@ -11,6 +11,8 @@
 
 namespace Symcloud\Component\Database\Metadata;
 
+use Symcloud\Component\Database\Metadata\Field\FieldInterface;
+
 abstract class ClassMetadata implements ClassMetadataInterface
 {
     /**
