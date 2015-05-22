@@ -20,7 +20,6 @@ use Symcloud\Component\Database\Search\SearchAdapterInterface;
 use Symcloud\Component\Database\Storage\StorageAdapterInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class Database implements DatabaseInterface
 {
@@ -60,19 +59,19 @@ class Database implements DatabaseInterface
      * @param FactoryInterface $factory
      * @param StorageAdapterInterface $storageAdapter
      * @param SearchAdapterInterface $searchAdapter
-     * @param UserProviderInterface $userProvider
+     * @param MetadataManagerInterface $metadataManager
      */
     public function __construct(
         FactoryInterface $factory,
         StorageAdapterInterface $storageAdapter,
         SearchAdapterInterface $searchAdapter,
-        UserProviderInterface $userProvider
+        MetadataManagerInterface $metadataManager
     ) {
         $this->factory = $factory;
         $this->storageAdapter = $storageAdapter;
         $this->searchAdapter = $searchAdapter;
+        $this->metadataManager = $metadataManager;
 
-        $this->metadataManager = new MetadataManager($userProvider);
         $this->serializer = new Serializer();
         $this->accessor = PropertyAccess::createPropertyAccessor();
     }

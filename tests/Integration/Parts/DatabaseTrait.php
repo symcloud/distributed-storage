@@ -5,10 +5,12 @@ namespace Integration\Parts;
 use Symcloud\Component\Database\Database;
 use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Metadata\ClassMetadataInterface;
+use Symcloud\Component\Database\Metadata\MetadataManager;
+use Symcloud\Component\Database\Metadata\MetadataManagerInterface;
 use Symcloud\Component\Database\Model\ModelInterface;
 use Symcloud\Component\Database\Search\SearchAdapterInterface;
-use Symcloud\Component\Database\Search\ZendLuceneAdapter;
 use Symcloud\Component\Database\Storage\ArrayStorage;
+use Symcloud\Component\Database\Storage\StorageAdapterInterface;
 use Symfony\Component\Security\Core\User\InMemoryUserProvider;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -26,14 +28,29 @@ trait DatabaseTrait
      */
     private $userProvider;
 
+    /**
+     * @var MetadataManagerInterface
+     */
+    private $metadataManager;
+
+    /**
+     * @var StorageAdapterInterface
+     */
+    private $storageAdapter;
+
+    /**
+     * @var SearchAdapterInterface
+     */
+    private $searchAdapter;
+
     public function getDatabase()
     {
         if (!$this->database) {
             $this->database = new Database(
                 $this->getFactory(),
-                new ArrayStorage(),
-                new NoopSearchAdapter(),
-                $this->getUserProvider()
+                $this->getStorageAdapter(),
+                $this->getSearchAdapter(),
+                $this->getMetadataManager()
             );
         }
 
@@ -49,9 +66,51 @@ trait DatabaseTrait
         return $this->userProvider;
     }
 
+    protected function getMetadataManager()
+    {
+        if (!$this->metadataManager) {
+            $this->metadataManager = $this->createMetadataManager();
+        }
+
+        return $this->metadataManager;
+    }
+
+    protected function getStorageAdapter()
+    {
+        if (!$this->storageAdapter) {
+            $this->storageAdapter = $this->createStorageAdapter();
+        }
+
+        return $this->storageAdapter;
+    }
+
+    protected function getSearchAdapter()
+    {
+        if (!$this->searchAdapter) {
+            $this->searchAdapter = $this->createSearchAdapter();
+        }
+
+        return $this->searchAdapter;
+    }
+
     protected function createUserProvider()
     {
         return new InMemoryUserProvider(array('johannes' => array('password' => 'test')));
+    }
+
+    protected function createMetadataManager()
+    {
+        return new MetadataManager($this->getUserProvider());
+    }
+
+    protected function createStorageAdapter()
+    {
+        return new ArrayStorage();
+    }
+
+    protected function createSearchAdapter()
+    {
+        return new NoopSearchAdapter();
     }
 }
 
