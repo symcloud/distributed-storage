@@ -5,13 +5,16 @@ namespace Unit\Component\Metadata;
 use Integration\Parts\FactoryTrait;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTestCase;
-use Symcloud\Component\MetadataStorage\Commit\CommitAdapterInterface;
+use Symcloud\Component\Database\DatabaseInterface;
+use Symcloud\Component\Database\Model\Commit\Commit;
+use Symcloud\Component\Database\Model\Commit\CommitInterface;
+use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\Tree\TreeInterface;
 use Symcloud\Component\MetadataStorage\Commit\CommitManager;
-use Symcloud\Component\MetadataStorage\Model\CommitInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Zend\Stdlib\DateTime;
 
 class CommitManagerTest extends ProphecyTestCase
 {
@@ -24,22 +27,13 @@ class CommitManagerTest extends ProphecyTestCase
         $username = 'johannes';
 
         $factory = $this->getFactory();
-        $expectedData = json_encode(
-            array(
-                CommitInterface::TREE_KEY => $treeHash,
-                CommitInterface::MESSAGE_KEY => $message,
-                CommitInterface::PARENT_COMMIT_KEY => null,
-                CommitInterface::COMMITTER_KEY => $username,
-                CommitInterface::CREATED_AT_KEY => (new \DateTime())->format(\DateTime::ISO8601)
-            )
-        );
-        $expectedHash = $factory->createHash($expectedData);
-
-        $commitAdapter = $this->prophesize(CommitAdapterInterface::class);
-        $commitAdapter->storeCommit(Argument::type(CommitInterface::class))
+        $database = $this->prophesize(DatabaseInterface::class);
+        $database->store(Argument::type(CommitInterface::class))
             ->will(
-                function ($args) use ($expectedHash, &$calledHash) {
-                    $calledHash = $args[0]->getHash();
+                function ($args) use (&$calledHash) {
+                    $args[0]->setHash('my-hash');
+
+                    return $args[0];
                 }
             );
 
@@ -54,15 +48,14 @@ class CommitManagerTest extends ProphecyTestCase
 
         $commitManager = new CommitManager(
             $factory,
-            $commitAdapter->reveal(),
+            $database->reveal(),
             $userProvider->reveal(),
             $treeManager->reveal()
         );
         $result = $commitManager->commit($tree->reveal(), $user->reveal(), $message);
 
-        $this->assertEquals($expectedHash, $calledHash);
-
-        $this->assertEquals($expectedHash, $result->getHash());
+        $this->assertNotNull($result);
+        $this->assertNotNull($result->getHash());
         $this->assertEquals($message, $result->getMessage());
         $this->assertNull($result->getParentCommit());
         $this->assertEquals($tree->reveal(), $result->getTree());
@@ -75,30 +68,31 @@ class CommitManagerTest extends ProphecyTestCase
 
     public function testFetchCommit()
     {
+        $commitHash = 'commit-hash';
         $treeHash = 'tree-hash';
         $message = 'My message';
         $username = 'johannes';
         $createdAt = new \DateTime();
 
         $factory = $this->getFactory();
-        $data = array(
-            CommitInterface::TREE_KEY => $treeHash,
-            CommitInterface::MESSAGE_KEY => $message,
-            CommitInterface::PARENT_COMMIT_KEY => null,
-            CommitInterface::COMMITTER_KEY => $username,
-            CommitInterface::CREATED_AT_KEY => $createdAt->format(\DateTime::ISO8601)
-        );
-        $commitHash = $factory->createHash(json_encode($data));
-
-        $factory = $this->getFactory();
-        $commitAdapter = $this->prophesize(CommitAdapterInterface::class);
-        $commitAdapter->fetchCommitData($commitHash)->willReturn($data);
 
         $tree = $this->prophesize(TreeInterface::class);
         $tree->getHash()->willReturn($treeHash);
 
         $user = $this->prophesize(UserInterface::class);
         $user->getUsername()->willReturn($username);
+
+        $commit = new Commit();
+        $commit->setPolicy(new Policy());
+        $commit->setHash($commitHash);
+        $commit->setTree($tree->reveal());
+        $commit->setCommitter($user->reveal());
+        $commit->setCreatedAt(new \DateTime);
+        $commit->setMessage($message);
+        $commit->setParentCommit(null);
+
+        $database = $this->prophesize(DatabaseInterface::class);
+        $database->fetch($commitHash, Commit::class)->willReturn($commit);
 
         $userProvider = $this->prophesize(UserProviderInterface::class);
         $userProvider->loadUserByUsername($username)->willReturn($user);
@@ -108,7 +102,7 @@ class CommitManagerTest extends ProphecyTestCase
 
         $commitManager = new CommitManager(
             $factory,
-            $commitAdapter->reveal(),
+            $database->reveal(),
             $userProvider->reveal(),
             $treeManager->reveal()
         );

@@ -26,6 +26,8 @@ interface SessionInterface
 
     /**
      * @param string $fileName
+     * @param $mimeType
+     * @param $size
      *
      * @return BlobFileInterface
      */

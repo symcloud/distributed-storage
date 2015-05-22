@@ -37,7 +37,7 @@ interface ReferenceManagerInterface
      * @param ReferenceInterface $reference
      * @param CommitInterface    $commit
      *
-     * @return bool
+     * @return ReferenceInterface
      */
     public function update(ReferenceInterface $reference, CommitInterface $commit);
 }

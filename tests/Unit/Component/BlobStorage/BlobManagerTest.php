@@ -2,36 +2,41 @@
 
 namespace Unit\Component\BlobStorage;
 
+use Integration\Parts\FactoryTrait;
+use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Prophecy\Prediction\CallPrediction;
 use Prophecy\Prediction\NoCallsPrediction;
-use Symcloud\Component\BlobStorage\BlobAdapterInterface;
 use Symcloud\Component\BlobStorage\BlobManager;
 use Symcloud\Component\BlobStorage\Exception\BlobNotFoundException;
-use Symcloud\Component\BlobStorage\Model\BlobModel;
 use Symcloud\Component\Common\FactoryInterface;
+use Symcloud\Component\Database\DatabaseInterface;
+use Symcloud\Component\Database\Model\Blob;
+use Symcloud\Component\Database\Model\BlobInterface;
 
 class BlobManagerTest extends ProphecyTestCase
 {
+    use FactoryTrait;
+
     public function testUpload()
     {
         $data = 'This is my data';
-        $hash = 'my-hash';
+        $hash = $this->getFactory()->createHash($data);
 
-        $blob = new BlobModel();
+        $blob = new Blob();
         $blob->setHash($hash);
         $blob->setData($data);
 
         $factory = $this->prophesize(FactoryInterface::class);
-        $adapter = $this->prophesize(BlobAdapterInterface::class);
+        $factory->createHash($data)->willReturn($hash);
 
-        $factory->createBlob($data)->willReturn($blob);
+        $database = $this->prophesize(DatabaseInterface::class);
 
-        $adapter->blobExists($hash)->willReturn(false);
-        $adapter->storeBlob($hash, $data)->should(new CallPrediction());
-        $adapter->fetchBlob($hash)->should(new NoCallsPrediction());
+        $database->store(Argument::type(BlobInterface::class))->should(new CallPrediction())->willReturn($blob);
+        $database->contains($hash)->should(new CallPrediction())->willReturn(false);
+        $database->fetch($hash, Blob::class)->should(new NoCallsPrediction());
 
-        $manager = new BlobManager($factory->reveal(), $adapter->reveal());
+        $manager = new BlobManager($factory->reveal(), $database->reveal());
 
         $result = $manager->upload($data);
 
@@ -42,22 +47,22 @@ class BlobManagerTest extends ProphecyTestCase
     public function testUploadExists()
     {
         $data = 'This is my data';
-        $hash = 'my-hash';
+        $hash = $this->getFactory()->createHash($data);
 
-        $blob = new BlobModel();
+        $blob = new Blob();
         $blob->setHash($hash);
         $blob->setData($data);
 
         $factory = $this->prophesize(FactoryInterface::class);
-        $adapter = $this->prophesize(BlobAdapterInterface::class);
+        $factory->createHash($data)->willReturn($hash);
 
-        $factory->createBlob($data)->willReturn($blob);
+        $database = $this->prophesize(DatabaseInterface::class);
 
-        $adapter->blobExists($hash)->willReturn(true);
-        $adapter->storeBlob($hash, $data)->should(new NoCallsPrediction());
-        $adapter->fetchBlob($hash)->should(new NoCallsPrediction());
+        $database->store(Argument::type(BlobInterface::class))->should(new NoCallsPrediction());
+        $database->contains($hash)->should(new CallPrediction())->willReturn(true);
+        $database->fetch($hash, Blob::class)->should(new NoCallsPrediction());
 
-        $manager = new BlobManager($factory->reveal(), $adapter->reveal());
+        $manager = new BlobManager($factory->reveal(), $database->reveal());
 
         $result = $manager->upload($data);
 
@@ -68,24 +73,24 @@ class BlobManagerTest extends ProphecyTestCase
     public function testDownload()
     {
         $data = 'This is my data';
-        $hash = 'my-hash';
+        $hash = $this->getFactory()->createHash($data);
 
-        $blob = new BlobModel();
+        $blob = new Blob();
         $blob->setHash($hash);
         $blob->setData($data);
 
         $factory = $this->prophesize(FactoryInterface::class);
-        $adapter = $this->prophesize(BlobAdapterInterface::class);
+        $factory->createHash($data)->willReturn($hash);
 
-        $factory->createBlob($data, $hash)->should(new CallPrediction())->willReturn($blob);
+        $database = $this->prophesize(DatabaseInterface::class);
 
-        $adapter->fetchBlob($hash)->should(new CallPrediction())->willReturn($data);
-        $adapter->storeBlob($hash)->should(new NoCallsPrediction());
-        $adapter->blobExists($hash)->should(new NoCallsPrediction());
+        $database->fetch($hash, Blob::class)->should(new CallPrediction())->willReturn($blob);
+        $database->contains($hash)->willReturn(true);
+        $database->store(Argument::type(BlobInterface::class))->should(new NoCallsPrediction());
 
-        $manager = new BlobManager($factory->reveal(), $adapter->reveal());
+        $manager = new BlobManager($factory->reveal(), $database->reveal());
 
-        $result = $manager->download('my-hash');
+        $result = $manager->download($hash);
 
         $this->assertEquals($blob->getHash(), $result->getHash());
         $this->assertEquals($blob->getData(), $result->getData());
@@ -97,22 +102,21 @@ class BlobManagerTest extends ProphecyTestCase
     public function testDownloadNotExists()
     {
         $data = 'This is my data';
-        $hash = 'my-hash';
+        $hash = $this->getFactory()->createHash($data);
 
-        $blob = new BlobModel();
+        $blob = new Blob();
         $blob->setHash($hash);
         $blob->setData($data);
 
         $factory = $this->prophesize(FactoryInterface::class);
-        $adapter = $this->prophesize(BlobAdapterInterface::class);
+        $factory->createHash($data)->willReturn($hash);
 
-        $factory->createBlob($data, $hash)->should(new NoCallsPrediction());
+        $database = $this->prophesize(DatabaseInterface::class);
 
-        $adapter->fetchBlob($hash)->willThrow(new BlobNotFoundException($hash));
-        $adapter->storeBlob($hash)->should(new NoCallsPrediction());
-        $adapter->blobExists($hash)->should(new NoCallsPrediction());
+        $database->fetch('my-hash', Blob::class)->willThrow(new BlobNotFoundException($hash));
+        $database->store(Argument::type(BlobInterface::class))->should(new NoCallsPrediction());
 
-        $manager = new BlobManager($factory->reveal(), $adapter->reveal());
+        $manager = new BlobManager($factory->reveal(), $database->reveal());
 
         $manager->download('my-hash');
     }

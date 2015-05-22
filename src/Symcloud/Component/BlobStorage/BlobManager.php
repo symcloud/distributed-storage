@@ -54,6 +54,10 @@ class BlobManager implements BlobManagerInterface
         $blob->setPolicy(new Policy());
         $blob->setHash($this->factory->createHash($data));
 
+        if ($this->database->contains($blob->getHash())) {
+            return $blob;
+        }
+
         return $this->database->store($blob);
     }
 

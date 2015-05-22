@@ -7,7 +7,6 @@ use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Search\ZendLuceneAdapter;
 use Symcloud\Component\Database\Storage\ArrayStorage;
 use Symfony\Component\Security\Core\User\InMemoryUserProvider;
-use Symfony\Component\Security\Core\User\User;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 trait DatabaseTrait
@@ -27,7 +26,13 @@ trait DatabaseTrait
     public function getDatabase()
     {
         if (!$this->database) {
-            $tempName = sys_get_temp_dir();
+            $tempName = __DIR__ . '/lucene';
+
+            if (is_dir($tempName)) {
+                array_map('unlink', glob("$tempName/*/*"));
+                array_map('rmdir', glob("$tempName/*"));
+                rmdir($tempName);
+            }
 
             $this->database = new Database(
                 $this->getFactory(),

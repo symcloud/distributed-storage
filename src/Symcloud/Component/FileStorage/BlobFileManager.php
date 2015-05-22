@@ -15,9 +15,9 @@ use Symcloud\Component\BlobStorage\BlobManagerInterface;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\BlobFile;
+use Symcloud\Component\Database\Model\BlobFileInterface;
 use Symcloud\Component\Database\Model\BlobInterface;
 use Symcloud\Component\Database\Model\Policy;
-use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 
 class BlobFileManager implements BlobFileManagerInterface
 {

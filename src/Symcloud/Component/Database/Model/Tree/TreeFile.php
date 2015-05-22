@@ -83,6 +83,9 @@ class TreeFile extends TreeNode implements TreeFileInterface
     public function setFile(BlobFileInterface $file)
     {
         $this->file = $file;
+        $this->fileHash = $file->getHash();
+        $this->mimetype = $file->getMimetype();
+        $this->size = $file->getSize();
     }
 
     /**
