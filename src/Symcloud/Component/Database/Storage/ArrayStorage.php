@@ -22,6 +22,10 @@ class ArrayStorage implements StorageAdapterInterface
 
     public function fetch($hash)
     {
+        if (!$this->contains($hash)) {
+            throw new \Exception('Object not found');
+        }
+
         return $this->data[$hash];
     }
 
@@ -32,6 +36,10 @@ class ArrayStorage implements StorageAdapterInterface
 
     public function delete($hash)
     {
+        if (!array_key_exists($hash, $this->data)) {
+            return;
+        }
+
         unset($this->data[$hash]);
     }
 
