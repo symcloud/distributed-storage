@@ -5,16 +5,10 @@ namespace Integration\Component\Session;
 use Integration\Parts\ReferenceManagerTrait;
 use Integration\Parts\TestFileTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
-use Riak\Client\Core\Query\RiakNamespace;
-use Symcloud\Component\FileStorage\Model\BlobFileInterface;
-use Symcloud\Component\MetadataStorage\Model\CommitInterface;
-use Symcloud\Component\MetadataStorage\Model\NodeInterface;
-use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeInterface;
+use Symcloud\Component\Database\Model\Tree\TreeInterface;
 use Symcloud\Component\Session\Session;
 use Symcloud\Component\Session\SessionInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class SessionTest extends ProphecyTestCase
 {
@@ -24,11 +18,6 @@ class SessionTest extends ProphecyTestCase
      * @var mixed
      */
     private $userProviderMock;
-
-    /**
-     * @var mixed
-     */
-    private $userMock;
 
     /**
      * @var UserInterface
@@ -54,16 +43,7 @@ class SessionTest extends ProphecyTestCase
     {
         parent::setUp();
 
-        $this->clearBucket($this->getMetadataNamespace());
-        $this->clearBucket($this->getBlobFileNamespace());
-        $this->clearBucket($this->getBlobNamespace());
-
-        /**
-         * setup
-         */
-        $this->userMock = $this->prophesize(UserInterface::class);
-        $this->userMock->getUsername()->willReturn($this->username);
-        $this->user = $this->userMock->reveal();
+        $this->user = $this->getUserProvider()->loadUserByUsername($this->username);
 
         $this->session = new Session(
             $this->getBlobFileManager(),

@@ -13,8 +13,6 @@ class RepositoryTest extends ProphecyTestCase
 {
     use ReferenceManagerTrait;
 
-    private $userProviderMock;
-
     public function testLogin()
     {
         $repository = new Repository(
@@ -24,9 +22,8 @@ class RepositoryTest extends ProphecyTestCase
             $this->getCommitManager()
         );
 
-        $user = $this->prophesize(UserInterface::class);
-
-        $session = $repository->login($user->reveal());
+        $user = $this->getUserProvider()->loadUserByUsername('johannes');
+        $session = $repository->login($user);
 
         $this->assertInstanceOf(SessionInterface::class, $session);
     }
@@ -40,9 +37,8 @@ class RepositoryTest extends ProphecyTestCase
             $this->getCommitManager()
         );
 
-        $user = $this->prophesize(UserInterface::class);
-
-        $session = $repository->login($user->reveal(), 'MY-HEAD');
+        $user = $this->getUserProvider()->loadUserByUsername('johannes');
+        $session = $repository->login($user, 'MY-HEAD');
 
         $this->assertInstanceOf(SessionInterface::class, $session);
 
@@ -51,12 +47,5 @@ class RepositoryTest extends ProphecyTestCase
         $reflectionProperty->setAccessible(true);
 
         $this->assertEquals('MY-HEAD', $reflectionProperty->getValue($session));
-    }
-
-    protected function createUserProvider()
-    {
-        $this->userProviderMock = $this->prophesize(UserProviderInterface::class);
-
-        return $this->userProviderMock->reveal();
     }
 }

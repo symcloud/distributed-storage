@@ -11,14 +11,11 @@
 
 namespace Symcloud\Component\Session;
 
-use Symcloud\Component\FileStorage\Model\BlobFileInterface;
-use Symcloud\Component\MetadataStorage\Model\CommitInterface;
-use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeReferenceInterface;
+use Symcloud\Component\Database\Model\BlobFileInterface;
+use Symcloud\Component\Database\Model\Commit\CommitInterface;
+use Symcloud\Component\Database\Model\Tree\TreeFileInterface;
+use Symcloud\Component\Database\Model\Tree\TreeInterface;
 use Symcloud\Component\Session\Exception\NotAFileException;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 interface SessionInterface
 {
@@ -70,23 +67,6 @@ interface SessionInterface
      * @throws NotAFileException
      */
     public function deleteFile($filePath);
-
-    /**
-     * @param string $path
-     * @param UserInterface $user
-     * @param string $referenceName
-     *
-     * @return TreeReferenceInterface
-     */
-    public function mount($path, UserInterface $user, $referenceName);
-
-    /**
-     * @param string $path
-     * @param string $referenceName
-     *
-     * @return ReferenceInterface
-     */
-    public function split($path, $referenceName);
 
     /**
      * @param string $filePath
