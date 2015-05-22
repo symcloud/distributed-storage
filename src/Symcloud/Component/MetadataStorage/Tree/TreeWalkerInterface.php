@@ -12,15 +12,13 @@
 namespace Symcloud\Component\MetadataStorage\Tree;
 
 use Symcloud\Component\MetadataStorage\Model\NodeInterface;
-use Symcloud\Component\MetadataStorage\Reference\ReferenceManagerInterface;
 
 interface TreeWalkerInterface
 {
     /**
-     * @param $path
-     * @param ReferenceManagerInterface $referenceManager
+     * @param string $path
      *
      * @return NodeInterface
      */
-    public function walk($path, ReferenceManagerInterface $referenceManager = null);
+    public function walk($path);
 }

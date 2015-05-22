@@ -7,7 +7,7 @@ use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
 
 trait TreeManagerTrait
 {
-    use BlobFileManagerTrait, RiakTrait, MetadataAdapterTrait;
+    use BlobFileManagerTrait;
 
     /**
      * @var TreeManagerInterface
@@ -18,7 +18,7 @@ trait TreeManagerTrait
     {
         if (!$this->treeManager) {
             $this->treeManager = new TreeManager(
-                $this->getTreeAdapter(),
+                $this->getDatabase(),
                 $this->getBlobFileManager(),
                 $this->getUserProvider(),
                 $this->getFactory()
@@ -27,11 +27,4 @@ trait TreeManagerTrait
 
         return $this->treeManager;
     }
-
-    public function getTreeAdapter()
-    {
-        return $this->getSerializeAdapter();
-    }
-
-    protected abstract function getUserProvider();
 }

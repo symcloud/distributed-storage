@@ -54,4 +54,12 @@ class Blob extends Model implements BlobInterface
     {
         $this->length = $length;
     }
+
+    /**
+     * @return string
+     */
+    public function getClass()
+    {
+        return self::class;
+    }
 }

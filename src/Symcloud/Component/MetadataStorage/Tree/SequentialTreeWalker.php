@@ -11,9 +11,7 @@
 
 namespace Symcloud\Component\MetadataStorage\Tree;
 
-use Symcloud\Component\MetadataStorage\Model\TreeInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeReferenceInterface;
-use Symcloud\Component\MetadataStorage\Reference\ReferenceManagerInterface;
+use Symcloud\Component\Database\Model\Tree\TreeInterface;
 
 class SequentialTreeWalker implements TreeWalkerInterface
 {
@@ -42,21 +40,12 @@ class SequentialTreeWalker implements TreeWalkerInterface
     /**
      * {@inheritdoc}
      */
-    public function walk($path, ReferenceManagerInterface $referenceManager = null)
+    public function walk($path)
     {
         $parts = array_filter(explode('/', $path));
         $tree = $this->tree;
         foreach ($parts as $part) {
             $tree = $tree->getChild($part);
-
-            if ($tree instanceof TreeReferenceInterface) {
-                if (!$referenceManager) {
-                    throw new \Exception('unresolved reference detected');
-                }
-
-                $reference = $referenceManager->getForUser($tree->getUser(), $tree->getReferenceName());
-                $tree = $reference->getCommit()->getTree();
-            }
 
             if ($tree === null) {
                 return;

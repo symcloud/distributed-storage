@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Symcloud\Component\Database\Metadata;
+namespace Symcloud\Component\Database\Metadata\ClassMetadata;
 
 use Symcloud\Component\Database\Metadata\Field\AccessorField;
 

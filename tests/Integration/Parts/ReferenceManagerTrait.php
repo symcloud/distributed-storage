@@ -7,7 +7,7 @@ use Symcloud\Component\MetadataStorage\Reference\ReferenceManagerInterface;
 
 trait ReferenceManagerTrait
 {
-    use CommitManagerTrait;
+    use CommitManagerTrait, RiakTrait, MetadataAdapterTrait;
 
     /**
      * @var ReferenceManagerInterface

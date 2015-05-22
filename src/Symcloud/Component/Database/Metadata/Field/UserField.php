@@ -13,25 +13,26 @@ namespace Symcloud\Component\Database\Metadata\Field;
 
 use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\ModelInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class ReferenceField extends AccessorField implements FieldInterface
+class UserField extends AccessorField implements FieldInterface
 {
     /**
-     * @var string
+     * @var UserProviderInterface
      */
-    private $className;
+    private $userProvider;
 
     /**
-     * ReferenceField constructor.
+     * UserField constructor.
      *
      * @param string $name
-     * @param string $className
+     * @param UserProviderInterface $userProvider
      */
-    public function __construct($name, $className)
+    public function __construct($name, UserProviderInterface $userProvider)
     {
         parent::__construct($name);
 
-        $this->className = $className;
+        $this->userProvider = $userProvider;
     }
 
     /**
@@ -43,11 +44,7 @@ class ReferenceField extends AccessorField implements FieldInterface
     {
         $value = parent::getValue($model);
 
-        if (!$value) {
-            return;
-        }
-
-        return $value->getHash();
+        return $value->getUsername();
     }
 
     /**
@@ -57,14 +54,6 @@ class ReferenceField extends AccessorField implements FieldInterface
      */
     public function setValue(ModelInterface $model, $value, DatabaseInterface $database)
     {
-        if (!$value) {
-            parent::setValue($model, $value, $database);
-
-            return;
-        }
-
-        $reference = $database->fetchProxy($value, $this->className);
-
-        parent::setValue($model, $reference, $database);
+        parent::setValue($model, $this->userProvider->loadUserByUsername($value), $database);
     }
 }

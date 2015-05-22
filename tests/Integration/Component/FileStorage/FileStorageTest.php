@@ -5,6 +5,7 @@ namespace Integration\Component\FileStorage;
 use Integration\Parts\BlobFileManagerTrait;
 use Integration\Parts\TestFileTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
+use Symcloud\Component\Database\Model\Blob;
 use Symcloud\Component\Database\Model\BlobFile;
 use Symcloud\Component\Database\Model\BlobFileInterface;
 use Symcloud\Component\Database\Model\BlobInterface;
@@ -21,10 +22,17 @@ class FileStorageTest extends ProphecyTestCase
         $size = 200;
         $mimeType = 'application/json';
         list($data, $fileName) = $this->generateTestFile($size);
-        $blobs = array(
-            $factory->createBlob(substr($data, 0, 100)),
-            $factory->createBlob(substr($data, 100, 100))
-        );
+        $blob1 = new Blob();
+        $blob1->setData(substr($data, 0, 100));
+        $blob1->setHash($factory->createHash($blob1->getData()));
+        $blob1->setLength(strlen($blob1->getData()));
+
+        $blob2 = new Blob();
+        $blob2->setData(substr($data, 100, 100));
+        $blob2->setHash($factory->createHash($blob2->getData()));
+        $blob2->setLength(strlen($blob2->getData()));
+
+        $blobs = array($blob1, $blob2);
         $fileHash = $factory->createFileHash($fileName);
 
         return array(

@@ -13,10 +13,18 @@ namespace Symcloud\Component\Database\Model;
 
 interface ModelInterface
 {
+    /**
+     * @return string
+     */
     public function getHash();
 
     /**
      * @return PolicyInterface
      */
     public function getPolicy();
+
+    /**
+     * @return string
+     */
+    public function getClass();
 }

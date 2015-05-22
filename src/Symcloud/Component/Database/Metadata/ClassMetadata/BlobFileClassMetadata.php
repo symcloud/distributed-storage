@@ -9,11 +9,10 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Symcloud\Component\Database\Metadata;
+namespace Symcloud\Component\Database\Metadata\ClassMetadata;
 
 use Symcloud\Component\Database\Metadata\Field\AccessorField;
 use Symcloud\Component\Database\Metadata\Field\ReferenceArrayField;
-use Symcloud\Component\Database\Model\Blob;
 
 class BlobFileClassMetadata extends ClassMetadata
 {
@@ -24,7 +23,7 @@ class BlobFileClassMetadata extends ClassMetadata
     {
         parent::__construct(
             array(
-                new ReferenceArrayField('blobs', Blob::class),
+                new ReferenceArrayField('blobs'),
             ),
             array(
                 new AccessorField('size'),

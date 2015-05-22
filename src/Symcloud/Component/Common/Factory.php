@@ -12,16 +12,8 @@
 namespace Symcloud\Component\Common;
 
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
-use Symcloud\Component\BlobStorage\Model\BlobModel;
-use Symcloud\Component\FileStorage\Model\BlobFileInterface;
-use Symcloud\Component\FileStorage\Model\BlobFileModel;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
-use Symcloud\Component\MetadataStorage\Model\CommitModel;
 use Symcloud\Component\MetadataStorage\Model\ReferenceModel;
-use Symcloud\Component\MetadataStorage\Model\TreeFileModel;
-use Symcloud\Component\MetadataStorage\Model\TreeInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeModel;
-use Symcloud\Component\MetadataStorage\Model\TreeReferenceModel;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class Factory implements FactoryInterface
@@ -62,130 +54,12 @@ class Factory implements FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createBlob($data, $hash = null)
-    {
-        $blob = new BlobModel();
-        $blob->setData($data);
-        $blob->setHash($hash !== null ? $hash : $this->createHash($data));
-
-        return $blob;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function createBlobFile($hash, $blobs = array(), $mimeType, $size)
-    {
-        $blobFile = new BlobFileModel();
-        $blobFile->setHash($hash);
-        $blobFile->setBlobs($blobs);
-        $blobFile->setMimeType($mimeType);
-        $blobFile->setSize($size);
-
-        return $blobFile;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function createCommit(
-        TreeInterface $tree,
-        UserInterface $user,
-        \DateTime $createdAt,
-        $message = '',
-        CommitInterface $parentCommit = null,
-        $hash = null
-    ) {
-        $commit = new CommitModel();
-        $commit->setTree($tree);
-        $commit->setMessage($message);
-        if ($parentCommit !== null) {
-            $commit->setParentCommit($parentCommit);
-        }
-        $commit->setCreatedAt($createdAt);
-        $commit->setCommitter($user);
-
-        if ($hash === null) {
-            $hash = $this->createHash(json_encode($commit->toArray()));
-        }
-        $commit->setHash($hash);
-
-        return $commit;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createReference(CommitInterface $commit, UserInterface $user, $name)
     {
         $reference = new ReferenceModel();
         $reference->setCommit($commit);
         $reference->setUser($user);
         $reference->setName($name);
-
-        return $reference;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function createTree($path, $children = array())
-    {
-        $tree = new TreeModel($this);
-        $tree->setPath($path);
-        $tree->setChildren($children);
-
-        return $tree;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function createRootTree()
-    {
-        $tree = new TreeModel($this);
-        $tree->setPath('/');
-        $tree->setChildren(array());
-
-        return $tree;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function createTreeFile(
-        $path,
-        $name,
-        BlobFileInterface $blobFile,
-        $version,
-        $metadata = array()
-    ) {
-        $file = new TreeFileModel($this);
-        $file->setPath($path);
-        $file->setName($name);
-        $file->setFile($blobFile);
-        $file->setVersion($version);
-        if ($metadata !== null) {
-            $file->setAllMetadata($metadata);
-        }
-
-        return $file;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function createTreeReference(
-        $path,
-        $name,
-        $referenceName,
-        UserInterface $user
-    ) {
-        $reference = new TreeReferenceModel($this);
-        $reference->setPath($path);
-        $reference->setName($name);
-        $reference->setReferenceName($referenceName);
-        $reference->setUser($user);
 
         return $reference;
     }

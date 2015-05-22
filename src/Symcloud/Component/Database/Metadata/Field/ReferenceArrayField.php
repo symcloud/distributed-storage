@@ -17,24 +17,6 @@ use Symcloud\Component\Database\Model\ModelInterface;
 class ReferenceArrayField extends AccessorField
 {
     /**
-     * @var string
-     */
-    private $className;
-
-    /**
-     * ReferenceField constructor.
-     *
-     * @param string $name
-     * @param string $className
-     */
-    public function __construct($name, $className)
-    {
-        parent::__construct($name);
-
-        $this->className = $className;
-    }
-
-    /**
      * @param ModelInterface $model
      *
      * @return mixed
@@ -45,7 +27,7 @@ class ReferenceArrayField extends AccessorField
 
         $result = array();
         foreach ($references as $reference) {
-            $result[] = $reference->getHash();
+            $result[] = array('hash' => $reference->getHash(), 'class' => $reference->getClass());
         }
 
         return $result;
@@ -60,7 +42,7 @@ class ReferenceArrayField extends AccessorField
     {
         $result = array();
         foreach ($references as $reference) {
-            $result[] = $database->fetchProxy($reference, $this->className);
+            $result[] = $database->fetchProxy($reference['hash'], $reference['class']);
         }
 
         parent::setValue($model, $result, $database);

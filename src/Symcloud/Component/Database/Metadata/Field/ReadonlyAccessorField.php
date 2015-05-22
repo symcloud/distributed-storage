@@ -13,25 +13,26 @@ namespace Symcloud\Component\Database\Metadata\Field;
 
 use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\ModelInterface;
+use Symfony\Component\PropertyAccess\PropertyAccess;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
 
-class ReferenceField extends AccessorField implements FieldInterface
+class ReadonlyAccessorField extends Field implements FieldInterface
 {
     /**
-     * @var string
+     * @var PropertyAccessor
      */
-    private $className;
+    private $accessor;
 
     /**
-     * ReferenceField constructor.
+     * AccessorField constructor.
      *
-     * @param string $name
-     * @param string $className
+     * @param $name
      */
-    public function __construct($name, $className)
+    public function __construct($name)
     {
         parent::__construct($name);
 
-        $this->className = $className;
+        $this->accessor = PropertyAccess::createPropertyAccessor();
     }
 
     /**
@@ -41,13 +42,7 @@ class ReferenceField extends AccessorField implements FieldInterface
      */
     public function getValue(ModelInterface $model)
     {
-        $value = parent::getValue($model);
-
-        if (!$value) {
-            return;
-        }
-
-        return $value->getHash();
+        return $this->accessor->getValue($model, $this->getName());
     }
 
     /**
@@ -57,14 +52,6 @@ class ReferenceField extends AccessorField implements FieldInterface
      */
     public function setValue(ModelInterface $model, $value, DatabaseInterface $database)
     {
-        if (!$value) {
-            parent::setValue($model, $value, $database);
-
-            return;
-        }
-
-        $reference = $database->fetchProxy($value, $this->className);
-
-        parent::setValue($model, $reference, $database);
+        // do nothing value is readonly
     }
 }

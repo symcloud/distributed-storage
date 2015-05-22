@@ -11,25 +11,12 @@
 
 namespace Symcloud\Component\Common;
 
-use Symcloud\Component\BlobStorage\Model\BlobInterface;
-use Symcloud\Component\FileStorage\Model\BlobFileInterface;
 use Symcloud\Component\MetadataStorage\Model\CommitInterface;
 use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeReferenceInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 interface FactoryInterface
 {
-    /**
-     * @param string      $data
-     * @param string|null $hash
-     *
-     * @return BlobInterface
-     */
-    public function createBlob($data, $hash = null);
-
     /**
      * @param $data
      *
@@ -43,80 +30,6 @@ interface FactoryInterface
      * @return string
      */
     public function createFileHash($filePath);
-
-    /**
-     * @param string $hash
-     * @param BlobInterface[] $blobs
-     * @param string $mimeType
-     * @param int $size
-     *
-     * @return BlobFileInterface
-     */
-    public function createBlobFile($hash, $blobs = array(), $mimeType, $size);
-
-    /**
-     * @param string $path
-     * @param array $children
-     *
-     * @return TreeInterface
-     */
-    public function createTree($path, $children = array());
-
-    /**
-     * @return TreeInterface
-     */
-    public function createRootTree();
-
-    /**
-     * @param string $path
-     * @param string $name
-     * @param BlobFileInterface $blobFile
-     * @param int $version
-     * @param array $metadata
-     *
-     * @return TreeFileInterface
-     */
-    public function createTreeFile(
-        $path,
-        $name,
-        BlobFileInterface $blobFile,
-        $version,
-        $metadata = array()
-    );
-
-    /**
-     * @param string $path
-     * @param string $name
-     * @param string $referenceName
-     * @param UserInterface $user
-     *
-     * @return TreeReferenceInterface
-     */
-    public function createTreeReference(
-        $path,
-        $name,
-        $referenceName,
-        UserInterface $user
-    );
-
-    /**
-     * @param TreeInterface $tree
-     * @param UserInterface $user
-     * @param \DateTime $createdAt
-     * @param string $message
-     * @param CommitInterface $parentCommit
-     * @param null $hash
-     *
-     * @return CommitInterface
-     */
-    public function createCommit(
-        TreeInterface $tree,
-        UserInterface $user,
-        \DateTime $createdAt,
-        $message = '',
-        CommitInterface $parentCommit = null,
-        $hash = null
-    );
 
     /**
      * @param CommitInterface $commit

@@ -92,4 +92,12 @@ class BlobFile extends Model implements BlobFileInterface
 
         return $content;
     }
+
+    /**
+     * @return string
+     */
+    public function getClass()
+    {
+        return self::class;
+    }
 }

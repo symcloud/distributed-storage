@@ -49,7 +49,12 @@ class ZendLuceneAdapter implements SearchAdapterInterface
         $luceneDocument = new Lucene\Document();
         $luceneDocument->addField(Lucene\Document\Field::text(self::HASH_FIELDNAME, $hash));
         foreach ($metadata->getMetadataFields() as $field) {
-            $luceneDocument->addField(Lucene\Document\Field::text($field->getName(), $field->getValue($model)));
+            $value = $field->getValue($model);
+            if (is_string($value)) {
+                $luceneDocument->addField(Lucene\Document\Field::keyword($field->getName(), $value));
+            } elseif ($value instanceof \DateTime) {
+                $luceneDocument->addField(Lucene\Document\Field::keyword($field->getName(), $value->getTimestamp()));
+            }
         }
         $index->addDocument($luceneDocument);
 
