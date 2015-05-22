@@ -151,7 +151,7 @@ class Session implements SessionInterface
         }
 
         if (!$this->reference) {
-            $this->reference = $this->referenceManager->getForUser($this->user, $this->referenceName);
+            $this->reference = $this->referenceManager->fetch($this->user, $this->referenceName);
             $this->referenceCommit = $this->reference->getCommit();
         }
 
@@ -247,7 +247,7 @@ class Session implements SessionInterface
             return $this->treeManager->createTreeReference(
                 $name,
                 $parentTree,
-                $this->referenceManager->getForUser($user, $referenceName)
+                $this->referenceManager->fetch($user, $referenceName)
             );
         }
 
@@ -290,7 +290,7 @@ class Session implements SessionInterface
 
         $this->treeManager->createTreeReference($name, $parentTree, $reference);
 
-        return $this->referenceManager->getForUser($this->user, $referenceName);
+        return $this->referenceManager->fetch($this->user, $referenceName);
     }
 
     /**
@@ -373,7 +373,7 @@ class Session implements SessionInterface
         );
 
         if (!$this->reference) {
-            $this->reference = $this->referenceManager->getForUser($this->user, $this->referenceName);
+            $this->reference = $this->referenceManager->fetch($this->user, $this->referenceName);
         }
 
         $this->referenceManager->update($this->reference, $this->referenceCommit);

@@ -12,18 +12,21 @@
 namespace Symcloud\Component\MetadataStorage\Reference;
 
 use Symcloud\Component\Common\FactoryInterface;
+use Symcloud\Component\Database\DatabaseInterface;
+use Symcloud\Component\Database\Model\Commit\CommitInterface;
+use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\Reference\Reference;
+use Symcloud\Component\Database\Model\Reference\ReferenceInterface;
 use Symcloud\Component\MetadataStorage\Commit\CommitManagerInterface;
-use Symcloud\Component\MetadataStorage\Model\CommitInterface;
-use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class ReferenceManager implements ReferenceManagerInterface
 {
     /**
-     * @var ReferenceAdapterInterface
+     * @var DatabaseInterface
      */
-    private $adapter;
+    private $database;
 
     /**
      * @var CommitManagerInterface
@@ -43,18 +46,18 @@ class ReferenceManager implements ReferenceManagerInterface
     /**
      * ReferenceManager constructor.
      *
-     * @param ReferenceAdapterInterface $adapter
+     * @param DatabaseInterface $database
      * @param CommitManagerInterface $commitManager
      * @param UserProviderInterface $userProvider
      * @param FactoryInterface $factory
      */
     public function __construct(
-        ReferenceAdapterInterface $adapter,
+        DatabaseInterface $database,
         CommitManagerInterface $commitManager,
         UserProviderInterface $userProvider,
         FactoryInterface $factory
     ) {
-        $this->adapter = $adapter;
+        $this->database = $database;
         $this->commitManager = $commitManager;
         $this->factory = $factory;
         $this->userProvider = $userProvider;
@@ -63,10 +66,14 @@ class ReferenceManager implements ReferenceManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function create(UserInterface $user, CommitInterface $commit, $name = 'HEAD')
+    public function create($name, UserInterface $user, CommitInterface $commit)
     {
-        $reference = $this->factory->createReference($commit, $user, $name);
-        $this->adapter->storeReference($reference);
+        $reference = new Reference();
+        $reference->setPolicy(new Policy());
+        $reference->setName($name);
+        $reference->setUser($user);
+        $reference->setCommit($commit);
+        $this->database->store($reference);
 
         return $reference;
     }
@@ -78,33 +85,14 @@ class ReferenceManager implements ReferenceManagerInterface
     {
         $reference->update($commit);
 
-        return $this->adapter->storeReference($reference);
+        return $this->database->store($reference);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getForUser(UserInterface $user, $name = 'HEAD')
+    public function fetch($name)
     {
-        $referenceData = $this->adapter->fetchReferenceData($user, $name);
-
-        return $this->createReference($referenceData, $user);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getForUsername($username, $name = 'HEAD')
-    {
-        $referenceData = $this->adapter->fetchReferenceDataByUsername($username, $name);
-
-        return $this->createReference($referenceData, $this->userProvider->loadUserByUsername($username));
-    }
-
-    private function createReference($referenceData, UserInterface $user)
-    {
-        $commit = $this->commitManager->fetchProxy($referenceData[ReferenceInterface::COMMIT_KEY]);
-
-        return $this->factory->createReference($commit, $user, $referenceData[ReferenceInterface::NAME_KEY]);
+        return $this->database->fetch($name);
     }
 }

@@ -12,9 +12,6 @@
 namespace Symcloud\Component\Common;
 
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
-use Symcloud\Component\MetadataStorage\Model\CommitInterface;
-use Symcloud\Component\MetadataStorage\Model\ReferenceModel;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class Factory implements FactoryInterface
 {
@@ -49,19 +46,6 @@ class Factory implements FactoryInterface
         $this->algorithm = $algorithm;
         $this->key = $key;
         $this->proxyFactory = $proxyFactory;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function createReference(CommitInterface $commit, UserInterface $user, $name)
-    {
-        $reference = new ReferenceModel();
-        $reference->setCommit($commit);
-        $reference->setUser($user);
-        $reference->setName($name);
-
-        return $reference;
     }
 
     /**

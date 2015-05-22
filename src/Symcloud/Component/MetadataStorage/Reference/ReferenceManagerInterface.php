@@ -11,36 +11,27 @@
 
 namespace Symcloud\Component\MetadataStorage\Reference;
 
-use Symcloud\Component\MetadataStorage\Model\CommitInterface;
-use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
+use Symcloud\Component\Database\Model\Commit\CommitInterface;
+use Symcloud\Component\Database\Model\Reference\ReferenceInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 interface ReferenceManagerInterface
 {
     /**
-     * @param UserInterface $user
      * @param string        $name
      *
      * @return ReferenceInterface
      */
-    public function getForUser(UserInterface $user, $name = 'HEAD');
+    public function fetch($name);
 
     /**
-     * @param string $username
-     * @param string        $name
-     *
-     * @return ReferenceInterface
-     */
-    public function getForUsername($username, $name = 'HEAD');
-
-    /**
+     * @param string $name
      * @param UserInterface   $user
      * @param CommitInterface $commit
-     * @param string          $name
      *
      * @return ReferenceInterface
      */
-    public function create(UserInterface $user, CommitInterface $commit, $name = 'HEAD');
+    public function create($name, UserInterface $user, CommitInterface $commit);
 
     /**
      * @param ReferenceInterface $reference

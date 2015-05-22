@@ -15,10 +15,9 @@ use Symcloud\Component\Database\Metadata\Field\AccessorField;
 use Symcloud\Component\Database\Metadata\Field\ReferenceField;
 use Symcloud\Component\Database\Metadata\Field\UserField;
 use Symcloud\Component\Database\Model\Commit\Commit;
-use Symcloud\Component\Database\Model\Tree\Tree;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class CommitClassMetadata extends ClassMetadata
+class ReferenceClassMetadata extends ClassMetadata
 {
     /**
      * BlobFileClassMetadata constructor.
@@ -29,18 +28,14 @@ class CommitClassMetadata extends ClassMetadata
     {
         parent::__construct(
             array(
-                new ReferenceField('tree', Tree::class),
-                new ReferenceField('parentCommit', Commit::class),
-                new AccessorField('message'),
-                new AccessorField('createdAt'),
-                new UserField('committer', $userProvider),
+                new ReferenceField('commit', Commit::class),
+                new UserField('user', $userProvider),
+                new AccessorField('name'),
             ),
             array(
-                new ReferenceField('tree', Tree::class),
-                new ReferenceField('parentCommit', Commit::class),
-                new AccessorField('message'),
-                new AccessorField('createdAt'),
-                new UserField('committer', $userProvider),
+                new ReferenceField('commit', Commit::class),
+                new UserField('user', $userProvider),
+                new AccessorField('name'),
             )
         );
     }
@@ -58,6 +53,6 @@ class CommitClassMetadata extends ClassMetadata
      */
     public function isHashGenerated()
     {
-        return true;
+        return false;
     }
 }

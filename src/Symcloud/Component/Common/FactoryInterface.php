@@ -11,10 +11,6 @@
 
 namespace Symcloud\Component\Common;
 
-use Symcloud\Component\MetadataStorage\Model\CommitInterface;
-use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-
 interface FactoryInterface
 {
     /**
@@ -30,15 +26,6 @@ interface FactoryInterface
      * @return string
      */
     public function createFileHash($filePath);
-
-    /**
-     * @param CommitInterface $commit
-     * @param UserInterface   $user
-     * @param string          $name
-     *
-     * @return ReferenceInterface
-     */
-    public function createReference(CommitInterface $commit, UserInterface $user, $name);
 
     /**
      * @param string   $className

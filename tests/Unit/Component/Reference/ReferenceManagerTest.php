@@ -56,7 +56,7 @@ class ReferenceManagerTest extends ProphecyTestCase
             $this->getUserProvider(),
             $factory
         );
-        $reference = $manager->getForUser($user->reveal());
+        $reference = $manager->fetch($user->reveal());
 
         $this->assertEquals($user->reveal(), $reference->getUser());
         $this->assertEquals($referenceName, $reference->getName());
@@ -97,7 +97,7 @@ class ReferenceManagerTest extends ProphecyTestCase
             $this->getUserProvider(),
             $factory
         );
-        $reference = $manager->getForUser($user->reveal(), $referenceName);
+        $reference = $manager->fetch($user->reveal(), $referenceName);
 
         $this->assertEquals($user->reveal(), $reference->getUser());
         $this->assertEquals($referenceName, $reference->getName());
