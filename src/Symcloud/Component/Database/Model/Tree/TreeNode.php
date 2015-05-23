@@ -18,33 +18,12 @@ abstract class TreeNode extends Model implements TreeNodeInterface
     /**
      * @var string
      */
-    private $hash;
-
-    /**
-     * @var string
-     */
     private $path;
 
     /**
      * @var string
      */
     private $name;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getHash()
-    {
-        return $this->hash;
-    }
-
-    /**
-     * @param string $hash
-     */
-    public function setHash($hash)
-    {
-        $this->hash = $hash;
-    }
 
     /**
      * @return string

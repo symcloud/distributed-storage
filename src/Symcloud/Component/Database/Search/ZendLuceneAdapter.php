@@ -20,6 +20,9 @@ use ZendSearch\Lucene;
 
 class ZendLuceneAdapter implements SearchAdapterInterface
 {
+    /**
+     * @var string
+     */
     const HASH_FIELDNAME = '__hash';
 
     /**

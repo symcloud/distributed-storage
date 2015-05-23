@@ -27,15 +27,29 @@ abstract class ClassMetadata implements ClassMetadataInterface
     private $metadataFields;
 
     /**
+     * @var string
+     */
+    private $context;
+
+    /**
+     * @var bool
+     */
+    private $hashGenerated;
+
+    /**
      * ClassMetadata constructor.
      *
      * @param FieldInterface[] $dataFields
      * @param FieldInterface[] $metadataFields
+     * @param string $context
+     * @param bool $hashGenerated
      */
-    public function __construct(array $dataFields, array $metadataFields)
+    public function __construct(array $dataFields, array $metadataFields, $context, $hashGenerated)
     {
         $this->dataFields = $dataFields;
         $this->metadataFields = $metadataFields;
+        $this->context = $context;
+        $this->hashGenerated = $hashGenerated;
     }
 
     /**
@@ -52,5 +66,21 @@ abstract class ClassMetadata implements ClassMetadataInterface
     public function getMetadataFields()
     {
         return $this->metadataFields;
+    }
+
+    /**
+     * @return string
+     */
+    public function getContext()
+    {
+        return $this->context;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHashGenerated()
+    {
+        return $this->hashGenerated;
     }
 }

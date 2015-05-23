@@ -41,7 +41,6 @@ class DatabaseTest extends ProphecyTestCase
         $a->references = array($b, $c);
         $a->user = $this->getUserProvider()->loadUserByUsername('johannes');
 
-
         $data = array(
             'metadata' => array(
                 'title' => $a->title,
@@ -81,6 +80,9 @@ class DatabaseTest extends ProphecyTestCase
     public function testStore(A $a, B $b, C $c, $data, $hash)
     {
         $database = $this->getDatabase();
+        $database->store($b);
+        $database->store($c);
+
         $result = $database->store($a);
 
         $this->assertEquals($a, $result);
@@ -283,24 +285,10 @@ class AClassMetadata extends ClassMetadata
                 new AccessorField('title'),
                 new ReferenceArrayField('references'),
                 new UserField('user', $userProvider),
-            )
+            ),
+            'test',
+            true
         );
-    }
-
-    /**
-     * @return string
-     */
-    public function getContext()
-    {
-        return 'test';
-    }
-
-    /**
-     * @return bool
-     */
-    public function isHashGenerated()
-    {
-        return true;
     }
 }
 
@@ -315,23 +303,9 @@ class BClassMetadata extends ClassMetadata
             array(
                 new AccessorField('name'),
             ),
-            array()
+            array(),
+            'test',
+            false
         );
-    }
-
-    /**
-     * @return string
-     */
-    public function getContext()
-    {
-        return 'test';
-    }
-
-    /**
-     * @return bool
-     */
-    public function isHashGenerated()
-    {
-        return false;
     }
 }

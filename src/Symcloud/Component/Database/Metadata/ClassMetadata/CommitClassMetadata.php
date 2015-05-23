@@ -41,23 +41,9 @@ class CommitClassMetadata extends ClassMetadata
                 new AccessorField('message'),
                 new AccessorField('createdAt'),
                 new UserField('committer', $userProvider),
-            )
+            ),
+            'reference',
+            true
         );
-    }
-
-    /**
-     * @return string
-     */
-    public function getContext()
-    {
-        return 'reference';
-    }
-
-    /**
-     * @return bool
-     */
-    public function isHashGenerated()
-    {
-        return true;
     }
 }

@@ -26,20 +26,9 @@ class BlobClassMetadata extends ClassMetadata
             ),
             array(
                 new AccessorField('length'),
-            )
+            ),
+            'blob',
+            false
         );
-    }
-
-    /**
-     * @return string
-     */
-    public function getContext()
-    {
-        return 'blob';
-    }
-
-    public function isHashGenerated()
-    {
-        return false;
     }
 }

@@ -28,23 +28,9 @@ class BlobFileClassMetadata extends ClassMetadata
             array(
                 new AccessorField('size'),
                 new AccessorField('mimetype'),
-            )
+            ),
+            'file',
+            false
         );
-    }
-
-    /**
-     * @return string
-     */
-    public function getContext()
-    {
-        return 'file';
-    }
-
-    /**
-     * @return bool
-     */
-    public function isHashGenerated()
-    {
-        return false;
     }
 }

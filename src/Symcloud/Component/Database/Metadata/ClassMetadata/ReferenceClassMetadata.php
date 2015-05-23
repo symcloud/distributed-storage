@@ -20,7 +20,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class ReferenceClassMetadata extends ClassMetadata
 {
     /**
-     * BlobFileClassMetadata constructor.
+     * ReferenceClassMetadata constructor.
      *
      * @param UserProviderInterface $userProvider
      */
@@ -36,23 +36,9 @@ class ReferenceClassMetadata extends ClassMetadata
                 new ReferenceField('commit', Commit::class),
                 new UserField('user', $userProvider),
                 new AccessorField('name'),
-            )
+            ),
+            'reference',
+            false
         );
-    }
-
-    /**
-     * @return string
-     */
-    public function getContext()
-    {
-        return 'reference';
-    }
-
-    /**
-     * @return bool
-     */
-    public function isHashGenerated()
-    {
-        return false;
     }
 }

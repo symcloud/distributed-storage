@@ -40,23 +40,9 @@ class TreeNodeClassMetadata extends ClassMetadata
                     new AccessorField('path'),
                     new ReadonlyAccessorField('type'),
                 )
-            )
+            ),
+            'metadata',
+            true
         );
-    }
-
-    /**
-     * @return string
-     */
-    public function getContext()
-    {
-        return 'metadata';
-    }
-
-    /**
-     * @return bool
-     */
-    public function isHashGenerated()
-    {
-        return true;
     }
 }

@@ -183,8 +183,14 @@ class Session implements SessionInterface
 
         $parentPath = dirname($filePath);
         $fileName = basename($filePath);
-        if (!($parentTree = $treeWalker->walk($parentPath))) {
+        $parentTree = $treeWalker->walk($parentPath);
+
+        if (!$parentTree) {
             $parentTree = $this->createRecursive($parentPath);
+        }
+
+        if (!($parentTree instanceof TreeInterface)) {
+            throw new NotATreeException($parentPath);
         }
 
         if (!($child = $parentTree->getChild($fileName))) {

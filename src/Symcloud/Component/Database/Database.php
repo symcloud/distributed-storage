@@ -12,7 +12,6 @@
 namespace Symcloud\Component\Database;
 
 use Symcloud\Component\Common\FactoryInterface;
-use Symcloud\Component\Database\Metadata\MetadataManager;
 use Symcloud\Component\Database\Metadata\MetadataManagerInterface;
 use Symcloud\Component\Database\Model\ModelInterface;
 use Symcloud\Component\Database\Model\Policy;
@@ -161,12 +160,18 @@ class Database implements DatabaseInterface
     /**
      * @param string $class
      *
+     * @throws \Exception
+     *
      * @return ModelInterface
      */
     private function getModel($class)
     {
         $reflectionClass = new \ReflectionClass($class);
+        $instance = $reflectionClass->newInstance();
+        if (!($instance instanceof ModelInterface)) {
+            throw new \Exception('This class is not supported');
+        }
 
-        return $reflectionClass->newInstance();
+        return $instance;
     }
 }
