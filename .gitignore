@@ -5,6 +5,7 @@
 !app/logs/.gitkeep
 tests/Integration/Parts/lucene
 tests/Integration/Component/Database/StorageAdapter/database
+tests/Integration/Component/Session/lucene
 
 # Cache and logs (Symfony3)
 /var/cache/*

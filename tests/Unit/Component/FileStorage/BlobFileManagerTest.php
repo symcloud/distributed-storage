@@ -12,6 +12,7 @@ use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\Blob;
 use Symcloud\Component\Database\Model\BlobFile;
 use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Search\Hit\Hit;
 use Symcloud\Component\FileStorage\BlobFileManager;
 use Symcloud\Component\FileStorage\Exception\FileNotFoundException;
 use Symcloud\Component\FileStorage\FileSplitter;
@@ -39,7 +40,7 @@ class BlobFileManagerTest extends ProphecyTestCase
 
         $file = new BlobFile();
         $file->setPolicy(new Policy());
-        $file->setHash($fileHash);
+        $file->setFileHash($fileHash);
         $file->setBlobs(array($blob1, $blob2));
         $file->setMimeType($mimeType);
         $file->setSize($size);
@@ -67,6 +68,8 @@ class BlobFileManagerTest extends ProphecyTestCase
         $database->store($file)->willReturn($file);
         $database->contains($fileHash)->willReturn(false);
         $database->fetch()->should(new NoCallsPrediction());
+
+        $database->search('fileHash:' . $fileHash, array('file'))->willReturn(array());
 
         $manager = new BlobFileManager(
             $fileSplitter,
@@ -103,7 +106,8 @@ class BlobFileManagerTest extends ProphecyTestCase
         $blob2->setData(substr($data, 100, 100));
 
         $file = new BlobFile();
-        $file->setHash($fileHash);
+        $file->setHash('xyz');
+        $file->setFileHash($fileHash);
         $file->setBlobs(array($blob1, $blob2));
         $file->setSize($size);
         $file->setMimeType($mimeType);
@@ -127,7 +131,11 @@ class BlobFileManagerTest extends ProphecyTestCase
 
         $database->store()->should(new NoCallsPrediction());
         $database->contains($fileHash)->willReturn(true);
-        $database->fetch($fileHash, BlobFile::class)->willReturn($file);
+        $database->fetch('xyz', BlobFile::class)->willReturn($file);
+
+        $hit = new Hit();
+        $hit->setHash($file->getHash());
+        $database->search('fileHash:' . $fileHash, array('file'))->willReturn(array($hit));
 
         $manager = new BlobFileManager(
             $fileSplitter,
@@ -164,7 +172,8 @@ class BlobFileManagerTest extends ProphecyTestCase
         $blob2->setData(substr($data, 100, 100));
 
         $file = new BlobFile();
-        $file->setHash($fileHash);
+        $file->setHash('xyz');
+        $file->setFileHash($fileHash);
         $file->setBlobs(array($blob1, $blob2));
         $file->setSize($size);
         $file->setMimeType($mimeType);
@@ -188,7 +197,11 @@ class BlobFileManagerTest extends ProphecyTestCase
 
         $database->store()->should(new NoCallsPrediction());
         $database->contains($fileHash)->willReturn(true);
-        $database->fetch($fileHash, BlobFile::class)->willReturn($file);
+        $database->fetch($file->getHash(), BlobFile::class)->willReturn($file);
+
+        $hit = new Hit();
+        $hit->setHash($file->getHash());
+        $database->search('fileHash:' . $fileHash, array('file'))->willReturn(array($hit));
 
         $manager = new BlobFileManager(
             $fileSplitter,
@@ -223,6 +236,8 @@ class BlobFileManagerTest extends ProphecyTestCase
 
         $database->store()->should(new NoCallsPrediction());
         $database->fetch($fileHash, BlobFile::class)->willThrow(new FileNotFoundException($fileHash));
+
+        $database->search('fileHash:' . $fileHash, array('file'))->willReturn(array());
 
         $manager = new BlobFileManager(
             $fileSplitter,

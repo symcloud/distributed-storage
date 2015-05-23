@@ -10,10 +10,14 @@ use Symcloud\Component\Database\Model\BlobFile;
 use Symcloud\Component\Database\Model\BlobFileInterface;
 use Symcloud\Component\Database\Model\BlobInterface;
 use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Search\Hit\Hit;
+use Symcloud\Component\Database\Search\SearchAdapterInterface;
 
 class FileStorageTest extends ProphecyTestCase
 {
     use TestFileTrait, BlobFileManagerTrait;
+
+    private $searchAdapterMock;
 
     public function storageProvider()
     {
@@ -54,6 +58,8 @@ class FileStorageTest extends ProphecyTestCase
      * @param string $data
      * @param string $fileHash
      * @param BlobInterface[] $blobs
+     * @param $mimeType
+     * @param $size
      */
     public function testUpload(
         $fileName,
@@ -69,7 +75,8 @@ class FileStorageTest extends ProphecyTestCase
 
         $result = $manager->upload($fileName, $mimeType, $size);
 
-        $this->assertEquals($factory->createHash($data), $result->getHash());
+        $this->assertNotNull($result->getHash());
+        $this->assertEquals($factory->createHash($data), $result->getFileHash());
         $this->assertEquals($blobs[0]->getHash(), $result->getBlobs()[0]->getHash());
         $this->assertEquals($blobs[0]->getData(), $result->getBlobs()[0]->getData());
         $this->assertEquals($blobs[1]->getHash(), $result->getBlobs()[1]->getHash());
@@ -93,7 +100,8 @@ class FileStorageTest extends ProphecyTestCase
 
         /** @var BlobFileInterface $model */
         $model = $database->fetch($result->getHash());
-        $this->assertEquals($fileHash, $model->getHash());
+        $this->assertEquals($result->getHash(), $model->getHash());
+        $this->assertEquals($fileHash, $model->getFileHash());
         $this->assertEquals($data, $model->getContent());
         $this->assertEquals($blobs[0]->getHash(), $model->getBlobs()[0]->getHash());
         $this->assertEquals($blobs[1]->getHash(), $model->getBlobs()[1]->getHash());
@@ -121,10 +129,10 @@ class FileStorageTest extends ProphecyTestCase
         $size
     ) {
         $file = new BlobFile();
-        $file->setHash($fileHash);
-        $file->setBlobs($blobs);
         $file->setPolicy(new Policy());
+        $file->setFileHash($fileHash);
         $file->setMimetype($mimeType);
+        $file->setBlobs($blobs);
         $file->setSize($size);
 
         $blobManager = $this->getBlobManager();
@@ -135,9 +143,15 @@ class FileStorageTest extends ProphecyTestCase
         $blobManager->upload($blobs[1]->getData());
         $database->store($file);
 
+        $hit = new Hit();
+        $hit->setHash($file->getHash());
+        $hits = array($hit);
+        $this->searchAdapterMock->search('fileHash:'.$fileHash, array('file'))->willReturn($hits);
+
         $result = $manager->download($fileHash);
 
-        $this->assertEquals($fileHash, $result->getHash());
+        $this->assertNotNull($result->getHash());
+        $this->assertEquals($fileHash, $result->getFileHash());
         $this->assertEquals($data, $result->getContent());
         $this->assertEquals($mimeType, $result->getMimeType());
         $this->assertEquals($size, $result->getSize());
@@ -163,12 +177,20 @@ class FileStorageTest extends ProphecyTestCase
 
         /** @var BlobFileInterface $model */
         $model = $database->fetch($result->getHash());
-        $this->assertEquals($fileHash, $model->getHash());
+        $this->assertEquals($result->getHash(), $model->getHash());
+        $this->assertEquals($fileHash, $model->getFileHash());
         $this->assertEquals($data, $model->getContent());
         $this->assertEquals($blobs[0]->getHash(), $model->getBlobs()[0]->getHash());
         $this->assertEquals($blobs[1]->getHash(), $model->getBlobs()[1]->getHash());
         $this->assertEquals(strlen($data), $model->getSize());
         $this->assertEquals($size, $model->getSize());
         $this->assertEquals($mimeType, $model->getMimetype());
+    }
+
+    protected function createSearchAdapter()
+    {
+        $this->searchAdapterMock = $this->prophesize(SearchAdapterInterface::class);
+
+        return $this->searchAdapterMock->reveal();
     }
 }

@@ -185,9 +185,9 @@ class DatabaseTest extends ProphecyTestCase
         $bClassMetadata = new BClassMetadata();
 
         $metadataManager = $this->prophesize(MetadataManagerInterface::class);
-        $metadataManager->loadByObject(Argument::type(A::class))->willReturn($aClassMetadata);
-        $metadataManager->loadByObject(Argument::type(B::class))->willReturn($bClassMetadata);
-        $metadataManager->loadByObject(Argument::type(c::class))->willReturn($bClassMetadata);
+        $metadataManager->loadByModel(Argument::type(A::class))->willReturn($aClassMetadata);
+        $metadataManager->loadByModel(Argument::type(B::class))->willReturn($bClassMetadata);
+        $metadataManager->loadByModel(Argument::type(c::class))->willReturn($bClassMetadata);
         $metadataManager->loadByClassname(A::class)->willReturn($aClassMetadata);
         $metadataManager->loadByClassname(B::class)->willReturn($bClassMetadata);
         $metadataManager->loadByClassname(C::class)->willReturn($bClassMetadata);
