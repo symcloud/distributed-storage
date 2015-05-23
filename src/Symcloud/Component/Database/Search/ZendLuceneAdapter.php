@@ -77,6 +77,7 @@ class ZendLuceneAdapter implements SearchAdapterInterface
             }
         }
         $index->addDocument($luceneDocument);
+        $index->commit();
 
         return $luceneDocument;
     }
