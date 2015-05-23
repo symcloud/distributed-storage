@@ -24,13 +24,15 @@ class BlobFileClassMetadata extends ClassMetadata
         parent::__construct(
             array(
                 new ReferenceArrayField('blobs'),
+                new AccessorField('fileHash'),
             ),
             array(
+                new AccessorField('fileHash'),
                 new AccessorField('size'),
                 new AccessorField('mimetype'),
             ),
             'file',
-            false
+            true
         );
     }
 }

@@ -19,5 +19,7 @@ interface BlobFileInterface extends ModelInterface
 
     public function getMimetype();
 
+    public function getFileHash();
+
     public function getContent($length = -1, $offset = 0);
 }

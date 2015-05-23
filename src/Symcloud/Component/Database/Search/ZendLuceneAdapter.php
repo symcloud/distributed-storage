@@ -70,6 +70,10 @@ class ZendLuceneAdapter implements SearchAdapterInterface
                 $luceneDocument->addField(Lucene\Document\Field::keyword($field->getName(), $value));
             } elseif ($value instanceof \DateTime) {
                 $luceneDocument->addField(Lucene\Document\Field::keyword($field->getName(), $value->getTimestamp()));
+            } elseif (is_array($value)) {
+                $luceneDocument->addField(Lucene\Document\Field::text($field->getName(), implode(',', $value)));
+            } else {
+                $luceneDocument->addField(Lucene\Document\Field::binary($field->getName(), $value));
             }
         }
         $index->addDocument($luceneDocument);
@@ -81,11 +85,7 @@ class ZendLuceneAdapter implements SearchAdapterInterface
     {
         $searcher = new Lucene\MultiSearcher();
         foreach ($contexts as $indexName) {
-            $indexPath = $this->getIndexPath($indexName);
-            if (!file_exists($indexPath)) {
-                continue;
-            }
-            $searcher->addIndex($this->getIndex($indexPath, false));
+            $searcher->addIndex($this->getLuceneIndex($indexName));
         }
 
         $query = Lucene\Search\QueryParser::parse($query);

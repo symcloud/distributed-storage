@@ -29,6 +29,11 @@ class BlobFile extends Model implements BlobFileInterface
     private $blobs;
 
     /**
+     * @var string
+     */
+    private $fileHash;
+
+    /**
      * @return int
      */
     public function getSize()
@@ -74,6 +79,22 @@ class BlobFile extends Model implements BlobFileInterface
     public function setBlobs($blobs)
     {
         $this->blobs = $blobs;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFileHash()
+    {
+        return $this->fileHash;
+    }
+
+    /**
+     * @param string $fileHash
+     */
+    public function setFileHash($fileHash)
+    {
+        $this->fileHash = $fileHash;
     }
 
     /**

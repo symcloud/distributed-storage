@@ -121,7 +121,7 @@ class NoopSearchAdapter implements SearchAdapterInterface
         // TODO: Implement index() method.
     }
 
-    public function search($query, $contexts = null)
+    public function search($query, $contexts = array())
     {
         // TODO: Implement search() method.
     }

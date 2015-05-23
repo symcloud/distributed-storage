@@ -68,9 +68,10 @@ class BlobFileManager implements BlobFileManagerInterface
     public function upload($filePath, $mimeType, $size)
     {
         $fileHash = $this->factory->createFileHash($filePath);
+        $hits = $this->database->search('fileHash:' . $fileHash, array('file'));
 
-        if ($this->database->contains($fileHash)) {
-            return $this->download($fileHash);
+        if (sizeof($hits) === 1) {
+            return $this->doDownload($hits[0]->getHash());
         }
 
         $blobs = array();
@@ -90,7 +91,7 @@ class BlobFileManager implements BlobFileManagerInterface
         $file->setSize($size);
         $file->setMimetype($mimeType);
         $file->setBlobs($blobs);
-        $file->setHash($fileHash);
+        $file->setFileHash($fileHash);
 
         return $this->database->store($file);
     }
@@ -100,10 +101,21 @@ class BlobFileManager implements BlobFileManagerInterface
      */
     public function download($fileHash)
     {
-        try {
-            return $this->database->fetch($fileHash, BlobFile::class);
-        } catch (\Exception $ex) {
+        $hits = $this->database->search('fileHash:' . $fileHash, array('file'));
+
+        if (sizeof($hits) < 1) {
             throw new FileNotFoundException($fileHash);
+        }
+
+        return $this->doDownload($hits[0]->getHash());
+    }
+
+    private function doDownload($hash)
+    {
+        try {
+            return $this->database->fetch($hash, BlobFile::class);
+        } catch (\Exception $ex) {
+            throw new FileNotFoundException($hash);
         }
     }
 
