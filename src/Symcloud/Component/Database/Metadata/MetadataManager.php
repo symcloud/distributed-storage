@@ -20,6 +20,7 @@ use Symcloud\Component\Database\Metadata\ClassMetadata\TreeFileClassMetadata;
 use Symcloud\Component\Database\Model\Blob;
 use Symcloud\Component\Database\Model\BlobFile;
 use Symcloud\Component\Database\Model\Commit\Commit;
+use Symcloud\Component\Database\Model\ModelInterface;
 use Symcloud\Component\Database\Model\Reference\Reference;
 use Symcloud\Component\Database\Model\Tree\Tree;
 use Symcloud\Component\Database\Model\Tree\TreeFile;
@@ -49,9 +50,9 @@ class MetadataManager implements MetadataManagerInterface
         );
     }
 
-    public function loadByObject($object)
+    public function loadByModel(ModelInterface $object)
     {
-        return $this->loadByClassname(get_class($object));
+        return $this->loadByClassname($object->getClass());
     }
 
     public function loadByClassname($className)

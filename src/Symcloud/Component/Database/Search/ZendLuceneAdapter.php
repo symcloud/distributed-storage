@@ -15,6 +15,7 @@ use Symcloud\Component\Database\Metadata\ClassMetadataInterface;
 use Symcloud\Component\Database\Model\ModelInterface;
 use Symcloud\Component\Database\Search\Hit\Hit;
 use Symcloud\Component\Database\Search\Hit\HitInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use ZendSearch\Lucene;
 
@@ -31,13 +32,25 @@ class ZendLuceneAdapter implements SearchAdapterInterface
     private $basePath;
 
     /**
+     * @var Filesystem
+     */
+    private $fileSystem;
+
+    /**
+     * @var Lucene\Index[]
+     */
+    private $indexes = array();
+
+    /**
      * ZendLuceneAdapter constructor.
      *
      * @param string $basePath
+     * @param Filesystem $fileSystem
      */
-    public function __construct($basePath)
+    public function __construct($basePath, Filesystem $fileSystem)
     {
         $this->basePath = $basePath;
+        $this->fileSystem = $fileSystem;
     }
 
     public function index($hash, ModelInterface $model, ClassMetadataInterface $metadata)
@@ -151,7 +164,9 @@ class ZendLuceneAdapter implements SearchAdapterInterface
 
     public function deindexAll()
     {
-        // TODO: Implement deindexAll() method.
+        $this->fileSystem->remove(new \FilesystemIterator($this->basePath));
+
+        return true;
     }
 
     /**
@@ -162,9 +177,13 @@ class ZendLuceneAdapter implements SearchAdapterInterface
      */
     private function removeExisting(Lucene\Index $index, $hash)
     {
-        $hits = $index->find(self::HASH_FIELDNAME . ':' . $hash);
-        foreach ($hits as $hit) {
-            $index->delete($hit->id);
+        try {
+            $hits = $index->find(self::HASH_FIELDNAME . ':' . $hash);
+            foreach ($hits as $hit) {
+                $index->delete($hit->id);
+            }
+        } catch (\Exception $ex) {
+            // FIXME no result ???
         }
     }
 
@@ -177,12 +196,16 @@ class ZendLuceneAdapter implements SearchAdapterInterface
      */
     private function getLuceneIndex($indexName)
     {
+        if (array_key_exists($indexName, $this->indexes)) {
+            return $this->indexes[$indexName];
+        }
+
         $indexPath = $this->getIndexPath($indexName);
         if (!file_exists($indexPath)) {
             $this->getIndex($indexPath, true);
         }
 
-        return $this->getIndex($indexPath, false);
+        return ($this->indexes[$indexName] = $this->getIndex($indexPath, false));
     }
 
     /**

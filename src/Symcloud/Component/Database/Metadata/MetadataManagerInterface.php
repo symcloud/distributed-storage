@@ -11,14 +11,16 @@
 
 namespace Symcloud\Component\Database\Metadata;
 
+use Symcloud\Component\Database\Model\ModelInterface;
+
 interface MetadataManagerInterface
 {
     /**
-     * @param object $object
+     * @param ModelInterface $object
      *
      * @return ClassMetadataInterface
      */
-    public function loadByObject($object);
+    public function loadByModel(ModelInterface $object);
 
     /**
      * @param string $className

@@ -26,8 +26,8 @@ class ReferenceArrayField extends AccessorField
         $references = parent::getValue($model);
 
         $result = array();
-        foreach ($references as $reference) {
-            $result[] = array('hash' => $reference->getHash(), 'class' => $reference->getClass());
+        foreach ($references as $key => $reference) {
+            $result[$key] = array('hash' => $reference->getHash(), 'class' => $reference->getClass());
         }
 
         return $result;
@@ -41,8 +41,8 @@ class ReferenceArrayField extends AccessorField
     public function setValue(ModelInterface $model, $references, DatabaseInterface $database)
     {
         $result = array();
-        foreach ($references as $reference) {
-            $result[] = $database->fetchProxy($reference['hash'], $reference['class']);
+        foreach ($references as $key => $reference) {
+            $result[$key] = $database->fetchProxy($reference['hash'], $reference['class']);
         }
 
         parent::setValue($model, $result, $database);

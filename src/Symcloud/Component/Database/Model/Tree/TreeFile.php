@@ -132,6 +132,11 @@ class TreeFile extends TreeNode implements TreeFileInterface
         $this->metadata = $metadata;
     }
 
+    public function getContent($length = -1, $offset = 0)
+    {
+        return $this->file->getContent($length, $offset);
+    }
+
     /**
      * @param array $metadata
      */

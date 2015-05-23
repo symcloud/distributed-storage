@@ -66,6 +66,14 @@ interface TreeFileInterface extends TreeNodeInterface
     public function getMetadata();
 
     /**
+     * @param int $length
+     * @param int $offset
+     *
+     * @return mixed
+     */
+    public function getContent($length = -1, $offset = 0);
+
+    /**
      * @return int
      */
     public function getVersion();

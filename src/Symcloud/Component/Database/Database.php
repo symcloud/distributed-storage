@@ -82,7 +82,7 @@ class Database implements DatabaseInterface
 
     public function store(ModelInterface $model)
     {
-        $metadata = $this->metadataManager->loadByObject($model);
+        $metadata = $this->metadataManager->loadByModel($model);
         $data = $this->serializer->serialize($model, $metadata->getDataFields());
         $objectMetadata = $this->serializer->serialize($model, $metadata->getMetadataFields());
 

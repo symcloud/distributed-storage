@@ -18,6 +18,7 @@ use Symcloud\Component\Database\Model\BlobFile;
 use Symcloud\Component\Database\Model\BlobFileInterface;
 use Symcloud\Component\Database\Model\BlobInterface;
 use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\FileStorage\Exception\FileNotFoundException;
 
 class BlobFileManager implements BlobFileManagerInterface
 {
@@ -99,7 +100,11 @@ class BlobFileManager implements BlobFileManagerInterface
      */
     public function download($fileHash)
     {
-        return $this->database->fetch($fileHash, BlobFile::class);
+        try {
+            return $this->database->fetch($fileHash, BlobFile::class);
+        } catch (\Exception $ex) {
+            throw new FileNotFoundException($fileHash);
+        }
     }
 
     /**
