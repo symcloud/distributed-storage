@@ -4,6 +4,7 @@ namespace Integration\Component\Database\StorageAdapter;
 
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\Database\Storage\ArrayStorage;
+use Symcloud\Component\Database\Storage\FilesystemStorage;
 use Symcloud\Component\Database\Storage\StorageAdapterInterface;
 
 class StorageAdapterTest extends ProphecyTestCase
@@ -15,8 +16,13 @@ class StorageAdapterTest extends ProphecyTestCase
             'my' => 'data'
         );
 
+        $arrayStorage = new ArrayStorage();
+        $filesystemStorage = new FilesystemStorage(__DIR__ . '/database');
+        $filesystemStorage->deleteAll();
+
         return array(
-            array(new ArrayStorage(), $hash, $data),
+            array($arrayStorage, $hash, $data),
+            array($filesystemStorage, $hash, $data),
         );
     }
 
@@ -29,7 +35,7 @@ class StorageAdapterTest extends ProphecyTestCase
      */
     public function testStore(StorageAdapterInterface $storageAdapter, $hash, $data)
     {
-        $storageAdapter->store($hash, $data);
+        $this->assertTrue($storageAdapter->store($hash, $data));
     }
 
     /**
@@ -41,8 +47,8 @@ class StorageAdapterTest extends ProphecyTestCase
      */
     public function testStoreTwice(StorageAdapterInterface $storageAdapter, $hash, $data)
     {
-        $storageAdapter->store($hash, $data);
-        $storageAdapter->store($hash, $data);
+        $this->assertTrue($storageAdapter->store($hash, $data));
+        $this->assertTrue($storageAdapter->store($hash, $data));
     }
 
     /**
@@ -54,7 +60,7 @@ class StorageAdapterTest extends ProphecyTestCase
      */
     public function testFetch(StorageAdapterInterface $storageAdapter, $hash, $data)
     {
-        $storageAdapter->store($hash, $data);
+        $this->assertTrue($storageAdapter->store($hash, $data));
         $result = $storageAdapter->fetch($hash);
 
         $this->assertEquals($data, $result);
@@ -82,7 +88,7 @@ class StorageAdapterTest extends ProphecyTestCase
      */
     public function testContains(StorageAdapterInterface $storageAdapter, $hash, $data)
     {
-        $storageAdapter->store($hash, $data);
+        $this->assertTrue($storageAdapter->store($hash, $data));
         $this->assertTrue($storageAdapter->contains($hash));
     }
 
@@ -107,10 +113,10 @@ class StorageAdapterTest extends ProphecyTestCase
      */
     public function testDelete(StorageAdapterInterface $storageAdapter, $hash, $data)
     {
-        $storageAdapter->store($hash, $data);
+        $this->assertTrue($storageAdapter->store($hash, $data));
         $this->assertTrue($storageAdapter->contains($hash));
 
-        $storageAdapter->delete($hash);
+        $this->assertTrue($storageAdapter->delete($hash));
         $this->assertFalse($storageAdapter->contains($hash));
     }
 
@@ -123,7 +129,7 @@ class StorageAdapterTest extends ProphecyTestCase
      */
     public function testDeleteNotExists(StorageAdapterInterface $storageAdapter, $hash, $data)
     {
-        $storageAdapter->delete($hash);
+        $this->assertFalse($storageAdapter->delete($hash));
         $this->assertFalse($storageAdapter->contains($hash));
     }
 
@@ -136,10 +142,10 @@ class StorageAdapterTest extends ProphecyTestCase
      */
     public function testDeleteAll(StorageAdapterInterface $storageAdapter, $hash, $data)
     {
-        $storageAdapter->store($hash, $data);
-        $storageAdapter->store('twice', array());
+        $this->assertTrue($storageAdapter->store($hash, $data));
+        $this->assertTrue($storageAdapter->store('twice', array()));
 
-        $storageAdapter->deleteAll();
+        $this->assertTrue($storageAdapter->deleteAll());
         $this->assertFalse($storageAdapter->contains($hash));
         $this->assertFalse($storageAdapter->contains('twice'));
     }

@@ -18,6 +18,8 @@ class ArrayStorage implements StorageAdapterInterface
     public function store($hash, $object)
     {
         $this->data[$hash] = $object;
+
+        return true;
     }
 
     public function fetch($hash)
@@ -37,14 +39,18 @@ class ArrayStorage implements StorageAdapterInterface
     public function delete($hash)
     {
         if (!array_key_exists($hash, $this->data)) {
-            return;
+            return false;
         }
 
         unset($this->data[$hash]);
+
+        return true;
     }
 
     public function deleteAll()
     {
         $this->data = array();
+
+        return true;
     }
 }
