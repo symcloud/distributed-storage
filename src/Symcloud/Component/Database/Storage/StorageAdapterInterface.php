@@ -13,13 +13,13 @@ namespace Symcloud\Component\Database\Storage;
 
 interface StorageAdapterInterface
 {
-    public function store($hash, $object);
+    public function store($hash, $object, $context);
 
-    public function fetch($hash);
+    public function fetch($hash, $context);
 
-    public function contains($hash);
+    public function contains($hash, $context);
 
-    public function delete($hash);
+    public function delete($hash, $context);
 
-    public function deleteAll();
+    public function deleteAll($context = null);
 }

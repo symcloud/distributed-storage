@@ -6,6 +6,7 @@ use Integration\Parts\FactoryTrait;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\Database\DatabaseInterface;
+use Symcloud\Component\Database\Model\Commit\Commit;
 use Symcloud\Component\Database\Model\Commit\CommitInterface;
 use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Model\Reference\Reference;
@@ -47,10 +48,10 @@ class ReferenceManagerTest extends ProphecyTestCase
         $reference->setName($referenceName);
 
         $database = $this->prophesize(DatabaseInterface::class);
-        $database->fetch($referenceName)->willReturn($reference);
+        $database->fetch($referenceName, Reference::class)->willReturn($reference);
 
         $commitManager = $this->prophesize(CommitManagerInterface::class);
-        $commitManager->fetch($commitHash)->willReturn($commit->reveal());
+        $commitManager->fetch($commitHash, Commit::class)->willReturn($commit->reveal());
 
         $manager = new ReferenceManager(
             $database->reveal(),

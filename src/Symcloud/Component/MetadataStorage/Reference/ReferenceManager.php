@@ -93,6 +93,6 @@ class ReferenceManager implements ReferenceManagerInterface
      */
     public function fetch($name)
     {
-        return $this->database->fetch($name);
+        return $this->database->fetch($name, Reference::class);
     }
 }

@@ -18,6 +18,11 @@ class Replicator implements ReplicatorInterface
 {
     const POLICY_NAME = 'replicator';
 
+    /**
+     * @var ServerInterface[]
+     */
+    private $servers = array();
+
     public function onStore(DatabaseStoreEvent $event)
     {
         $model = $event->getModel();

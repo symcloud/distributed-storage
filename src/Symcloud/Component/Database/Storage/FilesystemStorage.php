@@ -12,42 +12,93 @@
 namespace Symcloud\Component\Database\Storage;
 
 use Doctrine\Common\Cache\FilesystemCache;
+use Symfony\Component\Filesystem\Filesystem;
 
-class FilesystemStorage extends FilesystemCache implements StorageAdapterInterface
+class FilesystemStorage implements StorageAdapterInterface
 {
     const EXTENSION = '.symcloud.dat';
+
+    /**
+     * @var FilesystemCache[]
+     */
+    private $storage = array();
+
+    /**
+     * @var string
+     */
+    private $directory;
+
+    /**
+     * @var Filesystem
+     */
+    private $filesystem;
 
     /**
      * FilesystemStorage constructor.
      *
      * @param string $directory
+     * @param Filesystem $filesystem
      */
-    public function __construct($directory)
+    public function __construct($directory, Filesystem $filesystem)
     {
-        parent::__construct($directory, self::EXTENSION);
+        $this->directory = $directory;
+        $this->filesystem = $filesystem;
+
+        if (!is_dir($directory)) {
+            mkdir($directory);
+        }
     }
 
-    public function store($hash, $object)
+    /**
+     * @param string $context
+     *
+     * @return FilesystemCache
+     */
+    private function getData($context)
     {
-        return parent::save($hash, $object);
+        if (!array_key_exists($context, $this->storage)) {
+            $this->storage[$context] = new FilesystemCache($this->directory . '/' . $context, self::EXTENSION);
+        }
+
+        return $this->storage[$context];
     }
 
-    public function fetch($hash)
+    public function store($hash, $object, $context)
     {
-        if (!$this->contains($hash)) {
+        $data = $this->getData($context);
+
+        return $data->save($hash, $object);
+    }
+
+    public function fetch($hash, $context)
+    {
+        if (!$this->contains($hash, $context)) {
             throw new \Exception('Object not found');
         }
 
-        return parent::fetch($hash);
+        $data = $this->getData($context);
+
+        return $data->fetch($hash);
     }
 
-    public function delete($hash)
+    public function delete($hash, $context)
     {
-        return parent::delete($hash);
+        $data = $this->getData($context);
+
+        return $data->delete($hash);
     }
 
-    public function deleteAll()
+    public function deleteAll($context = null)
     {
-        return parent::deleteAll();
+        $this->filesystem->remove(new \FilesystemIterator($this->directory));
+
+        return true;
+    }
+
+    public function contains($hash, $context)
+    {
+        $data = $this->getData($context);
+
+        return $data->contains($hash);
     }
 }

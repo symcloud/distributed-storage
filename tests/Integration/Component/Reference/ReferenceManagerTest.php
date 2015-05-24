@@ -80,7 +80,7 @@ class ReferenceManagerTest extends ProphecyTestCase
         $this->assertEquals($user->getUsername(), $reference->getUser()->getUsername());
 
         /** @var ReferenceInterface $result */
-        $result = $database->fetch($hash);
+        $result = $database->fetch($hash, Reference::class);
 
         $this->assertEquals($hash, $result->getHash());
         $this->assertEquals($commit->getHash(), $result->getCommit()->getHash());
@@ -121,7 +121,7 @@ class ReferenceManagerTest extends ProphecyTestCase
         $this->assertEquals($reference2, $reference);
 
         /** @var ReferenceInterface $result */
-        $result = $database->fetch($hash);
+        $result = $database->fetch($hash, Reference::class);
 
         $this->assertEquals($hash, $result->getHash());
         $this->assertEquals($commit2->getHash(), $result->getCommit()->getHash());
@@ -156,7 +156,7 @@ class ReferenceManagerTest extends ProphecyTestCase
         $this->assertEquals($user->getUsername(), $reference->getUser()->getUsername());
 
         /** @var ReferenceInterface $result */
-        $result = $database->fetch($hash);
+        $result = $database->fetch($hash, Reference::class);
 
         $this->assertEquals($hash, $result->getHash());
         $this->assertEquals($commit->getHash(), $result->getCommit()->getHash());

@@ -19,13 +19,13 @@ interface DatabaseInterface
 
     public function store(ModelInterface $model);
 
-    public function fetch($hash, $className = null);
+    public function fetch($hash, $className);
 
     public function fetchProxy($hash, $className);
 
-    public function contains($hash);
+    public function contains($hash, $className);
 
-    public function delete($hash);
+    public function delete($hash, $className);
 
     public function deleteAll();
 }

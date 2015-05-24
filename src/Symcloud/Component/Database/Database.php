@@ -126,7 +126,8 @@ class Database implements DatabaseInterface
                 'policies' => $policies,
                 'data' => $data,
                 'class' => $model->getClass(),
-            )
+            ),
+            $metadata->getContext()
         );
 
         $this->searchAdapter->index($hash, $model, $metadata);
@@ -135,12 +136,12 @@ class Database implements DatabaseInterface
         return $model;
     }
 
-    public function fetch($hash, $className = null)
+    public function fetch($hash, $className)
     {
-        $data = $this->storageAdapter->fetch($hash);
-        $metadata = $this->metadataManager->loadByClassname($data['class']);
+        $metadata = $this->metadataManager->loadByClassname($className);
+        $data = $this->storageAdapter->fetch($hash, $metadata->getContext());
 
-        if ($className !== null && $data['class'] !== $className) {
+        if ($data['class'] !== $className) {
             throw new \Exception('Classname not match!');
         }
 
@@ -169,18 +170,19 @@ class Database implements DatabaseInterface
         );
     }
 
-    public function contains($hash)
+    public function contains($hash, $className)
     {
-        return $this->storageAdapter->contains($hash);
+        $metadata = $this->metadataManager->loadByClassname($className);
+
+        return $this->storageAdapter->contains($hash, $metadata->getContext());
     }
 
-    public function delete($hash)
+    public function delete($hash, $className)
     {
-        $data = $this->fetch($hash);
-        $metadata = $this->metadataManager->loadByClassname($data['class']);
+        $metadata = $this->metadataManager->loadByClassname($className);
 
         $this->searchAdapter->deindex($hash, $metadata);
-        $this->storageAdapter->delete($hash);
+        $this->storageAdapter->delete($hash, $metadata->getContext());
     }
 
     public function deleteAll()

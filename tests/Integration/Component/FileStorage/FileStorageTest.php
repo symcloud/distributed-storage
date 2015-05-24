@@ -85,21 +85,21 @@ class FileStorageTest extends ProphecyTestCase
         $this->assertEquals($size, $result->getSize());
         $this->assertEquals($data, $result->getContent());
 
-        $this->assertTrue($database->contains($result->getBlobs()[0]->getHash()));
-        $this->assertTrue($database->contains($result->getBlobs()[1]->getHash()));
-        $this->assertTrue($database->contains($result->getHash()));
+        $this->assertTrue($database->contains($result->getBlobs()[0]->getHash(), Blob::class));
+        $this->assertTrue($database->contains($result->getBlobs()[1]->getHash(), Blob::class));
+        $this->assertTrue($database->contains($result->getHash(), BlobFile::class));
 
         $this->assertEquals(
             $blobs[0]->getData(),
-            $database->fetch($blobs[0]->getHash())->getData()
+            $database->fetch($blobs[0]->getHash(), Blob::class)->getData()
         );
         $this->assertEquals(
             $blobs[1]->getData(),
-            $database->fetch($blobs[1]->getHash())->getData()
+            $database->fetch($blobs[1]->getHash(), Blob::class)->getData()
         );
 
         /** @var BlobFileInterface $model */
-        $model = $database->fetch($result->getHash());
+        $model = $database->fetch($result->getHash(), BlobFile::class);
         $this->assertEquals($result->getHash(), $model->getHash());
         $this->assertEquals($fileHash, $model->getFileHash());
         $this->assertEquals($data, $model->getContent());
@@ -146,7 +146,7 @@ class FileStorageTest extends ProphecyTestCase
         $hit = new Hit();
         $hit->setHash($file->getHash());
         $hits = array($hit);
-        $this->searchAdapterMock->search('fileHash:'.$fileHash, array('file'))->willReturn($hits);
+        $this->searchAdapterMock->search('fileHash:' . $fileHash, array('file'))->willReturn($hits);
 
         $result = $manager->download($fileHash);
 
@@ -162,21 +162,21 @@ class FileStorageTest extends ProphecyTestCase
         $this->assertEquals($blobs[0]->getData(), $result->getBlobs()[0]->getData());
         $this->assertEquals($blobs[1]->getData(), $result->getBlobs()[1]->getData());
 
-        $this->assertTrue($database->contains($result->getBlobs()[0]->getHash()));
-        $this->assertTrue($database->contains($result->getBlobs()[1]->getHash()));
-        $this->assertTrue($database->contains($result->getHash()));
+        $this->assertTrue($database->contains($result->getBlobs()[0]->getHash(), Blob::class));
+        $this->assertTrue($database->contains($result->getBlobs()[1]->getHash(), Blob::class));
+        $this->assertTrue($database->contains($result->getHash(), BlobFile::class));
 
         $this->assertEquals(
             $blobs[0]->getData(),
-            $database->fetch($blobs[0]->getHash())->getData()
+            $database->fetch($blobs[0]->getHash(), Blob::class)->getData()
         );
         $this->assertEquals(
             $blobs[1]->getData(),
-            $database->fetch($blobs[1]->getHash())->getData()
+            $database->fetch($blobs[1]->getHash(), Blob::class)->getData()
         );
 
         /** @var BlobFileInterface $model */
-        $model = $database->fetch($result->getHash());
+        $model = $database->fetch($result->getHash(), BlobFile::class);
         $this->assertEquals($result->getHash(), $model->getHash());
         $this->assertEquals($fileHash, $model->getFileHash());
         $this->assertEquals($data, $model->getContent());

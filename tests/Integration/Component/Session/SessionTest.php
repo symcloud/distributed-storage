@@ -5,6 +5,8 @@ namespace Integration\Component\Session;
 use Integration\Parts\ReferenceManagerTrait;
 use Integration\Parts\TestFileTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
+use Symcloud\Component\Database\Model\Blob;
+use Symcloud\Component\Database\Model\Reference\Reference;
 use Symcloud\Component\Database\Model\Reference\ReferenceInterface;
 use Symcloud\Component\Database\Model\Tree\TreeInterface;
 use Symcloud\Component\Database\Search\SearchAdapterInterface;
@@ -76,7 +78,7 @@ class SessionTest extends ProphecyTestCase
          */
         $database = $this->getDatabase();
         /** @var ReferenceInterface $reference */
-        $reference = $database->fetch($this->referenceName);
+        $reference = $database->fetch($this->referenceName, Reference::class);
         $commit = $reference->getCommit();
         $tree = $commit->getTree();
         $this->assertEquals(array(), $tree->getChildren());
@@ -112,10 +114,10 @@ class SessionTest extends ProphecyTestCase
         $blob2 = substr($fileContent, 100, 100);
         $hash2 = $this->getFactory()->createHash($blob2);
 
-        $this->assertEquals($blob1, $database->fetch($hash1)->getData());
-        $this->assertEquals($blob2, $database->fetch($hash2)->getData());
-        $this->assertEquals($hash1, $database->fetch($hash1)->getHash());
-        $this->assertEquals($hash2, $database->fetch($hash2)->getHash());
+        $this->assertEquals($blob1, $database->fetch($hash1, Blob::class)->getData());
+        $this->assertEquals($blob2, $database->fetch($hash2, Blob::class)->getData());
+        $this->assertEquals($hash1, $database->fetch($hash1, Blob::class)->getHash());
+        $this->assertEquals($hash2, $database->fetch($hash2, Blob::class)->getHash());
     }
 
     public function testCreateOrUpdateFile()

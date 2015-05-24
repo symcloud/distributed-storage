@@ -33,7 +33,7 @@ class BlobManagerTest extends ProphecyTestCase
         $database = $this->prophesize(DatabaseInterface::class);
 
         $database->store(Argument::type(BlobInterface::class))->should(new CallPrediction())->willReturn($blob);
-        $database->contains($hash)->should(new CallPrediction())->willReturn(false);
+        $database->contains($hash, Blob::class)->should(new CallPrediction())->willReturn(false);
         $database->fetch($hash, Blob::class)->should(new NoCallsPrediction());
 
         $manager = new BlobManager($factory->reveal(), $database->reveal());
@@ -59,7 +59,7 @@ class BlobManagerTest extends ProphecyTestCase
         $database = $this->prophesize(DatabaseInterface::class);
 
         $database->store(Argument::type(BlobInterface::class))->should(new NoCallsPrediction());
-        $database->contains($hash)->should(new CallPrediction())->willReturn(true);
+        $database->contains($hash, Blob::class)->should(new CallPrediction())->willReturn(true);
         $database->fetch($hash, Blob::class)->should(new NoCallsPrediction());
 
         $manager = new BlobManager($factory->reveal(), $database->reveal());

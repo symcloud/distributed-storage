@@ -29,7 +29,7 @@ class CommitManagerTest extends ProphecyTestCase
         $database->store($tree);
 
         $commit = $commitManager->commit($tree, $user, $message);
-        $this->assertTrue($database->contains($commit->getHash()));
+        $this->assertTrue($database->contains($commit->getHash(), Commit::class));
 
         $this->assertEquals($tree->getHash(), $commit->getTree()->getHash());
         $this->assertEquals($user->getUsername(), $commit->getCommitter()->getUsername());
@@ -38,7 +38,7 @@ class CommitManagerTest extends ProphecyTestCase
         $this->assertEquals(null, $commit->getParentCommit());
 
         /** @var CommitInterface $result */
-        $result = $database->fetch($commit->getHash());
+        $result = $database->fetch($commit->getHash(), Commit::class);
 
         $this->assertEquals($tree->getHash(), $result->getTree()->getHash());
         $this->assertEquals($user->getUsername(), $result->getCommitter()->getUsername());

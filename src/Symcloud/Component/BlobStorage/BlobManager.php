@@ -54,7 +54,7 @@ class BlobManager implements BlobManagerInterface
         $blob->setPolicyCollection(new PolicyCollection());
         $blob->setHash($this->factory->createHash($data));
 
-        if ($this->database->contains($blob->getHash())) {
+        if ($this->database->contains($blob->getHash(), Blob::class)) {
             return $blob;
         }
 

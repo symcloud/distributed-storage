@@ -15,41 +15,52 @@ class ArrayStorage implements StorageAdapterInterface
 {
     private $data = array();
 
-    public function store($hash, $object)
+    public function store($hash, $object, $context)
     {
-        $this->data[$hash] = $object;
+        if (!array_key_exists($context, $this->data)) {
+            $this->data[$context] = array();
+        }
+        $this->data[$context][$hash] = $object;
 
         return true;
     }
 
-    public function fetch($hash)
+    public function fetch($hash, $context)
     {
-        if (!$this->contains($hash)) {
+        if (!$this->contains($hash, $context)) {
             throw new \Exception('Object not found');
         }
 
-        return $this->data[$hash];
+        return $this->data[$context][$hash];
     }
 
-    public function contains($hash)
+    public function contains($hash, $context)
     {
-        return array_key_exists($hash, $this->data);
+        if (!array_key_exists($context, $this->data)) {
+            $this->data[$context] = array();
+        }
+
+        return array_key_exists($hash, $this->data[$context]);
     }
 
-    public function delete($hash)
+    public function delete($hash, $context)
     {
-        if (!array_key_exists($hash, $this->data)) {
+        if (!$this->contains($hash, $context)) {
             return false;
         }
 
-        unset($this->data[$hash]);
+        unset($this->data[$context][$hash]);
 
         return true;
     }
 
-    public function deleteAll()
+    public function deleteAll($context = null)
     {
-        $this->data = array();
+        if ($context) {
+            $this->data[$context] = array();
+        } else {
+            $this->data = array();
+        }
 
         return true;
     }

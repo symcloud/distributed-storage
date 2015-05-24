@@ -89,45 +89,15 @@ class DatabaseTest extends ProphecyTestCase
         $this->assertNotNull($a->getHash());
 
         $adapter = $this->getStorageAdapter();
-        $this->assertTrue($adapter->contains($a->getHash()));
+        $this->assertTrue($adapter->contains($a->getHash(), 'test'));
 
-        $result = $adapter->fetch($a->getHash());
+        $result = $adapter->fetch($a->getHash(), 'test');
         $this->assertEquals(
             $data,
             $result
         );
 
         $this->assertEquals($hash, $a->getHash());
-    }
-
-    /**
-     * @dataProvider dataProvider
-     *
-     * @param A $a
-     * @param B $b
-     * @param C $c
-     * @param $data
-     * @param $hash
-     */
-    public function testFetchWithoutClassname(A $a, B $b, C $c, $data, $hash)
-    {
-        $database = $this->getDatabase();
-        $adapter = $this->getStorageAdapter();
-
-        $database->store($b);
-        $database->store($c);
-        $adapter->store($hash, $data);
-
-        /** @var A $result */
-        $result = $database->fetch($hash);
-
-        $this->assertEquals($a->title, $result->title);
-        $this->assertEquals($a->user, $result->user);
-        $this->assertEquals($a->reference->getHash(), $result->reference->getHash());
-        $this->assertCount(2, $a->references);
-        $this->assertEquals($a->references[0]->getHash(), $result->references[0]->getHash());
-        $this->assertEquals($a->references[1]->getHash(), $result->references[1]->getHash());
-        $this->assertEquals($a->getReadonly(), $result->getReadonly());
     }
 
     /**
@@ -146,7 +116,7 @@ class DatabaseTest extends ProphecyTestCase
 
         $database->store($b);
         $database->store($c);
-        $adapter->store($hash, $data);
+        $adapter->store($hash, $data, 'test');
 
         /** @var A $result */
         $result = $database->fetch($hash, A::class);
@@ -174,7 +144,7 @@ class DatabaseTest extends ProphecyTestCase
     {
         $database = $this->getDatabase();
         $adapter = $this->getStorageAdapter();
-        $adapter->store($hash, $data);
+        $adapter->store($hash, $data, A::class);
 
         $database->fetch($hash, B::class);
     }
