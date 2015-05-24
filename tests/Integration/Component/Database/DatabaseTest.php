@@ -12,6 +12,7 @@ use Symcloud\Component\Database\Metadata\Field\ReferenceArrayField;
 use Symcloud\Component\Database\Metadata\Field\ReferenceField;
 use Symcloud\Component\Database\Metadata\Field\UserField;
 use Symcloud\Component\Database\Metadata\MetadataManagerInterface;
+use Symcloud\Component\Database\Model\DistributedModel;
 use Symcloud\Component\Database\Model\Model;
 use Symcloud\Component\Database\Model\ModelInterface;
 use Symcloud\Component\Database\Model\PolicyCollection;
@@ -31,7 +32,6 @@ class DatabaseTest extends ProphecyTestCase
 
         $c = new C();
         $c->setHash('c-hash');
-        $c->setPolicyCollection(new PolicyCollection());
         $c->name = 'c';
 
         $a = new A();
@@ -42,8 +42,11 @@ class DatabaseTest extends ProphecyTestCase
         $a->user = $this->getUserProvider()->loadUserByUsername('johannes');
 
         $data = array(
-            'metadata' => array(
+            'policies' => array(),
+            'data' => array(
                 'title' => $a->title,
+                'reference' => $a->reference->getHash(),
+                'readonly' => $a->getReadonly(),
                 'references' => array(
                     array(
                         'hash' => $b->getHash(),
@@ -55,12 +58,6 @@ class DatabaseTest extends ProphecyTestCase
                     ),
                 ),
                 'user' => $a->user->getUsername(),
-            ),
-            'policies' => array(),
-            'data' => array(
-                'title' => $a->title,
-                'reference' => $a->reference->getHash(),
-                'readonly' => $a->getReadonly(),
             ),
             'class' => A::class,
         );
@@ -149,6 +146,25 @@ class DatabaseTest extends ProphecyTestCase
         $database->fetch($hash, B::class);
     }
 
+    /**
+     * @dataProvider dataProvider
+     *
+     * @param A $a
+     * @param B $b
+     * @param C $c
+     * @param $data
+     * @param $hash
+     */
+    public function testStoreUndistributedModel(A $a, B $b, C $c, $data, $hash)
+    {
+        $database = $this->getDatabase();
+        $adapter = $this->getStorageAdapter();
+        $database->store($c, C::class);
+
+        $result = $adapter->fetch($c->getHash(), 'test');
+        $this->assertEquals(array('data' => array('name' => 'c'), 'class' => C::class), $result);
+    }
+
     protected function createMetadataManager()
     {
         $aClassMetadata = new AClassMetadata($this->getUserProvider());
@@ -166,7 +182,7 @@ class DatabaseTest extends ProphecyTestCase
     }
 }
 
-class A extends Model
+class A extends DistributedModel
 {
     /**
      * @var string
@@ -205,7 +221,7 @@ class A extends Model
     }
 }
 
-class B extends Model
+class B extends DistributedModel
 {
     /**
      * @var string

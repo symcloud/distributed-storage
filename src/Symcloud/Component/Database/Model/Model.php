@@ -19,11 +19,6 @@ abstract class Model implements ModelInterface
     private $hash;
 
     /**
-     * @var PolicyCollectionInterface
-     */
-    private $policyCollection;
-
-    /**
      * @return string
      */
     public function getHash()
@@ -37,21 +32,5 @@ abstract class Model implements ModelInterface
     public function setHash($hash)
     {
         $this->hash = $hash;
-    }
-
-    /**
-     * @return PolicyCollectionInterface
-     */
-    public function getPolicyCollection()
-    {
-        return $this->policyCollection;
-    }
-
-    /**
-     * @param PolicyCollectionInterface $policyCollection
-     */
-    public function setPolicyCollection($policyCollection)
-    {
-        $this->policyCollection = $policyCollection;
     }
 }

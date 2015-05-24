@@ -11,7 +11,7 @@
 
 namespace Symcloud\Component\Database\Model;
 
-interface BlobInterface extends ModelInterface
+interface BlobInterface extends DistributedModelInterface
 {
     public function getData();
 

@@ -12,10 +12,10 @@
 namespace Symcloud\Component\Database\Model\Reference;
 
 use Symcloud\Component\Database\Model\Commit\CommitInterface;
-use Symcloud\Component\Database\Model\ModelInterface;
+use Symcloud\Component\Database\Model\DistributedModelInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-interface ReferenceInterface extends ModelInterface
+interface ReferenceInterface extends DistributedModelInterface
 {
     /**
      * @return CommitInterface

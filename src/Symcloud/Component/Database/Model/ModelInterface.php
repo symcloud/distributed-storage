@@ -19,11 +19,6 @@ interface ModelInterface
     public function getHash();
 
     /**
-     * @return PolicyCollectionInterface
-     */
-    public function getPolicyCollection();
-
-    /**
      * @return string
      */
     public function getClass();

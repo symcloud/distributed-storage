@@ -11,9 +11,9 @@
 
 namespace Symcloud\Component\Database\Model\Tree;
 
-use Symcloud\Component\Database\Model\Model;
+use Symcloud\Component\Database\Model\DistributedModel;
 
-abstract class TreeNode extends Model implements TreeNodeInterface
+abstract class TreeNode extends DistributedModel implements TreeNodeInterface
 {
     /**
      * @var string

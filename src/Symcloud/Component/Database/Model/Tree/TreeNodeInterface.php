@@ -11,9 +11,9 @@
 
 namespace Symcloud\Component\Database\Model\Tree;
 
-use Symcloud\Component\Database\Model\ModelInterface;
+use Symcloud\Component\Database\Model\DistributedModelInterface;
 
-interface TreeNodeInterface extends ModelInterface
+interface TreeNodeInterface extends DistributedModelInterface
 {
     const TREE_TYPE = 'tree';
     const FILE_TYPE = 'file';

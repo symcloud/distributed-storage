@@ -12,10 +12,10 @@
 namespace Symcloud\Component\Database\Model\Reference;
 
 use Symcloud\Component\Database\Model\Commit\CommitInterface;
-use Symcloud\Component\Database\Model\Model;
+use Symcloud\Component\Database\Model\DistributedModel;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class Reference extends Model implements ReferenceInterface
+class Reference extends DistributedModel implements ReferenceInterface
 {
     /**
      * @var string

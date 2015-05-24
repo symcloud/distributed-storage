@@ -15,6 +15,7 @@ use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\Database\Event\DatabaseEvent;
 use Symcloud\Component\Database\Event\DatabaseStoreEvent;
 use Symcloud\Component\Database\Metadata\MetadataManagerInterface;
+use Symcloud\Component\Database\Model\DistributedModelInterface;
 use Symcloud\Component\Database\Model\ModelInterface;
 use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Search\SearchAdapterInterface;
@@ -105,8 +106,10 @@ class Database implements DatabaseInterface
         $model = $event->getModel();
 
         $metadata = $this->metadataManager->loadByModel($model);
-        $data = $this->serializer->serialize($model, $metadata->getDataFields());
-        $objectMetadata = $this->serializer->serialize($model, $metadata->getMetadataFields());
+        $data = $this->serializer->serialize(
+            $model,
+            array_merge($metadata->getDataFields(), $metadata->getMetadataFields())
+        );
 
         if ($metadata->isHashGenerated()) {
             $hash = $this->factory->createHash(json_encode($data));
@@ -114,21 +117,21 @@ class Database implements DatabaseInterface
             throw new \Exception('Hash not specified');
         }
 
-        $policies = array();
-        foreach ($model->getPolicyCollection()->getAll() as $name => $policy) {
-            $policies[$name] = serialize($policy);
+        $object = array(
+            'data' => $data,
+            'class' => $model->getClass(),
+        );
+
+        if ($model instanceof DistributedModelInterface) {
+            $policies = array();
+            foreach ($model->getPolicyCollection()->getAll() as $name => $policy) {
+                $policies[$name] = serialize($policy);
+            }
+
+            $object['policies'] = $policies;
         }
 
-        $this->storageAdapter->store(
-            $hash,
-            array(
-                'metadata' => $objectMetadata,
-                'policies' => $policies,
-                'data' => $data,
-                'class' => $model->getClass(),
-            ),
-            $metadata->getContext()
-        );
+        $this->storageAdapter->store($hash, $object, $metadata->getContext());
 
         $this->searchAdapter->index($hash, $model, $metadata);
         $this->accessor->setValue($model, 'hash', $hash);
@@ -145,17 +148,24 @@ class Database implements DatabaseInterface
             throw new \Exception('Classname not match!');
         }
 
-        $policies = new PolicyCollection();
-        foreach ($data['policies'] as $name => $policyData) {
-            $policies->add($name, unserialize($policyData));
-        }
-
         $model = $this->getModel($data['class']);
         $this->accessor->setValue($model, 'hash', $hash);
-        $this->accessor->setValue($model, 'policyCollection', $policies);
 
-        $this->serializer->deserialize($model, $data['metadata'], $metadata->getMetadataFields(), $this);
-        $this->serializer->deserialize($model, $data['data'], $metadata->getDataFields(), $this);
+        if ($model instanceof DistributedModelInterface) {
+            $policies = new PolicyCollection();
+            foreach ($data['policies'] as $name => $policyData) {
+                $policies->add($name, unserialize($policyData));
+            }
+
+            $this->accessor->setValue($model, 'policyCollection', $policies);
+        }
+
+        $this->serializer->deserialize(
+            $model,
+            $data['data'],
+            array_merge($metadata->getDataFields(), $metadata->getMetadataFields()),
+            $this
+        );
 
         return $model;
     }

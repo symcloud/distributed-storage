@@ -11,7 +11,7 @@
 
 namespace Symcloud\Component\Database\Model;
 
-class BlobFile extends Model implements BlobFileInterface
+class BlobFile extends DistributedModel implements BlobFileInterface
 {
     /**
      * @var int

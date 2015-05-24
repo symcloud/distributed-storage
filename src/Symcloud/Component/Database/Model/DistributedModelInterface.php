@@ -11,15 +11,10 @@
 
 namespace Symcloud\Component\Database\Model;
 
-interface BlobFileInterface extends DistributedModelInterface
+interface DistributedModelInterface extends ModelInterface
 {
-    public function getBlobs();
-
-    public function getSize();
-
-    public function getMimetype();
-
-    public function getFileHash();
-
-    public function getContent($length = -1, $offset = 0);
+    /**
+     * @return PolicyCollectionInterface
+     */
+    public function getPolicyCollection();
 }

@@ -11,11 +11,11 @@
 
 namespace Symcloud\Component\Database\Model\Commit;
 
-use Symcloud\Component\Database\Model\Model;
+use Symcloud\Component\Database\Model\DistributedModel;
 use Symcloud\Component\Database\Model\Tree\TreeInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class Commit extends Model implements CommitInterface
+class Commit extends DistributedModel implements CommitInterface
 {
     /**
      * @var string
