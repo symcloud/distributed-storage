@@ -14,7 +14,7 @@ namespace Symcloud\Component\MetadataStorage\Reference;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\Commit\CommitInterface;
-use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Model\Reference\Reference;
 use Symcloud\Component\Database\Model\Reference\ReferenceInterface;
 use Symcloud\Component\MetadataStorage\Commit\CommitManagerInterface;
@@ -69,7 +69,7 @@ class ReferenceManager implements ReferenceManagerInterface
     public function create($name, UserInterface $user, CommitInterface $commit)
     {
         $reference = new Reference();
-        $reference->setPolicy(new Policy());
+        $reference->setPolicyCollection(new PolicyCollection());
         $reference->setName($name);
         $reference->setUser($user);
         $reference->setCommit($commit);

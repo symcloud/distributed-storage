@@ -17,7 +17,7 @@ use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\BlobFile;
 use Symcloud\Component\Database\Model\BlobFileInterface;
 use Symcloud\Component\Database\Model\BlobInterface;
-use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\FileStorage\Exception\FileNotFoundException;
 
 class BlobFileManager implements BlobFileManagerInterface
@@ -87,7 +87,7 @@ class BlobFileManager implements BlobFileManagerInterface
         );
 
         $file = new BlobFile();
-        $file->setPolicy(new Policy());
+        $file->setPolicyCollection(new PolicyCollection());
         $file->setSize($size);
         $file->setMimetype($mimeType);
         $file->setBlobs($blobs);

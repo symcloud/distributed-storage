@@ -15,7 +15,7 @@ use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\Commit\Commit;
 use Symcloud\Component\Database\Model\Commit\CommitInterface;
-use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Model\Tree\TreeInterface;
 use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -73,7 +73,7 @@ class CommitManager implements CommitManagerInterface
         CommitInterface $parentCommit = null
     ) {
         $commit = new Commit();
-        $commit->setPolicy(new Policy());
+        $commit->setPolicyCollection(new PolicyCollection());
         $commit->setCommitter($user);
         $commit->setParentCommit($parentCommit);
         $commit->setCreatedAt(new \DateTime());

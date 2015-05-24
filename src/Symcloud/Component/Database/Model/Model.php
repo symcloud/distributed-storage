@@ -19,9 +19,9 @@ abstract class Model implements ModelInterface
     private $hash;
 
     /**
-     * @var PolicyInterface
+     * @var PolicyCollectionInterface
      */
-    private $policy;
+    private $policyCollection;
 
     /**
      * @return string
@@ -40,18 +40,18 @@ abstract class Model implements ModelInterface
     }
 
     /**
-     * @return PolicyInterface
+     * @return PolicyCollectionInterface
      */
-    public function getPolicy()
+    public function getPolicyCollection()
     {
-        return $this->policy;
+        return $this->policyCollection;
     }
 
     /**
-     * @param PolicyInterface $policy
+     * @param PolicyCollectionInterface $policyCollection
      */
-    public function setPolicy($policy)
+    public function setPolicyCollection($policyCollection)
     {
-        $this->policy = $policy;
+        $this->policyCollection = $policyCollection;
     }
 }

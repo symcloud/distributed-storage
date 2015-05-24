@@ -6,7 +6,7 @@ use Integration\Parts\CommitManagerTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\Database\Model\Commit\Commit;
 use Symcloud\Component\Database\Model\Commit\CommitInterface;
-use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Model\Tree\Tree;
 
 class CommitManagerTest extends ProphecyTestCase
@@ -23,7 +23,7 @@ class CommitManagerTest extends ProphecyTestCase
 
         $user = $this->getUserProvider()->loadUserByUsername($username);
         $tree = new Tree();
-        $tree->setPolicy(new Policy());
+        $tree->setPolicyCollection(new PolicyCollection());
         $tree->setName('');
         $tree->setPath('/');
         $database->store($tree);
@@ -62,13 +62,13 @@ class CommitManagerTest extends ProphecyTestCase
 
         $user = $this->getUserProvider()->loadUserByUsername($username);
         $tree = new Tree();
-        $tree->setPolicy(new Policy());
+        $tree->setPolicyCollection(new PolicyCollection());
         $tree->setName('');
         $tree->setPath('/');
         $database->store($tree);
 
         $commit = new Commit();
-        $commit->setPolicy(new Policy());
+        $commit->setPolicyCollection(new PolicyCollection());
         $commit->setMessage($message);
         $commit->setCommitter($user);
         $commit->setCreatedAt(new \DateTime());

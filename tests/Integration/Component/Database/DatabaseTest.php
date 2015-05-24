@@ -14,7 +14,7 @@ use Symcloud\Component\Database\Metadata\Field\UserField;
 use Symcloud\Component\Database\Metadata\MetadataManagerInterface;
 use Symcloud\Component\Database\Model\Model;
 use Symcloud\Component\Database\Model\ModelInterface;
-use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\PolicyCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -26,16 +26,16 @@ class DatabaseTest extends ProphecyTestCase
     {
         $b = new B();
         $b->setHash('b-hash');
-        $b->setPolicy(new Policy());
+        $b->setPolicyCollection(new PolicyCollection());
         $b->name = 'b';
 
         $c = new C();
         $c->setHash('c-hash');
-        $c->setPolicy(new Policy());
+        $c->setPolicyCollection(new PolicyCollection());
         $c->name = 'c';
 
         $a = new A();
-        $a->setPolicy(new Policy());
+        $a->setPolicyCollection(new PolicyCollection());
         $a->title = 'a';
         $a->reference = $b;
         $a->references = array($b, $c);
@@ -56,7 +56,7 @@ class DatabaseTest extends ProphecyTestCase
                 ),
                 'user' => $a->user->getUsername(),
             ),
-            'policy' => array(),
+            'policies' => array(),
             'data' => array(
                 'title' => $a->title,
                 'reference' => $a->reference->getHash(),

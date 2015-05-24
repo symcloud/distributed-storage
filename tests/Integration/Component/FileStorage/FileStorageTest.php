@@ -9,7 +9,7 @@ use Symcloud\Component\Database\Model\Blob;
 use Symcloud\Component\Database\Model\BlobFile;
 use Symcloud\Component\Database\Model\BlobFileInterface;
 use Symcloud\Component\Database\Model\BlobInterface;
-use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Search\Hit\Hit;
 use Symcloud\Component\Database\Search\SearchAdapterInterface;
 
@@ -129,7 +129,7 @@ class FileStorageTest extends ProphecyTestCase
         $size
     ) {
         $file = new BlobFile();
-        $file->setPolicy(new Policy());
+        $file->setPolicyCollection(new PolicyCollection());
         $file->setFileHash($fileHash);
         $file->setMimetype($mimeType);
         $file->setBlobs($blobs);

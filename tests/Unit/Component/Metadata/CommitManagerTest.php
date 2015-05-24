@@ -8,7 +8,7 @@ use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\Commit\Commit;
 use Symcloud\Component\Database\Model\Commit\CommitInterface;
-use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Model\Tree\TreeInterface;
 use Symcloud\Component\MetadataStorage\Commit\CommitManager;
 use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
@@ -83,7 +83,7 @@ class CommitManagerTest extends ProphecyTestCase
         $user->getUsername()->willReturn($username);
 
         $commit = new Commit();
-        $commit->setPolicy(new Policy());
+        $commit->setPolicyCollection(new PolicyCollection());
         $commit->setHash($commitHash);
         $commit->setTree($tree->reveal());
         $commit->setCommitter($user->reveal());

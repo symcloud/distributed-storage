@@ -9,8 +9,8 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Symcloud\Component\Database\Model;
+namespace Symcloud\Component\Database\Replication;
 
-interface PolicyInterface extends ModelInterface
+class Replicator implements ReplicatorInterface
 {
 }

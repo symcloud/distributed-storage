@@ -7,7 +7,7 @@ use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\Commit\CommitInterface;
-use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Model\Reference\Reference;
 use Symcloud\Component\Database\Model\Reference\ReferenceInterface;
 use Symcloud\Component\MetadataStorage\Commit\CommitManagerInterface;
@@ -41,7 +41,7 @@ class ReferenceManagerTest extends ProphecyTestCase
         $commit->getHash()->willReturn($commitHash);
 
         $reference = new Reference();
-        $reference->setPolicy(new Policy());
+        $reference->setPolicyCollection(new PolicyCollection());
         $reference->setUser($user->reveal());
         $reference->setCommit($commit->reveal());
         $reference->setName($referenceName);

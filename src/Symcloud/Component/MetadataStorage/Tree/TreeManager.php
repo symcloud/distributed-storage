@@ -16,7 +16,7 @@ use Doctrine\Common\Cache\Cache;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\BlobFileInterface;
-use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Model\Tree\Tree;
 use Symcloud\Component\Database\Model\Tree\TreeFile;
 use Symcloud\Component\Database\Model\Tree\TreeFileInterface;
@@ -88,7 +88,7 @@ class TreeManager implements TreeManagerInterface
     public function createRootTree()
     {
         $tree = new Tree();
-        $tree->setPolicy(new Policy());
+        $tree->setPolicyCollection(new PolicyCollection());
         $tree->setName('');
         $tree->setPath('/');
 
@@ -101,7 +101,7 @@ class TreeManager implements TreeManagerInterface
     public function createTree($name, TreeInterface $parent)
     {
         $tree = new Tree();
-        $tree->setPolicy(new Policy());
+        $tree->setPolicyCollection(new PolicyCollection());
         $tree->setName($name);
         $tree->setPath(sprintf('%s/%s', $parent->getPath(), $name));
 
@@ -116,7 +116,7 @@ class TreeManager implements TreeManagerInterface
     public function createTreeFile($name, TreeInterface $parent, BlobFileInterface $blobFile, $metadata = array())
     {
         $treeFile = new TreeFile();
-        $treeFile->setPolicy(new Policy());
+        $treeFile->setPolicyCollection(new PolicyCollection());
         $treeFile->setName($name);
         $treeFile->setPath('/' . ltrim(sprintf('%s/%s', $parent->getPath(), $name), '/'));
         $treeFile->setFile($blobFile);

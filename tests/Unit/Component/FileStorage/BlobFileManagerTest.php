@@ -11,7 +11,7 @@ use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\Blob;
 use Symcloud\Component\Database\Model\BlobFile;
-use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Search\Hit\Hit;
 use Symcloud\Component\FileStorage\BlobFileManager;
 use Symcloud\Component\FileStorage\Exception\FileNotFoundException;
@@ -39,7 +39,7 @@ class BlobFileManagerTest extends ProphecyTestCase
         $blob2->setData(substr($data, 100, 100));
 
         $file = new BlobFile();
-        $file->setPolicy(new Policy());
+        $file->setPolicyCollection(new PolicyCollection());
         $file->setFileHash($fileHash);
         $file->setBlobs(array($blob1, $blob2));
         $file->setMimeType($mimeType);

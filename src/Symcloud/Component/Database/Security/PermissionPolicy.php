@@ -9,24 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Symcloud\Component\Database\Model;
+namespace Symcloud\Component\Database\Security;
 
-class Policy implements PolicyInterface
+class PermissionPolicy
 {
-    /**
-     * @var array
-     */
-    private $users;
-
-    /**
-     * Policy constructor.
-     *
-     * @param array $users
-     */
-    public function __construct(array $users = array())
-    {
-        $this->users = $users;
-    }
+    private $users = array();
 
     public function getUsers()
     {

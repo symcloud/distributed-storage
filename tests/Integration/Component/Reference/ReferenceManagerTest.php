@@ -5,7 +5,7 @@ namespace Integration\Component\Reference;
 use Integration\Parts\ReferenceManagerTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\Database\Model\Commit\Commit;
-use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Model\Reference\Reference;
 use Symcloud\Component\Database\Model\Reference\ReferenceInterface;
 use Symcloud\Component\Database\Model\Tree\Tree;
@@ -22,12 +22,12 @@ class ReferenceManagerTest extends ProphecyTestCase
 
         $user = $this->getUserProvider()->loadUserByUsername($username);
         $tree = new Tree();
-        $tree->setPolicy(new Policy());
+        $tree->setPolicyCollection(new PolicyCollection());
         $tree->setName('');
         $tree->setPath('/');
 
         $commit = new Commit();
-        $commit->setPolicy(new Policy());
+        $commit->setPolicyCollection(new PolicyCollection());
         $commit->setMessage('init');
         $commit->setCommitter($user);
         $commit->setCreatedAt(new \DateTime());
@@ -35,7 +35,7 @@ class ReferenceManagerTest extends ProphecyTestCase
         $commit->setParentCommit(null);
 
         $commit2 = new Commit();
-        $commit2->setPolicy(new Policy());
+        $commit2->setPolicyCollection(new PolicyCollection());
         $commit2->setMessage($message);
         $commit2->setCommitter($user);
         $commit2->setCreatedAt(new \DateTime());
@@ -66,7 +66,7 @@ class ReferenceManagerTest extends ProphecyTestCase
         $database->store($commit);
 
         $reference = new Reference();
-        $reference->setPolicy(new Policy());
+        $reference->setPolicyCollection(new PolicyCollection());
         $reference->setCommit($commit);
         $reference->setUser($user);
         $reference->setName($hash);
@@ -109,7 +109,7 @@ class ReferenceManagerTest extends ProphecyTestCase
         $database->store($commit2);
 
         $reference = new Reference();
-        $reference->setPolicy(new Policy());
+        $reference->setPolicyCollection(new PolicyCollection());
         $reference->setCommit($commit);
         $reference->setUser($user);
         $reference->setName($hash);

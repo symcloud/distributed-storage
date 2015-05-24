@@ -15,7 +15,7 @@ use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\Blob;
 use Symcloud\Component\Database\Model\BlobInterface;
-use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\PolicyCollection;
 
 class BlobManager implements BlobManagerInterface
 {
@@ -51,7 +51,7 @@ class BlobManager implements BlobManagerInterface
         $blob = new Blob();
         $blob->setData($data);
         $blob->setLength(strlen($data));
-        $blob->setPolicy(new Policy());
+        $blob->setPolicyCollection(new PolicyCollection());
         $blob->setHash($this->factory->createHash($data));
 
         if ($this->database->contains($blob->getHash())) {

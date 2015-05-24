@@ -11,20 +11,23 @@
 
 namespace Symcloud\Component\Database\Model;
 
-interface ModelInterface
+interface PolicyCollectionInterface
 {
     /**
-     * @return string
+     * @return PolicyInterface[]
      */
-    public function getHash();
+    public function getPolicies();
 
     /**
-     * @return PolicyCollectionInterface
+     * @param $name
+     * @param PolicyInterface $policy
      */
-    public function getPolicyCollection();
+    public function addPolicy($name, PolicyInterface $policy);
 
     /**
-     * @return string
+     * @param string $name
+     *
+     * @return PolicyInterface
      */
-    public function getClass();
+    public function getPolicy($name);
 }

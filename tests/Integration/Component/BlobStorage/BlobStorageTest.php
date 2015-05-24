@@ -7,7 +7,7 @@ use Integration\Parts\TestFileTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
 use Symcloud\Component\Database\Model\Blob;
 use Symcloud\Component\Database\Model\BlobInterface;
-use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\PolicyCollection;
 
 class BlobStorageTest extends ProphecyTestCase
 {
@@ -22,7 +22,7 @@ class BlobStorageTest extends ProphecyTestCase
         $expectedBlob->setData($data);
         $expectedBlob->setHash($this->getFactory()->createHash($data));
         $expectedBlob->setLength($length);
-        $expectedBlob->setPolicy(new Policy());
+        $expectedBlob->setPolicyCollection(new PolicyCollection());
 
         $this->getDatabase()->deleteAll();
 

@@ -14,7 +14,7 @@ namespace Symcloud\Component\Database;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\Database\Metadata\MetadataManagerInterface;
 use Symcloud\Component\Database\Model\ModelInterface;
-use Symcloud\Component\Database\Model\Policy;
+use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Search\SearchAdapterInterface;
 use Symcloud\Component\Database\Storage\StorageAdapterInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
@@ -92,11 +92,16 @@ class Database implements DatabaseInterface
             throw new \Exception('Hash not specified');
         }
 
+        $policies = array();
+        foreach ($model->getPolicyCollection()->getPolicies() as $name => $policy) {
+            $policies[$name] = serialize($policy);
+        }
+
         $this->storageAdapter->store(
             $hash,
             array(
                 'metadata' => $objectMetadata,
-                'policy' => $model->getPolicy()->getUsers(),
+                'policies' => $policies,
                 'data' => $data,
                 'class' => $model->getClass(),
             )
@@ -117,9 +122,14 @@ class Database implements DatabaseInterface
             throw new \Exception('Classname not match!');
         }
 
+        $policies = new PolicyCollection();
+        foreach ($data['policies'] as $name => $policyData) {
+            $policies->addPolicy($name, unserialize($policyData));
+        }
+
         $model = $this->getModel($data['class']);
         $this->accessor->setValue($model, 'hash', $hash);
-        $this->accessor->setValue($model, 'policy', new Policy($data['policy']));
+        $this->accessor->setValue($model, 'policyCollection', $policies);
 
         $this->serializer->deserialize($model, $data['metadata'], $metadata->getMetadataFields(), $this);
         $this->serializer->deserialize($model, $data['data'], $metadata->getDataFields(), $this);
