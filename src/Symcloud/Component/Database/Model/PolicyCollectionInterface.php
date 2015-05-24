@@ -16,18 +16,25 @@ interface PolicyCollectionInterface
     /**
      * @return PolicyInterface[]
      */
-    public function getPolicies();
+    public function getAll();
 
     /**
      * @param $name
      * @param PolicyInterface $policy
      */
-    public function addPolicy($name, PolicyInterface $policy);
+    public function add($name, PolicyInterface $policy);
 
     /**
      * @param string $name
      *
      * @return PolicyInterface
      */
-    public function getPolicy($name);
+    public function get($name);
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function has($name);
 }

@@ -21,7 +21,7 @@ class PolicyCollection implements PolicyCollectionInterface
     /**
      * @return PolicyInterface[]
      */
-    public function getPolicies()
+    public function getAll()
     {
         return $this->policies;
     }
@@ -38,7 +38,7 @@ class PolicyCollection implements PolicyCollectionInterface
      * @param $name
      * @param PolicyInterface $policy
      */
-    public function addPolicy($name, PolicyInterface $policy)
+    public function add($name, PolicyInterface $policy)
     {
         $this->policies[$name] = $policy;
     }
@@ -48,8 +48,18 @@ class PolicyCollection implements PolicyCollectionInterface
      *
      * @return PolicyInterface
      */
-    public function getPolicy($name)
+    public function get($name)
     {
         return $this->policies[$name];
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function has($name)
+    {
+        return array_key_exists($name, $this->policies);
     }
 }

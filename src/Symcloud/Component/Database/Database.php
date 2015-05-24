@@ -12,11 +12,14 @@
 namespace Symcloud\Component\Database;
 
 use Symcloud\Component\Common\FactoryInterface;
+use Symcloud\Component\Database\Event\DatabaseEvent;
+use Symcloud\Component\Database\Event\DatabaseStoreEvent;
 use Symcloud\Component\Database\Metadata\MetadataManagerInterface;
 use Symcloud\Component\Database\Model\ModelInterface;
 use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Search\SearchAdapterInterface;
 use Symcloud\Component\Database\Storage\StorageAdapterInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 
@@ -43,6 +46,11 @@ class Database implements DatabaseInterface
     private $searchAdapter;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
      * @var Serializer
      */
     private $serializer;
@@ -59,17 +67,20 @@ class Database implements DatabaseInterface
      * @param StorageAdapterInterface $storageAdapter
      * @param SearchAdapterInterface $searchAdapter
      * @param MetadataManagerInterface $metadataManager
+     * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
         FactoryInterface $factory,
         StorageAdapterInterface $storageAdapter,
         SearchAdapterInterface $searchAdapter,
-        MetadataManagerInterface $metadataManager
+        MetadataManagerInterface $metadataManager,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->factory = $factory;
         $this->storageAdapter = $storageAdapter;
         $this->searchAdapter = $searchAdapter;
         $this->metadataManager = $metadataManager;
+        $this->eventDispatcher = $eventDispatcher;
 
         $this->serializer = new Serializer();
         $this->accessor = PropertyAccess::createPropertyAccessor();
@@ -82,6 +93,17 @@ class Database implements DatabaseInterface
 
     public function store(ModelInterface $model)
     {
+        $event = new DatabaseStoreEvent($model);
+        $this->eventDispatcher->dispatch(DatabaseEvent::STORE_EVENT, $event);
+
+        // possibility to cancel store in a event-handler
+        if ($event->isCanceled()) {
+            return;
+        }
+
+        // possibility to change model in the event-handler to a stub
+        $model = $event->getModel();
+
         $metadata = $this->metadataManager->loadByModel($model);
         $data = $this->serializer->serialize($model, $metadata->getDataFields());
         $objectMetadata = $this->serializer->serialize($model, $metadata->getMetadataFields());
@@ -93,7 +115,7 @@ class Database implements DatabaseInterface
         }
 
         $policies = array();
-        foreach ($model->getPolicyCollection()->getPolicies() as $name => $policy) {
+        foreach ($model->getPolicyCollection()->getAll() as $name => $policy) {
             $policies[$name] = serialize($policy);
         }
 
@@ -124,7 +146,7 @@ class Database implements DatabaseInterface
 
         $policies = new PolicyCollection();
         foreach ($data['policies'] as $name => $policyData) {
-            $policies->addPolicy($name, unserialize($policyData));
+            $policies->add($name, unserialize($policyData));
         }
 
         $model = $this->getModel($data['class']);

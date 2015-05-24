@@ -11,6 +11,8 @@ use Symcloud\Component\Database\Model\ModelInterface;
 use Symcloud\Component\Database\Search\SearchAdapterInterface;
 use Symcloud\Component\Database\Storage\ArrayStorage;
 use Symcloud\Component\Database\Storage\StorageAdapterInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Security\Core\User\InMemoryUserProvider;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -43,6 +45,11 @@ trait DatabaseTrait
      */
     private $searchAdapter;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function getDatabase()
     {
         if (!$this->database) {
@@ -50,7 +57,8 @@ trait DatabaseTrait
                 $this->getFactory(),
                 $this->getStorageAdapter(),
                 $this->getSearchAdapter(),
-                $this->getMetadataManager()
+                $this->getMetadataManager(),
+                $this->getEventDispatcher()
             );
         }
 
@@ -93,6 +101,15 @@ trait DatabaseTrait
         return $this->searchAdapter;
     }
 
+    protected function getEventDispatcher()
+    {
+        if (!$this->eventDispatcher) {
+            $this->eventDispatcher = $this->createEventDispatcher();
+        }
+
+        return $this->eventDispatcher;
+    }
+
     protected function createUserProvider()
     {
         return new InMemoryUserProvider(array('johannes' => array('password' => 'test')));
@@ -111,6 +128,11 @@ trait DatabaseTrait
     protected function createSearchAdapter()
     {
         return new NoopSearchAdapter();
+    }
+
+    protected function createEventDispatcher()
+    {
+        return new EventDispatcher();
     }
 }
 

@@ -9,8 +9,8 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Symcloud\Component\Database\Model;
+namespace Symcloud\Component\Database\Event;
 
-interface PolicyInterface extends \Serializable
+class DatabaseStoreEvent extends DatabaseEvent
 {
 }
