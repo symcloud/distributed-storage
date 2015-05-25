@@ -11,7 +11,6 @@
 
 namespace Symcloud\Component\Database\Event;
 
-use Symcloud\Component\Database\Model\ModelInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 abstract class DatabaseEvent extends Event
@@ -20,33 +19,13 @@ abstract class DatabaseEvent extends Event
     const FETCH_EVENT = 'symcloud.database.fetch';
 
     /**
-     * @var ModelInterface
-     */
-    protected $model;
-
-    /**
      * @var bool
      */
     protected $canceled = false;
 
     /**
-     * DatabaseEvent constructor.
      *
-     * @param ModelInterface $model
      */
-    public function __construct(ModelInterface $model)
-    {
-        $this->model = $model;
-    }
-
-    /**
-     * @return ModelInterface
-     */
-    public function getModel()
-    {
-        return $this->model;
-    }
-
     public function cancel()
     {
         $this->canceled = true;

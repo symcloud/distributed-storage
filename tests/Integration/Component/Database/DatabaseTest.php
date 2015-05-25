@@ -180,6 +180,18 @@ class DatabaseTest extends ProphecyTestCase
 
         return $metadataManager->reveal();
     }
+
+    public function testStoreEvent()
+    {
+        // TODO check event throw and data
+        $this->markTestIncomplete('This test is not implemented');
+    }
+
+    public function testFetchEvent()
+    {
+        // TODO check event throw and data
+        $this->markTestIncomplete('This test is not implemented');
+    }
 }
 
 class A extends DistributedModel

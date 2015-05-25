@@ -17,6 +17,11 @@ use Symcloud\Component\Database\Model\ModelInterface;
 class DatabaseStoreEvent extends DatabaseEvent
 {
     /**
+     * @var ModelInterface
+     */
+    protected $model;
+
+    /**
      * @var array
      */
     private $options;
@@ -52,12 +57,19 @@ class DatabaseStoreEvent extends DatabaseEvent
         ClassMetadataInterface $metadata,
         array $options
     ) {
-        parent::__construct($model);
-
+        $this->model = $model;
         $this->options = $options;
         $this->data = $data;
         $this->metadata = $metadata;
         $this->isNew = $isNew;
+    }
+
+    /**
+     * @return ModelInterface
+     */
+    public function getModel()
+    {
+        return $this->model;
     }
 
     /**
@@ -113,12 +125,5 @@ class DatabaseStoreEvent extends DatabaseEvent
     public function isNew()
     {
         return $this->isNew;
-    }
-
-    /**
-     * @return array
-     */
-    public function getMetadataObject()
-    {
     }
 }

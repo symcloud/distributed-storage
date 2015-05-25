@@ -13,6 +13,7 @@ namespace Symcloud\Component\Database;
 
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\Database\Event\DatabaseEvent;
+use Symcloud\Component\Database\Event\DatabaseFetchEvent;
 use Symcloud\Component\Database\Event\DatabaseStoreEvent;
 use Symcloud\Component\Database\Metadata\MetadataManagerInterface;
 use Symcloud\Component\Database\Model\DistributedModelInterface;
@@ -123,15 +124,18 @@ class Database implements DatabaseInterface
         $model = $event->getModel();
         $data = $event->getData();
 
+        // prepare object
         $object = array(
             'data' => $data,
             'class' => $model->getClass(),
         );
 
+        // append existing policies
         if ($model instanceof DistributedModelInterface) {
             $object['policies'] = serialize($model->getPolicyCollection());
         }
 
+        // store it
         $this->storageAdapter->store($hash, $object, $metadata->getContext());
         $this->searchAdapter->index($hash, $model, $metadata);
 
@@ -142,6 +146,18 @@ class Database implements DatabaseInterface
     {
         $metadata = $this->metadataManager->loadByClassname($className);
         $data = $this->storageAdapter->fetch($hash, $metadata->getContext());
+
+        // dispatch event
+        $event = new DatabaseFetchEvent($data, $metadata);
+        $this->eventDispatcher->dispatch(DatabaseEvent::FETCH_EVENT, $event);
+
+        // possibility to cancel store in a event-handler
+        if ($event->isCanceled()) {
+            return;
+        }
+
+        // possibility to change data in the event-handler
+        $data = $event->getData();
 
         if ($data['class'] !== $className) {
             throw new \Exception('Classname not match!');
