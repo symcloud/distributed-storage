@@ -24,6 +24,18 @@ class Server implements ServerInterface
     private $port;
 
     /**
+     * Server constructor.
+     *
+     * @param string $host
+     * @param int $port
+     */
+    public function __construct($host, $port)
+    {
+        $this->host = $host;
+        $this->port = $port;
+    }
+
+    /**
      * @return string
      */
     public function getHost()

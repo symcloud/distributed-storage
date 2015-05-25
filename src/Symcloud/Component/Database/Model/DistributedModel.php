@@ -19,6 +19,14 @@ abstract class DistributedModel extends Model implements DistributedModelInterfa
     private $policyCollection;
 
     /**
+     * DistributedModel constructor.
+     */
+    public function __construct()
+    {
+        $this->policyCollection = new PolicyCollection();
+    }
+
+    /**
      * @return PolicyCollectionInterface
      */
     public function getPolicyCollection()

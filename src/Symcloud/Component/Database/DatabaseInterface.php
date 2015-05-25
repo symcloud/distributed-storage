@@ -17,7 +17,7 @@ interface DatabaseInterface
 {
     public function search($searchPattern, $contexts = array());
 
-    public function store(ModelInterface $model);
+    public function store(ModelInterface $model, array $options = array());
 
     public function fetch($hash, $className);
 

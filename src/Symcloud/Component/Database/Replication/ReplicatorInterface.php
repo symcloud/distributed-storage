@@ -13,4 +13,9 @@ namespace Symcloud\Component\Database\Replication;
 
 interface ReplicatorInterface
 {
+    const OPTION_NAME = 'replication';
+
+    const TYPE_NONE = 0;
+    const TYPE_FULL = 1;
+    const TYPE_SECURITY = 2;
 }

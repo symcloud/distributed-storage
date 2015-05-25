@@ -13,4 +13,7 @@ namespace Symcloud\Component\Database\Replication;
 
 interface ApiInterface
 {
+    public function store($hash, $data, ServerInterface $server);
+
+    public function fetch($hash, ServerInterface $server);
 }

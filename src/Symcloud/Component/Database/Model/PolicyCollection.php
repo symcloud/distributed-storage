@@ -62,4 +62,28 @@ class PolicyCollection implements PolicyCollectionInterface
     {
         return array_key_exists($name, $this->policies);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function serialize()
+    {
+        $policies = array();
+        foreach ($this->getAll() as $name => $policy) {
+            $policies[$name] = serialize($policy);
+        }
+
+        return serialize(array('policies' => $policies));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function unserialize($serialized)
+    {
+        $data = unserialize($serialized);
+        foreach ($data['policies'] as $name => $policyData) {
+            $this->add($name, unserialize($policyData));
+        }
+    }
 }

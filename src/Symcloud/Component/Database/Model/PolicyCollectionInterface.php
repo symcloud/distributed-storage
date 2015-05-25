@@ -11,7 +11,7 @@
 
 namespace Symcloud\Component\Database\Model;
 
-interface PolicyCollectionInterface
+interface PolicyCollectionInterface extends \Serializable
 {
     /**
      * @return PolicyInterface[]

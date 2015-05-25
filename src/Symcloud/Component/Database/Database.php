@@ -17,7 +17,6 @@ use Symcloud\Component\Database\Event\DatabaseStoreEvent;
 use Symcloud\Component\Database\Metadata\MetadataManagerInterface;
 use Symcloud\Component\Database\Model\DistributedModelInterface;
 use Symcloud\Component\Database\Model\ModelInterface;
-use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Search\SearchAdapterInterface;
 use Symcloud\Component\Database\Storage\StorageAdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -92,9 +91,27 @@ class Database implements DatabaseInterface
         return $this->searchAdapter->search($searchPattern, $contexts);
     }
 
-    public function store(ModelInterface $model)
+    public function store(ModelInterface $model, array $options = array())
     {
-        $event = new DatabaseStoreEvent($model);
+        // determine metadata and data from model
+        $metadata = $this->metadataManager->loadByModel($model);
+        $data = $this->serializer->serialize(
+            $model,
+            array_merge($metadata->getDataFields(), $metadata->getMetadataFields())
+        );
+
+        // generate hash if necessary
+        if ($metadata->isHashGenerated()) {
+            $hash = $this->factory->createHash(json_encode($data));
+        } elseif (!($hash = $model->getHash())) {
+            throw new \Exception('Hash not specified');
+        }
+
+        $this->accessor->setValue($model, 'hash', $hash);
+        $isNew = $this->contains($hash, $model->getClass());
+
+        // dispatch event
+        $event = new DatabaseStoreEvent($model, $data, $isNew,  $metadata, $options);
         $this->eventDispatcher->dispatch(DatabaseEvent::STORE_EVENT, $event);
 
         // possibility to cancel store in a event-handler
@@ -104,18 +121,7 @@ class Database implements DatabaseInterface
 
         // possibility to change model in the event-handler to a stub
         $model = $event->getModel();
-
-        $metadata = $this->metadataManager->loadByModel($model);
-        $data = $this->serializer->serialize(
-            $model,
-            array_merge($metadata->getDataFields(), $metadata->getMetadataFields())
-        );
-
-        if ($metadata->isHashGenerated()) {
-            $hash = $this->factory->createHash(json_encode($data));
-        } elseif (!($hash = $model->getHash())) {
-            throw new \Exception('Hash not specified');
-        }
+        $data = $event->getData();
 
         $object = array(
             'data' => $data,
@@ -123,18 +129,11 @@ class Database implements DatabaseInterface
         );
 
         if ($model instanceof DistributedModelInterface) {
-            $policies = array();
-            foreach ($model->getPolicyCollection()->getAll() as $name => $policy) {
-                $policies[$name] = serialize($policy);
-            }
-
-            $object['policies'] = $policies;
+            $object['policies'] = serialize($model->getPolicyCollection());
         }
 
         $this->storageAdapter->store($hash, $object, $metadata->getContext());
-
         $this->searchAdapter->index($hash, $model, $metadata);
-        $this->accessor->setValue($model, 'hash', $hash);
 
         return $model;
     }
@@ -152,12 +151,7 @@ class Database implements DatabaseInterface
         $this->accessor->setValue($model, 'hash', $hash);
 
         if ($model instanceof DistributedModelInterface) {
-            $policies = new PolicyCollection();
-            foreach ($data['policies'] as $name => $policyData) {
-                $policies->add($name, unserialize($policyData));
-            }
-
-            $this->accessor->setValue($model, 'policyCollection', $policies);
+            $this->accessor->setValue($model, 'policyCollection', unserialize($data['policies']));
         }
 
         $this->serializer->deserialize(
