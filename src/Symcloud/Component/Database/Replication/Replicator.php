@@ -167,13 +167,9 @@ class Replicator implements ReplicatorInterface
 
     public function onFetch(DatabaseFetchEvent $event)
     {
-        $model = $event->getModel();
-        if ($model instanceof DistributedModelInterface) {
-            $policyCollection = $model->getPolicyCollection();
-
-            // TODO determine is primary (no TODO), backup server (no TODO) or stub
-            // TODO if it is stub: load data from random server (out of primary and backups)
-        }
+        // TODO if it is not on the server search for it (go through list of servers)
+        // TODO determine is primary (no TODO), backup server (no TODO) or stub
+        // TODO if it is stub: load data from random server (out of primary and backups)
     }
 
     public function storeStub($hash, ServerInterface $primaryServer, array $backupServers)
