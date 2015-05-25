@@ -42,7 +42,7 @@ class DatabaseTest extends ProphecyTestCase
         $a->user = $this->getUserProvider()->loadUserByUsername('johannes');
 
         $data = array(
-            'policies' => array(),
+            'policies' => serialize(new PolicyCollection()),
             'data' => array(
                 'title' => $a->title,
                 'reference' => $a->reference->getHash(),
@@ -159,7 +159,7 @@ class DatabaseTest extends ProphecyTestCase
     {
         $database = $this->getDatabase();
         $adapter = $this->getStorageAdapter();
-        $database->store($c, C::class);
+        $database->store($c);
 
         $result = $adapter->fetch($c->getHash(), 'test');
         $this->assertEquals(array('data' => array('name' => 'c'), 'class' => C::class), $result);
