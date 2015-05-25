@@ -15,7 +15,7 @@ use Symcloud\Component\Database\Model\ModelInterface;
 
 interface DatabaseInterface
 {
-    public function search($searchPattern, $contexts = array());
+    public function search($searchPattern, array $contexts = array());
 
     public function store(ModelInterface $model, array $options = array());
 

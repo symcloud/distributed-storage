@@ -13,7 +13,12 @@ namespace Symcloud\Component\Database\Replication;
 
 use Symcloud\Component\Database\Event\DatabaseFetchEvent;
 use Symcloud\Component\Database\Event\DatabaseStoreEvent;
+use Symcloud\Component\Database\Metadata\MetadataManagerInterface;
 use Symcloud\Component\Database\Model\DistributedModelInterface;
+use Symcloud\Component\Database\Model\PolicyCollectionInterface;
+use Symcloud\Component\Database\Replication\Exception\NotPrimaryServerException;
+use Symcloud\Component\Database\Search\SearchAdapterInterface;
+use Symcloud\Component\Database\Storage\StorageAdapterInterface;
 
 class Replicator implements ReplicatorInterface
 {
@@ -35,6 +40,21 @@ class Replicator implements ReplicatorInterface
     private $servers = array();
 
     /**
+     * @var StorageAdapterInterface
+     */
+    private $storageAdapter;
+
+    /**
+     * @var SearchAdapterInterface
+     */
+    private $searchAdapter;
+
+    /**
+     * @var MetadataManagerInterface
+     */
+    private $metadataManager;
+
+    /**
      * @var array
      */
     private $options;
@@ -43,15 +63,28 @@ class Replicator implements ReplicatorInterface
      * Replicator constructor.
      *
      * @param ApiInterface $api
+     * @param StorageAdapterInterface $storageAdapter
+     * @param SearchAdapterInterface $searchAdapter
+     * @param MetadataManagerInterface $metadataManager
      * @param ServerInterface $primaryServer
      * @param ServerInterface[] $servers
      * @param array $options
      */
-    public function __construct(ApiInterface $api, ServerInterface $primaryServer, array $servers, array $options = array())
-    {
+    public function __construct(
+        ApiInterface $api,
+        StorageAdapterInterface $storageAdapter,
+        SearchAdapterInterface $searchAdapter,
+        MetadataManagerInterface $metadataManager,
+        ServerInterface $primaryServer,
+        array $servers,
+        array $options = array()
+    ) {
+        $this->api = $api;
+        $this->storageAdapter = $storageAdapter;
+        $this->searchAdapter = $searchAdapter;
+        $this->metadataManager = $metadataManager;
         $this->primaryServer = $primaryServer;
         $this->servers = $servers;
-        $this->api = $api;
 
         $this->setOptions($options);
     }
@@ -149,9 +182,27 @@ class Replicator implements ReplicatorInterface
 
     public function store($hash, $data)
     {
+        $classMetadata = $this->metadataManager->loadByClassname($data['class']);
+        $this->storageAdapter->store($hash, $data, $classMetadata->getContext());
+        $this->searchAdapter->indexObject($hash, $data, $classMetadata);
     }
 
-    public function fetch($hash)
+    public function fetch($hash, $class, $username)
     {
+        $classMetadata = $this->metadataManager->loadByClassname($class);
+        $data = $this->storageAdapter->fetch($hash, $classMetadata->getContext());
+
+        if (array_key_exists('type', $data) && $data['type'] === 'backup') {
+            /** @var PolicyCollectionInterface $policyCollection */
+            $policyCollection = unserialize($data['policies']);
+
+            /** @var ReplicatorPolicy $policy */
+            $policy = $policyCollection->get(self::POLICY_NAME);
+            throw new NotPrimaryServerException($policy->getPrimaryServer());
+        }
+
+        // TODO security-checker with given username ("%s::%s", server, username)
+
+        return $data;
     }
 }

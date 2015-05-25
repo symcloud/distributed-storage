@@ -86,7 +86,7 @@ class Database implements DatabaseInterface
         $this->accessor = PropertyAccess::createPropertyAccessor();
     }
 
-    public function search($searchPattern, $contexts = array())
+    public function search($searchPattern, array $contexts = array())
     {
         return $this->searchAdapter->search($searchPattern, $contexts);
     }

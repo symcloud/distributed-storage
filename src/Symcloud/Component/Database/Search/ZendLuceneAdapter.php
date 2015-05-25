@@ -56,30 +56,52 @@ class ZendLuceneAdapter implements SearchAdapterInterface
     public function index($hash, ModelInterface $model, ClassMetadataInterface $metadata)
     {
         $indexName = $metadata->getContext();
-
         $index = $this->getLuceneIndex($indexName);
 
         // check to see if the subject already exists
         $this->removeExisting($index, $hash);
 
-        $luceneDocument = new Lucene\Document();
-        $luceneDocument->addField(Lucene\Document\Field::text(self::HASH_FIELDNAME, $hash));
+        $document = new Lucene\Document();
+        $document->addField(Lucene\Document\Field::text(self::HASH_FIELDNAME, $hash));
         foreach ($metadata->getMetadataFields() as $field) {
-            $value = $field->getValue($model);
-            if (is_string($value)) {
-                $luceneDocument->addField(Lucene\Document\Field::keyword($field->getName(), $value));
-            } elseif ($value instanceof \DateTime) {
-                $luceneDocument->addField(Lucene\Document\Field::keyword($field->getName(), $value->getTimestamp()));
-            } elseif (is_array($value)) {
-                $luceneDocument->addField(Lucene\Document\Field::text($field->getName(), implode(',', $value)));
-            } else {
-                $luceneDocument->addField(Lucene\Document\Field::binary($field->getName(), $value));
-            }
+            $this->appendToDocument($document, $field->getName(), $field->getValue($model));
         }
-        $index->addDocument($luceneDocument);
+        $index->addDocument($document);
         $index->commit();
 
-        return $luceneDocument;
+        return $document;
+    }
+
+    public function indexObject($hash, $data, ClassMetadataInterface $metadata)
+    {
+        $indexName = $metadata->getContext();
+        $index = $this->getLuceneIndex($indexName);
+
+        // check to see if the subject already exists
+        $this->removeExisting($index, $hash);
+
+        $document = new Lucene\Document();
+        $document->addField(Lucene\Document\Field::text(self::HASH_FIELDNAME, $hash));
+        foreach ($metadata->getMetadataFields() as $field) {
+            $this->appendToDocument($document, $field->getName(), $data[$field->getName()]);
+        }
+        $index->addDocument($document);
+        $index->commit();
+
+        return $document;
+    }
+
+    private function appendToDocument(Lucene\Document $document, $name, $value)
+    {
+        if (is_string($value)) {
+            $document->addField(Lucene\Document\Field::keyword($name, $value));
+        } elseif ($value instanceof \DateTime) {
+            $document->addField(Lucene\Document\Field::keyword($name, $value->getTimestamp()));
+        } elseif (is_array($value)) {
+            $document->addField(Lucene\Document\Field::text($name, implode(',', $value)));
+        } else {
+            $document->addField(Lucene\Document\Field::binary($name, $value));
+        }
     }
 
     public function search($query, $contexts = array())

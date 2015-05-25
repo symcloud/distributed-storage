@@ -143,6 +143,11 @@ class NoopSearchAdapter implements SearchAdapterInterface
         // TODO: Implement index() method.
     }
 
+    public function indexObject($hash, $data, ClassMetadataInterface $metadata)
+    {
+        // TODO: Implement indexObject() method.
+    }
+
     public function search($query, $contexts = array())
     {
         // TODO: Implement search() method.

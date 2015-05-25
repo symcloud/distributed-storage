@@ -18,6 +18,8 @@ interface SearchAdapterInterface
 {
     public function index($hash, ModelInterface $model, ClassMetadataInterface $metadata);
 
+    public function indexObject($hash, $data, ClassMetadataInterface $metadata);
+
     public function search($query, $contexts = array());
 
     public function getStatus();

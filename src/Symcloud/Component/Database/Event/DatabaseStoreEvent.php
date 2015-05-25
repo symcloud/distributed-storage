@@ -114,4 +114,11 @@ class DatabaseStoreEvent extends DatabaseEvent
     {
         return $this->isNew;
     }
+
+    /**
+     * @return array
+     */
+    public function getMetadataObject()
+    {
+    }
 }
