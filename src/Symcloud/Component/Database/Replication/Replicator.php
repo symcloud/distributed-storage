@@ -11,6 +11,7 @@
 
 namespace Symcloud\Component\Database\Replication;
 
+use GuzzleHttp\Exception\ClientException;
 use Symcloud\Component\Database\Event\DatabaseFetchEvent;
 use Symcloud\Component\Database\Event\DatabaseStoreEvent;
 use Symcloud\Component\Database\Metadata\MetadataManagerInterface;
@@ -167,9 +168,31 @@ class Replicator implements ReplicatorInterface
 
     public function onFetch(DatabaseFetchEvent $event)
     {
-        // TODO if it is not on the server search for it (go through list of servers)
         // TODO determine is primary (no TODO), backup server (no TODO) or stub
         // TODO if it is stub: load data from random server (out of primary and backups)
+
+        if ($event->getData() === null) {
+            // if it is not on the server search for it (go through list of servers)
+            // TODO cache response
+            $data = $this->fetchRemote($event->getHash(), $event->getClass());
+            $event->setData($data);
+
+            return;
+        }
+    }
+
+    private function fetchRemote($hash, $class)
+    {
+        foreach ($this->servers as $server) {
+            try {
+                return $this->api->fetch($hash, $class, $server);
+            } catch (ClientException $ex) {
+                // TODO check for right exception
+                $x = 0;
+            }
+        }
+
+        return;
     }
 
     public function storeStub($hash, ServerInterface $primaryServer, array $backupServers)

@@ -2,8 +2,11 @@
 
 namespace Unit\Component\Database\Replication;
 
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Message\RequestInterface;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTestCase;
+use Symcloud\Component\Database\Event\DatabaseFetchEvent;
 use Symcloud\Component\Database\Event\DatabaseStoreEvent;
 use Symcloud\Component\Database\Metadata\ClassMetadata\ClassMetadata;
 use Symcloud\Component\Database\Metadata\Field\AccessorField;
@@ -313,6 +316,71 @@ class ReplicatorTest extends ProphecyTestCase
         );
 
         $replicator->fetch($hash, A::class, 'my.symcloud.lo::johannes');
+    }
+
+    public function testOnFetchNoData()
+    {
+        $primaryServer = new Server('my.symcloud.lo');
+        $servers = array(
+            new Server('your-1.symcloud.lo'),
+            new Server('your-2.symcloud.lo'),
+            new Server('your-3.symcloud.lo')
+        );
+
+        $hash = 'my-hash';
+        $object = array(
+            'class' => A::class,
+            'data' => array(
+                'name' => 'HELLO',
+            ),
+            'policies' => serialize(
+                new PolicyCollection(
+                    array(
+                        'replicator' => new ReplicatorPolicy($servers[0], array($primaryServer, $servers[1]))
+                    )
+                )
+            ),
+        );
+
+        $request = $this->prophesize(RequestInterface::class);
+
+        $api = $this->prophesize(ApiInterface::class);
+        $api->fetch($hash, A::class, $servers[0])->willThrow(new ClientException('Not found 1', $request->reveal()));
+        $api->fetch($hash, A::class, $servers[1])->willThrow(new ClientException('Not found 2', $request->reveal()));
+        $api->fetch($hash, A::class, $servers[2])->willReturn($object);
+
+        $classMetadata = new AClassMetadata();
+        $metadataManager = $this->prophesize(MetadataManagerInterface::class);
+        $metadataManager->loadByClassname(A::class)->willReturn($classMetadata);
+        $metadataManager->loadByModel(Argument::type(A::class))->willReturn($classMetadata);
+
+        $storageAdapter = $this->prophesize(StorageAdapterInterface::class);
+        $storageAdapter->store()->shouldNotBeCalled();
+        $storageAdapter->fetch()->shouldNotBeCalled();
+
+        $searchAdapter = $this->prophesize(SearchAdapterInterface::class);
+        $searchAdapter->indexObject()->shouldNotBeCalled();
+
+        $primaryServer = new Server('my.symcloud.lo');
+        $servers = array(
+            new Server('your-1.symcloud.lo'),
+            new Server('your-2.symcloud.lo'),
+            new Server('your-3.symcloud.lo'),
+        );
+
+        $replicator = new Replicator(
+            $api->reveal(),
+            $storageAdapter->reveal(),
+            $searchAdapter->reveal(),
+            $metadataManager->reveal(),
+            $primaryServer,
+            $servers
+        );
+
+        $event = new DatabaseFetchEvent($hash, null, A::class, $classMetadata);
+        $replicator->onFetch($event);
+
+        $this->assertEquals($object, $event->getData());
     }
 }
 

@@ -16,9 +16,19 @@ use Symcloud\Component\Database\Metadata\ClassMetadataInterface;
 class DatabaseFetchEvent extends DatabaseEvent
 {
     /**
+     * @var string
+     */
+    private $hash;
+
+    /**
      * @var array
      */
     private $data;
+
+    /**
+     * @var string
+     */
+    private $class;
 
     /**
      * @var ClassMetadataInterface
@@ -28,12 +38,16 @@ class DatabaseFetchEvent extends DatabaseEvent
     /**
      * DatabaseFetchEvent constructor.
      *
+     * @param string $hash
      * @param array $data
+     * @param string $class
      * @param ClassMetadataInterface $metadata
      */
-    public function __construct(array $data, ClassMetadataInterface $metadata)
+    public function __construct($hash, $data, $class, ClassMetadataInterface $metadata)
     {
+        $this->hash = $hash;
         $this->data = $data;
+        $this->class = $class;
         $this->metadata = $metadata;
     }
 
@@ -59,5 +73,21 @@ class DatabaseFetchEvent extends DatabaseEvent
     public function getMetadata()
     {
         return $this->metadata;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHash()
+    {
+        return $this->hash;
+    }
+
+    /**
+     * @return string
+     */
+    public function getClass()
+    {
+        return $this->class;
     }
 }

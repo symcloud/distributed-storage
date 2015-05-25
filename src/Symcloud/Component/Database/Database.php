@@ -145,10 +145,13 @@ class Database implements DatabaseInterface
     public function fetch($hash, $className)
     {
         $metadata = $this->metadataManager->loadByClassname($className);
-        $data = $this->storageAdapter->fetch($hash, $metadata->getContext());
+        $data = null;
+        if ($this->storageAdapter->contains($hash, $metadata->getContext())) {
+            $data = $this->storageAdapter->fetch($hash, $metadata->getContext());
+        }
 
         // dispatch event
-        $event = new DatabaseFetchEvent($data, $metadata);
+        $event = new DatabaseFetchEvent($hash, $data, $className, $metadata);
         $this->eventDispatcher->dispatch(DatabaseEvent::FETCH_EVENT, $event);
 
         // possibility to cancel store in a event-handler
@@ -158,6 +161,10 @@ class Database implements DatabaseInterface
 
         // possibility to change data in the event-handler
         $data = $event->getData();
+
+        if (!$data) {
+            throw new \Exception('Object not found');
+        }
 
         if ($data['class'] !== $className) {
             throw new \Exception('Classname not match!');

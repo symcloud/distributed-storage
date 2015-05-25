@@ -15,5 +15,5 @@ interface ApiInterface
 {
     public function store($hash, $data, ServerInterface $server);
 
-    public function fetch($hash, ServerInterface $server);
+    public function fetch($hash, $class, ServerInterface $server);
 }
