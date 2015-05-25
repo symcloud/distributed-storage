@@ -33,11 +33,11 @@ class ReplicatorTest extends ProphecyTestCase
             array(ReplicatorInterface::OPTION_NAME => ReplicatorInterface::TYPE_FULL)
         );
 
-        $primaryServer = new Server('my.symcloud.lo', 1234);
+        $primaryServer = new Server('my.symcloud.lo');
         $servers = array(
-            new Server('your-1.symcloud.lo', 1234),
-            new Server('your-2.symcloud.lo', 1234),
-            new Server('your-3.symcloud.lo', 1234)
+            new Server('your-1.symcloud.lo'),
+            new Server('your-2.symcloud.lo'),
+            new Server('your-3.symcloud.lo'),
         );
 
         $api = $this->prophesize(ApiInterface::class);

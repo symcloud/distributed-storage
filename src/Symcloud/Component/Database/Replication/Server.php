@@ -29,7 +29,7 @@ class Server implements ServerInterface
      * @param string $host
      * @param int $port
      */
-    public function __construct($host, $port)
+    public function __construct($host, $port = 80)
     {
         $this->host = $host;
         $this->port = $port;
