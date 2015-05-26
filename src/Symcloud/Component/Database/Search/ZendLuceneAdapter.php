@@ -94,7 +94,7 @@ class ZendLuceneAdapter implements SearchAdapterInterface
     private function appendToDocument(Lucene\Document $document, $name, $value)
     {
         if (is_string($value)) {
-            $document->addField(Lucene\Document\Field::keyword($name, $value));
+            $document->addField(Lucene\Document\Field::keyword($name, utf8_decode($value)));
         } elseif ($value instanceof \DateTime) {
             $document->addField(Lucene\Document\Field::keyword($name, $value->getTimestamp()));
         } elseif (is_array($value)) {

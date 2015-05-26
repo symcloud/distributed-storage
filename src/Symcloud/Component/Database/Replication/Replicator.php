@@ -205,7 +205,7 @@ class Replicator implements ReplicatorInterface
     {
         $classMetadata = $this->metadataManager->loadByClassname($data['class']);
         $this->storageAdapter->store($hash, $data, $classMetadata->getContext());
-        $this->searchAdapter->indexObject($hash, $data, $classMetadata);
+        $this->searchAdapter->indexObject($hash, $data['data'], $classMetadata);
 
         return $data;
     }
