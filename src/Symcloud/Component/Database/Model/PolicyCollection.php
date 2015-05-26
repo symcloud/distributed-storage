@@ -79,8 +79,11 @@ class PolicyCollection implements PolicyCollectionInterface
     public function serialize()
     {
         $policies = array();
-        foreach ($this->getAll() as $name => $policy) {
-            $policies[$name] = serialize($policy);
+        $all = $this->getAll();
+        if (is_array($all)) {
+            foreach ($this->getAll() as $name => $policy) {
+                $policies[$name] = serialize($policy);
+            }
         }
 
         return serialize(array('policies' => $policies));
