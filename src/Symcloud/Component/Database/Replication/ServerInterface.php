@@ -22,4 +22,11 @@ interface ServerInterface extends \Serializable
      * @return int
      */
     public function getPort();
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public function getUrl($path);
 }

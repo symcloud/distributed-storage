@@ -16,7 +16,7 @@ class PolicyCollection implements PolicyCollectionInterface
     /**
      * @var PolicyInterface[]
      */
-    private $policies;
+    private $policies = array();
 
     /**
      * PolicyCollection constructor.

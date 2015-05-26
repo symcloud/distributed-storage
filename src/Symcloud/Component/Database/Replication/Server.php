@@ -70,6 +70,19 @@ class Server implements ServerInterface
     /**
      * {@inheritdoc}
      */
+    public function getUrl($path)
+    {
+        return sprintf(
+            '%s:%s/%s?%s',
+            $this->getHost(),
+            $this->getPort(),
+            ltrim($path, '/')
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function serialize()
     {
         return serialize(

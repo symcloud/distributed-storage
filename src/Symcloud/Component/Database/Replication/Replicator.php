@@ -18,6 +18,7 @@ use Symcloud\Component\Database\Metadata\MetadataManagerInterface;
 use Symcloud\Component\Database\Model\DistributedModelInterface;
 use Symcloud\Component\Database\Model\PolicyCollectionInterface;
 use Symcloud\Component\Database\Replication\Exception\NotPrimaryServerException;
+use Symcloud\Component\Database\Replication\Exception\ObjectNotFoundException;
 use Symcloud\Component\Database\Search\SearchAdapterInterface;
 use Symcloud\Component\Database\Storage\StorageAdapterInterface;
 
@@ -188,7 +189,6 @@ class Replicator implements ReplicatorInterface
                 return $this->api->fetch($hash, $class, $server);
             } catch (ClientException $ex) {
                 // TODO check for right exception
-                $x = 0;
             }
         }
 
@@ -204,11 +204,18 @@ class Replicator implements ReplicatorInterface
         $classMetadata = $this->metadataManager->loadByClassname($data['class']);
         $this->storageAdapter->store($hash, $data, $classMetadata->getContext());
         $this->searchAdapter->indexObject($hash, $data, $classMetadata);
+
+        return $data;
     }
 
     public function fetch($hash, $class, $username)
     {
         $classMetadata = $this->metadataManager->loadByClassname($class);
+
+        if (!$this->storageAdapter->contains($hash, $class)) {
+            throw new ObjectNotFoundException($hash);
+        }
+
         $data = $this->storageAdapter->fetch($hash, $classMetadata->getContext());
 
         if (array_key_exists('type', $data) && $data['type'] === 'backup') {
