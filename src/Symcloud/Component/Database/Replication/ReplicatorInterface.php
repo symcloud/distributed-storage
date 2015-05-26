@@ -18,4 +18,10 @@ interface ReplicatorInterface
     const TYPE_NONE = 0;
     const TYPE_FULL = 1;
     const TYPE_SECURITY = 2;
+
+    public function addServer($host, $port = 80);
+
+    public function store($hash, $data);
+
+    public function fetch($hash, $class, $username);
 }

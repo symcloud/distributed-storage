@@ -27,7 +27,12 @@ class Serializer
         $result = array();
 
         foreach ($fields as $field) {
-            $result[$field->getName()] = $field->getValue($model);
+            $value = $field->getValue($model);
+            if (is_string($value)) {
+                $value = utf8_encode($value);
+            }
+
+            $result[$field->getName()] = $value;
         }
 
         return $result;
@@ -44,7 +49,12 @@ class Serializer
     public function deserialize(ModelInterface $model, $data, $fields, DatabaseInterface $database)
     {
         foreach ($fields as $field) {
-            $field->setValue($model, $data[$field->getName()], $database);
+            $value = $data[$field->getName()];
+            if (is_string($value)) {
+                $value = utf8_decode($value);
+            }
+
+            $field->setValue($model, $value, $database);
         }
 
         return $model;

@@ -69,7 +69,6 @@ class Replicator implements ReplicatorInterface
      * @param SearchAdapterInterface $searchAdapter
      * @param MetadataManagerInterface $metadataManager
      * @param ServerInterface $primaryServer
-     * @param ServerInterface[] $servers
      * @param array $options
      */
     public function __construct(
@@ -78,7 +77,6 @@ class Replicator implements ReplicatorInterface
         SearchAdapterInterface $searchAdapter,
         MetadataManagerInterface $metadataManager,
         ServerInterface $primaryServer,
-        array $servers,
         array $options = array()
     ) {
         $this->api = $api;
@@ -86,7 +84,6 @@ class Replicator implements ReplicatorInterface
         $this->searchAdapter = $searchAdapter;
         $this->metadataManager = $metadataManager;
         $this->primaryServer = $primaryServer;
-        $this->servers = $servers;
 
         $this->setOptions($options);
     }
@@ -97,6 +94,11 @@ class Replicator implements ReplicatorInterface
             array('n' => 2),
             $options
         );
+    }
+
+    public function addServer($host, $port = 80)
+    {
+        $this->servers[] = new Server($host, $port);
     }
 
     public function onStore(DatabaseStoreEvent $event)

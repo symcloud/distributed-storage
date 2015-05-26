@@ -16,6 +16,7 @@ use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\Blob;
 use Symcloud\Component\Database\Model\BlobInterface;
 use Symcloud\Component\Database\Model\PolicyCollection;
+use Symcloud\Component\Database\Replication\ReplicatorInterface;
 
 class BlobManager implements BlobManagerInterface
 {
@@ -58,7 +59,7 @@ class BlobManager implements BlobManagerInterface
             return $blob;
         }
 
-        return $this->database->store($blob);
+        return $this->database->store($blob, array(ReplicatorInterface::OPTION_NAME => ReplicatorInterface::TYPE_FULL));
     }
 
     /**

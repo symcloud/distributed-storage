@@ -109,7 +109,7 @@ class Database implements DatabaseInterface
         }
 
         $this->accessor->setValue($model, 'hash', $hash);
-        $isNew = $this->contains($hash, $model->getClass());
+        $isNew = !$this->contains($hash, $model->getClass());
 
         // dispatch event
         $event = new DatabaseStoreEvent($model, $data, $isNew,  $metadata, $options);

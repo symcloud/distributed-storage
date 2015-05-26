@@ -72,8 +72,9 @@ class Server implements ServerInterface
      */
     public function getUrl($path)
     {
+        // TODO scheme
         return sprintf(
-            '%s:%s/%s?%s',
+            'http://%s:%s/%s',
             $this->getHost(),
             $this->getPort(),
             ltrim($path, '/')
