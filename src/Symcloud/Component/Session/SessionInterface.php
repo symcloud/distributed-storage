@@ -37,16 +37,9 @@ interface SessionInterface
      * @param string $filePath
      * @param CommitInterface $commit
      *
-     * @return BlobFileInterface
+     * @return TreeFileInterface
      */
     public function download($filePath, CommitInterface $commit = null);
-
-    /**
-     * @param string $hash
-     *
-     * @return BlobFileInterface
-     */
-    public function downloadByHash($hash);
 
     /**
      * @param CommitInterface $commit
@@ -57,11 +50,11 @@ interface SessionInterface
 
     /**
      * @param string $filePath
-     * @param string $fileHash
+     * @param BlobFileInterface $blobFile
      *
      * @return TreeFileInterface
      */
-    public function createOrUpdateFile($filePath, $fileHash);
+    public function createOrUpdateFile($filePath, BlobFileInterface $blobFile);
 
     /**
      * @param string $filePath

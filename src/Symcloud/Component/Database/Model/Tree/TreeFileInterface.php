@@ -12,6 +12,7 @@
 namespace Symcloud\Component\Database\Model\Tree;
 
 use Symcloud\Component\Database\Model\BlobFileInterface;
+use Symcloud\Component\Database\Model\BlobInterface;
 
 interface TreeFileInterface extends TreeNodeInterface
 {
@@ -21,14 +22,14 @@ interface TreeFileInterface extends TreeNodeInterface
     public function getFileHash();
 
     /**
-     * @return BlobFileInterface
-     */
-    public function getFile();
-
-    /**
      * @param BlobFileInterface $file
      */
     public function setFile(BlobFileInterface $file);
+
+    /**
+     * @return BlobInterface[]
+     */
+    public function getBlobs();
 
     /**
      * @return int

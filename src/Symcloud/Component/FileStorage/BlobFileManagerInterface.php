@@ -23,18 +23,4 @@ interface BlobFileManagerInterface
      * @return BlobFileInterface
      */
     public function upload($filePath, $mimeType, $size);
-
-    /**
-     * @param string $fileHash
-     *
-     * @return BlobFileInterface
-     */
-    public function download($fileHash);
-
-    /**
-     * @param string $hash
-     *
-     * @return BlobFileInterface
-     */
-    public function downloadProxy($hash);
 }

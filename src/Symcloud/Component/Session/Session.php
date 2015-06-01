@@ -11,6 +11,7 @@
 
 namespace Symcloud\Component\Session;
 
+use Symcloud\Component\Database\Model\BlobFileInterface;
 use Symcloud\Component\Database\Model\Commit\CommitInterface;
 use Symcloud\Component\Database\Model\Reference\ReferenceInterface;
 use Symcloud\Component\Database\Model\Tree\TreeFileInterface;
@@ -126,17 +127,9 @@ class Session implements SessionInterface
      */
     public function download($filePath, CommitInterface $commit = null)
     {
-        $node = $this->getFile($filePath, $commit);
+        // TODO return stream
 
-        return $node->getFile();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function downloadByHash($hash)
-    {
-        return $this->blobFileManager->download($hash);
+        return $this->getFile($filePath, $commit);
     }
 
     /**
@@ -177,7 +170,7 @@ class Session implements SessionInterface
     /**
      * {@inheritdoc}
      */
-    public function createOrUpdateFile($filePath, $fileHash)
+    public function createOrUpdateFile($filePath, BlobFileInterface $blobFile)
     {
         $treeWalker = $this->getTreeWalker(true);
 
@@ -197,7 +190,7 @@ class Session implements SessionInterface
             return $this->treeManager->createTreeFile(
                 $fileName,
                 $parentTree,
-                $this->blobFileManager->downloadProxy($fileHash)
+                $blobFile
             );
         }
 
@@ -205,12 +198,12 @@ class Session implements SessionInterface
             throw new NotAFileException($filePath);
         }
 
-        if ($child->getFileHash() === $fileHash) {
+        if ($child->getFileHash() === $blobFile->getHash()) {
             return $child;
         }
 
         $child->increaseVersion();
-        $child->setFile($this->blobFileManager->downloadProxy($fileHash));
+        $child->setFile($blobFile);
 
         return $child;
     }

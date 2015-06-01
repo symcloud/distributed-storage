@@ -11,8 +11,10 @@
 
 namespace Symcloud\Component\Database\Model;
 
-class BlobFile extends DistributedModel implements BlobFileInterface
+class BlobFile implements BlobFileInterface
 {
+    private $hash;
+
     /**
      * @var int
      */
@@ -29,9 +31,20 @@ class BlobFile extends DistributedModel implements BlobFileInterface
     private $blobs;
 
     /**
-     * @var string
+     * @return mixed
      */
-    private $fileHash;
+    public function getHash()
+    {
+        return $this->hash;
+    }
+
+    /**
+     * @param mixed $hash
+     */
+    public function setHash($hash)
+    {
+        $this->hash = $hash;
+    }
 
     /**
      * @return int
@@ -82,22 +95,6 @@ class BlobFile extends DistributedModel implements BlobFileInterface
     }
 
     /**
-     * @return string
-     */
-    public function getFileHash()
-    {
-        return $this->fileHash;
-    }
-
-    /**
-     * @param string $fileHash
-     */
-    public function setFileHash($fileHash)
-    {
-        $this->fileHash = $fileHash;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function getContent($length = -1, $offset = 0)
@@ -112,13 +109,5 @@ class BlobFile extends DistributedModel implements BlobFileInterface
         }
 
         return $content;
-    }
-
-    /**
-     * @return string
-     */
-    public function getClass()
-    {
-        return self::class;
     }
 }

@@ -12,14 +12,10 @@
 namespace Symcloud\Component\Database\Model\Tree;
 
 use Symcloud\Component\Database\Model\BlobFileInterface;
+use Symcloud\Component\Database\Model\BlobInterface;
 
 class TreeFile extends TreeNode implements TreeFileInterface
 {
-    /**
-     * @var BlobFileInterface
-     */
-    private $file;
-
     /**
      * @var array
      */
@@ -46,12 +42,9 @@ class TreeFile extends TreeNode implements TreeFileInterface
     private $mimetype;
 
     /**
-     * {@inheritdoc}
+     * @var BlobInterface[]
      */
-    public function getFile()
-    {
-        return $this->file;
-    }
+    private $blobs;
 
     /**
      * {@inheritdoc}
@@ -70,7 +63,7 @@ class TreeFile extends TreeNode implements TreeFileInterface
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function getMimetype()
     {
@@ -80,12 +73,20 @@ class TreeFile extends TreeNode implements TreeFileInterface
     /**
      * {@inheritdoc}
      */
+    public function getBlobs()
+    {
+        return $this->blobs;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setFile(BlobFileInterface $file)
     {
-        $this->file = $file;
-        $this->fileHash = $file->getFileHash();
+        $this->fileHash = $file->getHash();
         $this->mimetype = $file->getMimetype();
         $this->size = $file->getSize();
+        $this->blobs = $file->getBlobs();
     }
 
     /**
@@ -134,7 +135,16 @@ class TreeFile extends TreeNode implements TreeFileInterface
 
     public function getContent($length = -1, $offset = 0)
     {
-        return $this->file->getContent($length, $offset);
+        if ($length !== -1 || $offset !== 0) {
+            throw new \Exception('Not implemented');
+        }
+
+        $content = '';
+        foreach ($this->getBlobs() as $blob) {
+            $content .= $blob->getData();
+        }
+
+        return $content;
     }
 
     /**

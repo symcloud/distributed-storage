@@ -44,8 +44,7 @@ trait BlobFileManagerTrait
             $this->blobFileManager = new BlobFileManager(
                 $this->getFileSplitter(),
                 $this->getBlobManager(),
-                $this->getFactory(),
-                $this->getDatabase()
+                $this->getFactory()
             );
         }
 

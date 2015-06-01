@@ -12,8 +12,8 @@
 namespace Symcloud\Component\Database\Metadata\ClassMetadata;
 
 use Symcloud\Component\Database\Metadata\Field\AccessorField;
-use Symcloud\Component\Database\Metadata\Field\ReferenceField;
-use Symcloud\Component\Database\Model\BlobFile;
+use Symcloud\Component\Database\Metadata\Field\ReferenceArrayField;
+use Symcloud\Component\Database\Model\Blob;
 
 class TreeFileClassMetadata extends TreeNodeClassMetadata
 {
@@ -24,14 +24,14 @@ class TreeFileClassMetadata extends TreeNodeClassMetadata
     {
         parent::__construct(
             array(
-                new ReferenceField('file', BlobFile::class),
-                new AccessorField('version'),
-                new AccessorField('metadata'),
+                new ReferenceArrayField('blobs', Blob::class),
             ),
             array(
-                new ReferenceField('file', BlobFile::class),
-                new AccessorField('version'),
                 new AccessorField('metadata'),
+                new AccessorField('version'),
+                new AccessorField('fileHash'),
+                new AccessorField('size'),
+                new AccessorField('mimetype'),
             )
         );
     }
