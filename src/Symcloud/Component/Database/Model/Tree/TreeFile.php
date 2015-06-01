@@ -90,6 +90,14 @@ class TreeFile extends TreeNode implements TreeFileInterface
     }
 
     /**
+     * @param BlobInterface[] $blobs
+     */
+    public function setBlobs($blobs)
+    {
+        $this->blobs = $blobs;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function hasMetadata($name)
