@@ -11,11 +11,9 @@
 
 namespace Symcloud\Component\MetadataStorage\Tree;
 
-use Symcloud\Component\FileStorage\Model\BlobFileInterface;
-use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeReferenceInterface;
+use Symcloud\Component\Database\Model\BlobFileInterface;
+use Symcloud\Component\Database\Model\Tree\TreeFileInterface;
+use Symcloud\Component\Database\Model\Tree\TreeInterface;
 
 interface TreeManagerInterface
 {
@@ -41,15 +39,6 @@ interface TreeManagerInterface
      * @return TreeFileInterface mixed
      */
     public function createTreeFile($name, TreeInterface $parent, BlobFileInterface $blobFile, $metadata = array());
-
-    /**
-     * @param string $name
-     * @param TreeInterface $parent
-     * @param ReferenceInterface $reference
-     *
-     * @return TreeReferenceInterface
-     */
-    public function createTreeReference($name, TreeInterface $parent, ReferenceInterface $reference);
 
     /**
      * @param TreeInterface $tree

@@ -11,8 +11,8 @@
 
 namespace Symcloud\Component\MetadataStorage\Commit;
 
-use Symcloud\Component\MetadataStorage\Model\CommitInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeInterface;
+use Symcloud\Component\Database\Model\Commit\CommitInterface;
+use Symcloud\Component\Database\Model\Tree\TreeInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 interface CommitManagerInterface

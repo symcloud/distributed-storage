@@ -11,7 +11,8 @@
 
 namespace Symcloud\Component\FileStorage;
 
-use Symcloud\Component\FileStorage\Model\BlobFileInterface;
+use Symcloud\Component\Database\Model\BlobFileInterface;
+use Symcloud\Component\Database\Model\BlobInterface;
 
 interface BlobFileManagerInterface
 {
@@ -25,16 +26,12 @@ interface BlobFileManagerInterface
     public function upload($filePath, $mimeType, $size);
 
     /**
-     * @param string $fileHash
-     *
-     * @return BlobFileInterface
-     */
-    public function download($fileHash);
-
-    /**
      * @param string $hash
+     * @param BlobInterface[] $blobs
+     * @param string $mimetype
+     * @param int $size
      *
      * @return BlobFileInterface
      */
-    public function downloadProxy($hash);
+    public function download($hash, array $blobs, $mimetype, $size);
 }

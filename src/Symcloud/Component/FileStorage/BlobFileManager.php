@@ -12,9 +12,9 @@
 namespace Symcloud\Component\FileStorage;
 
 use Symcloud\Component\BlobStorage\BlobManagerInterface;
-use Symcloud\Component\BlobStorage\Model\BlobInterface;
 use Symcloud\Component\Common\FactoryInterface;
-use Symcloud\Component\FileStorage\Model\BlobFileInterface;
+use Symcloud\Component\Database\Model\BlobFile;
+use Symcloud\Component\Database\Model\BlobInterface;
 
 class BlobFileManager implements BlobFileManagerInterface
 {
@@ -34,28 +34,20 @@ class BlobFileManager implements BlobFileManagerInterface
     private $factory;
 
     /**
-     * @var BlobFileAdapterInterface
-     */
-    private $adapter;
-
-    /**
      * BlobFileManager constructor.
      *
      * @param FileSplitterInterface         $fileSplitter
      * @param BlobManagerInterface          $blobManager
      * @param FactoryInterface              $factory
-     * @param BlobFileAdapterInterface      $adapter
      */
     public function __construct(
         FileSplitterInterface $fileSplitter,
         BlobManagerInterface $blobManager,
-        FactoryInterface $factory,
-        BlobFileAdapterInterface $adapter
+        FactoryInterface $factory
     ) {
         $this->fileSplitter = $fileSplitter;
         $this->blobManager = $blobManager;
         $this->factory = $factory;
-        $this->adapter = $adapter;
     }
 
     /**
@@ -65,27 +57,23 @@ class BlobFileManager implements BlobFileManagerInterface
     {
         $fileHash = $this->factory->createFileHash($filePath);
 
-        if ($this->adapter->fileExists($fileHash)) {
-            return $this->download($fileHash);
-        }
-
         $blobs = array();
-        $blobKeys = array();
-
         $this->fileSplitter->split(
             $filePath,
-            function ($index, $data) use (&$blobs, &$blobKeys) {
+            function ($index, $data) use (&$blobs) {
                 $blob = $this->uploadChunk($data);
-                $blobs[$index] = $this->getBlobProxy($blob->getHash());
-                $blobKeys[$index] = $blob->getHash();
+                $blobs[$index] = $this->blobManager->downloadProxy($blob->getHash());
 
                 // unset blob to save memory
                 unset($blob);
             }
         );
 
-        $file = $this->factory->createBlobFile($fileHash, $blobs, $mimeType, $size);
-        $this->adapter->storeFile($file->getHash(), $file->toArray());
+        $file = new BlobFile();
+        $file->setHash($fileHash);
+        $file->setSize($size);
+        $file->setMimetype($mimeType);
+        $file->setBlobs($blobs);
 
         return $file;
     }
@@ -93,46 +81,20 @@ class BlobFileManager implements BlobFileManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function download($fileHash)
+    public function download($hash, array $blobs, $mimetype, $size)
     {
-        $data = $this->adapter->fetchFile($fileHash);
-        $mimeType = $data[BlobFileInterface::MIME_TYPE_KEY];
-        $size = $data[BlobFileInterface::SIZE_KEY];
+        $file = new BlobFile();
+        $file->setHash($hash);
+        $file->setMimetype($mimetype);
+        $file->setSize($size);
 
-        $blobs = array();
-        foreach ($data[BlobFileInterface::BLOBS_KEY] as $key) {
-            $blobs[] = $this->getBlobProxy($key);
+        $result = array();
+        foreach ($blobs as $blobHash) {
+            $result[] = $this->blobManager->downloadProxy($blobHash);
         }
+        $file->setBlobs($result);
 
-        return $this->factory->createBlobFile($fileHash, $blobs, $mimeType, $size);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function downloadProxy($hash)
-    {
-        return $this->factory->createProxy(
-            BlobFileInterface::class,
-            function () use ($hash) {
-                return $this->download($hash);
-            }
-        );
-    }
-
-    /**
-     * @param $hash
-     *
-     * @return mixed
-     */
-    private function getBlobProxy($hash)
-    {
-        return $this->factory->createProxy(
-            BlobInterface::class,
-            function () use ($hash) {
-                return $this->blobManager->downloadBlob($hash);
-            }
-        );
+        return $file;
     }
 
     /**
@@ -142,6 +104,6 @@ class BlobFileManager implements BlobFileManagerInterface
      */
     private function uploadChunk($data)
     {
-        return $this->blobManager->uploadBlob($data);
+        return $this->blobManager->upload($data);
     }
 }

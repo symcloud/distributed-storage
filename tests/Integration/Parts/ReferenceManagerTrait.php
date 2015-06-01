@@ -18,7 +18,7 @@ trait ReferenceManagerTrait
     {
         if (!$this->referenceManager) {
             $this->referenceManager = new ReferenceManager(
-                $this->getReferenceAdapter(),
+                $this->getDatabase(),
                 $this->getCommitManager(),
                 $this->getUserProvider(),
                 $this->getFactory()
@@ -26,10 +26,5 @@ trait ReferenceManagerTrait
         }
 
         return $this->referenceManager;
-    }
-
-    protected function getReferenceAdapter()
-    {
-        return $this->getSerializeAdapter();
     }
 }

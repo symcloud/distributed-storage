@@ -11,14 +11,12 @@
 
 namespace Symcloud\Component\Session;
 
-use Symcloud\Component\FileStorage\Model\BlobFileInterface;
-use Symcloud\Component\MetadataStorage\Model\CommitInterface;
-use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeReferenceInterface;
+use Symcloud\Component\Database\Model\BlobFileInterface;
+use Symcloud\Component\Database\Model\BlobInterface;
+use Symcloud\Component\Database\Model\Commit\CommitInterface;
+use Symcloud\Component\Database\Model\Tree\TreeFileInterface;
+use Symcloud\Component\Database\Model\Tree\TreeInterface;
 use Symcloud\Component\Session\Exception\NotAFileException;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 interface SessionInterface
 {
@@ -29,6 +27,8 @@ interface SessionInterface
 
     /**
      * @param string $fileName
+     * @param $mimeType
+     * @param $size
      *
      * @return BlobFileInterface
      */
@@ -38,16 +38,9 @@ interface SessionInterface
      * @param string $filePath
      * @param CommitInterface $commit
      *
-     * @return BlobFileInterface
+     * @return TreeFileInterface
      */
     public function download($filePath, CommitInterface $commit = null);
-
-    /**
-     * @param string $hash
-     *
-     * @return BlobFileInterface
-     */
-    public function downloadByHash($hash);
 
     /**
      * @param CommitInterface $commit
@@ -58,11 +51,11 @@ interface SessionInterface
 
     /**
      * @param string $filePath
-     * @param string $fileHash
+     * @param BlobFileInterface $blobFile
      *
      * @return TreeFileInterface
      */
-    public function createOrUpdateFile($filePath, $fileHash);
+    public function createOrUpdateFile($filePath, BlobFileInterface $blobFile);
 
     /**
      * @param string $filePath
@@ -70,23 +63,6 @@ interface SessionInterface
      * @throws NotAFileException
      */
     public function deleteFile($filePath);
-
-    /**
-     * @param string $path
-     * @param UserInterface $user
-     * @param string $referenceName
-     *
-     * @return TreeReferenceInterface
-     */
-    public function mount($path, UserInterface $user, $referenceName);
-
-    /**
-     * @param string $path
-     * @param string $referenceName
-     *
-     * @return ReferenceInterface
-     */
-    public function split($path, $referenceName);
 
     /**
      * @param string $filePath
@@ -115,4 +91,14 @@ interface SessionInterface
      * @return CommitInterface
      */
     public function getCurrentCommit();
+
+    /**
+     * @param string $hash
+     * @param BlobInterface[] $blobs
+     * @param string $mimetype
+     * @param int $size
+     *
+     * @return BlobFileInterface
+     */
+    public function createBlobFile($hash, array $blobs, $mimetype, $size);
 }

@@ -11,19 +11,18 @@
 
 namespace Symcloud\Component\Session;
 
+use Symcloud\Component\Database\Model\BlobFileInterface;
+use Symcloud\Component\Database\Model\Commit\CommitInterface;
+use Symcloud\Component\Database\Model\Reference\ReferenceInterface;
+use Symcloud\Component\Database\Model\Tree\TreeFileInterface;
+use Symcloud\Component\Database\Model\Tree\TreeInterface;
 use Symcloud\Component\FileStorage\BlobFileManagerInterface;
 use Symcloud\Component\MetadataStorage\Commit\CommitManagerInterface;
-use Symcloud\Component\MetadataStorage\Model\CommitInterface;
-use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeFileInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeReferenceInterface;
 use Symcloud\Component\MetadataStorage\Reference\ReferenceManagerInterface;
 use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
 use Symcloud\Component\Session\Exception\DirectoryNotExistsException;
 use Symcloud\Component\Session\Exception\FileNotExistsException;
 use Symcloud\Component\Session\Exception\NotAFileException;
-use Symcloud\Component\Session\Exception\NotAReferenceException;
 use Symcloud\Component\Session\Exception\NotATreeException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -108,7 +107,7 @@ class Session implements SessionInterface
         $root = $this->treeManager->createRootTree();
         $this->treeManager->store($root);
         $this->referenceCommit = $this->commitManager->commit($root, $this->user, 'init');
-        $this->reference = $this->referenceManager->create($this->user, $this->referenceCommit, $this->referenceName);
+        $this->reference = $this->referenceManager->create($this->referenceName, $this->user, $this->referenceCommit);
 
         return $root;
     }
@@ -128,17 +127,9 @@ class Session implements SessionInterface
      */
     public function download($filePath, CommitInterface $commit = null)
     {
-        $node = $this->getFile($filePath, $commit);
+        // TODO return stream
 
-        return $node->getFile();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function downloadByHash($hash)
-    {
-        return $this->blobFileManager->download($hash);
+        return $this->getFile($filePath, $commit);
     }
 
     /**
@@ -151,7 +142,7 @@ class Session implements SessionInterface
         }
 
         if (!$this->reference) {
-            $this->reference = $this->referenceManager->getForUser($this->user, $this->referenceName);
+            $this->reference = $this->referenceManager->fetch($this->referenceName);
             $this->referenceCommit = $this->reference->getCommit();
         }
 
@@ -179,21 +170,27 @@ class Session implements SessionInterface
     /**
      * {@inheritdoc}
      */
-    public function createOrUpdateFile($filePath, $fileHash)
+    public function createOrUpdateFile($filePath, BlobFileInterface $blobFile)
     {
         $treeWalker = $this->getTreeWalker(true);
 
         $parentPath = dirname($filePath);
         $fileName = basename($filePath);
-        if (!($parentTree = $treeWalker->walk($parentPath))) {
+        $parentTree = $treeWalker->walk($parentPath);
+
+        if (!$parentTree) {
             $parentTree = $this->createRecursive($parentPath);
+        }
+
+        if (!($parentTree instanceof TreeInterface)) {
+            throw new NotATreeException($parentPath);
         }
 
         if (!($child = $parentTree->getChild($fileName))) {
             return $this->treeManager->createTreeFile(
                 $fileName,
                 $parentTree,
-                $this->blobFileManager->downloadProxy($fileHash)
+                $blobFile
             );
         }
 
@@ -201,12 +198,12 @@ class Session implements SessionInterface
             throw new NotAFileException($filePath);
         }
 
-        if ($child->getFileHash() === $fileHash) {
+        if ($child->getFileHash() === $blobFile->getHash()) {
             return $child;
         }
 
         $child->increaseVersion();
-        $child->setFile($this->blobFileManager->downloadProxy($fileHash));
+        $child->setFile($blobFile);
 
         return $child;
     }
@@ -226,71 +223,6 @@ class Session implements SessionInterface
         }
 
         $parentTree->removeChild($fileName);
-    }
-
-    /**
-     * {@inheritdoc.
-     */
-    public function mount($path, UserInterface $user, $referenceName)
-    {
-        $treeWalker = $this->getTreeWalker(true);
-
-        $parentPath = dirname($path);
-        $name = basename($path);
-        if (!($parentTree = $treeWalker->walk($parentPath))) {
-            $parentTree = $this->createRecursive($parentPath);
-        }
-
-        $child = $parentTree->getChild($name);
-
-        if (!$child) {
-            return $this->treeManager->createTreeReference(
-                $name,
-                $parentTree,
-                $this->referenceManager->getForUser($user, $referenceName)
-            );
-        }
-
-        if (!($child instanceof TreeReferenceInterface)) {
-            throw new NotAReferenceException($path);
-        }
-
-        $child->setReferenceName($referenceName);
-        $child->setUser($user);
-
-        return $child;
-    }
-
-    /**
-     * {@inheritdoc.
-     */
-    public function split($path, $referenceName)
-    {
-        $treeWalker = $this->getTreeWalker(true);
-
-        $parentPath = dirname($path);
-        $name = basename($path);
-        $tree = $treeWalker->walk($path);
-        $parentTree = $treeWalker->walk($parentPath);
-
-        if (!$tree || !($tree instanceof TreeInterface) || !($parentTree instanceof TreeInterface)) {
-            throw new NotATreeException($path);
-        }
-
-        $parentTree->removeChild($name);
-
-        $message = sprintf(
-            'split path "%s" from user "%s" and reference "%s"',
-            $path,
-            $this->user->getUsername(),
-            $this->referenceName
-        );
-        $commit = $this->commitManager->commit($tree, $this->user, $message);
-        $reference = $this->referenceManager->create($this->user, $commit, $referenceName);
-
-        $this->treeManager->createTreeReference($name, $parentTree, $reference);
-
-        return $this->referenceManager->getForUser($this->user, $referenceName);
     }
 
     /**
@@ -321,13 +253,13 @@ class Session implements SessionInterface
             $treeWalker = $this->treeManager->getTreeWalker($commit->getTree());
         }
 
-        $node = $treeWalker->walk($filePath, $this->referenceManager);
+        $node = $treeWalker->walk($filePath);
 
         if ($node === null) {
             throw new FileNotExistsException($filePath);
         }
 
-        if (!$node->isFile()) {
+        if (!$node->getIsFile()) {
             throw new NotAFileException($filePath);
         }
 
@@ -345,13 +277,13 @@ class Session implements SessionInterface
             $treeWalker = $this->treeManager->getTreeWalker($commit->getTree());
         }
 
-        $node = $treeWalker->walk($path, $this->referenceManager);
+        $node = $treeWalker->walk($path);
 
         if ($node === null) {
             throw new DirectoryNotExistsException($path);
         }
 
-        if ($node->isFile()) {
+        if ($node->getIsFile()) {
             throw new NotATreeException($path);
         }
 
@@ -373,7 +305,7 @@ class Session implements SessionInterface
         );
 
         if (!$this->reference) {
-            $this->reference = $this->referenceManager->getForUser($this->user, $this->referenceName);
+            $this->reference = $this->referenceManager->fetch($this->referenceName);
         }
 
         $this->referenceManager->update($this->reference, $this->referenceCommit);
@@ -387,5 +319,13 @@ class Session implements SessionInterface
     public function getCurrentCommit()
     {
         return $this->referenceCommit;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createBlobFile($hash, array $blobs, $mimetype, $size)
+    {
+        return $this->blobFileManager->download($hash, $blobs, $mimetype, $size);
     }
 }

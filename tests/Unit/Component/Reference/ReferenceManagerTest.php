@@ -5,10 +5,13 @@ namespace Unit\Component\Reference;
 use Integration\Parts\FactoryTrait;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTestCase;
+use Symcloud\Component\Database\DatabaseInterface;
+use Symcloud\Component\Database\Model\Commit\Commit;
+use Symcloud\Component\Database\Model\Commit\CommitInterface;
+use Symcloud\Component\Database\Model\PolicyCollection;
+use Symcloud\Component\Database\Model\Reference\Reference;
+use Symcloud\Component\Database\Model\Reference\ReferenceInterface;
 use Symcloud\Component\MetadataStorage\Commit\CommitManagerInterface;
-use Symcloud\Component\MetadataStorage\Model\CommitInterface;
-use Symcloud\Component\MetadataStorage\Model\ReferenceInterface;
-use Symcloud\Component\MetadataStorage\Reference\ReferenceAdapterInterface;
 use Symcloud\Component\MetadataStorage\Reference\ReferenceManager;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -24,17 +27,11 @@ class ReferenceManagerTest extends ProphecyTestCase
         return $mock->reveal();
     }
 
-    public function testGetForUserReference()
+    public function testFetch()
     {
         $username = 'johannes';
         $commitHash = 'commit-hash';
         $referenceName = 'HEAD';
-        $referenceKey = sprintf('%s-%s', $username, $referenceName);
-        $data = array(
-            ReferenceInterface::USER_KEY => $username,
-            ReferenceInterface::COMMIT_KEY => $commitHash,
-            ReferenceInterface::NAME_KEY => $referenceName,
-        );
 
         $factory = $this->getFactory();
 
@@ -44,66 +41,29 @@ class ReferenceManagerTest extends ProphecyTestCase
         $commit = $this->prophesize(CommitInterface::class);
         $commit->getHash()->willReturn($commitHash);
 
-        $referenceAdapter = $this->prophesize(ReferenceAdapterInterface::class);
-        $referenceAdapter->fetchReferenceData($user->reveal(), $referenceName)->willReturn($data);
+        $reference = new Reference();
+        $reference->setPolicyCollection(new PolicyCollection());
+        $reference->setUser($user->reveal());
+        $reference->setCommit($commit->reveal());
+        $reference->setName($referenceName);
+
+        $database = $this->prophesize(DatabaseInterface::class);
+        $database->fetch($referenceName, Reference::class)->willReturn($reference);
 
         $commitManager = $this->prophesize(CommitManagerInterface::class);
-        $commitManager->fetchProxy($commitHash)->willReturn($commit->reveal());
+        $commitManager->fetch($commitHash, Commit::class)->willReturn($commit->reveal());
 
         $manager = new ReferenceManager(
-            $referenceAdapter->reveal(),
+            $database->reveal(),
             $commitManager->reveal(),
             $this->getUserProvider(),
             $factory
         );
-        $reference = $manager->getForUser($user->reveal());
+        $reference = $manager->fetch($referenceName);
 
         $this->assertEquals($user->reveal(), $reference->getUser());
         $this->assertEquals($referenceName, $reference->getName());
-        $this->assertEquals($referenceKey, $reference->getKey());
         $this->assertEquals($commit->reveal(), $reference->getCommit());
-        $this->assertEquals($data, $reference->toArray());
-    }
-
-    public function testGetForUserReferenceWithName()
-    {
-        $username = 'johannes';
-        $commitHash = 'commit-hash';
-        $referenceName = 'HEAD-NEW';
-        $referenceKey = sprintf('%s-%s', $username, $referenceName);
-        $data = array(
-            ReferenceInterface::USER_KEY => $username,
-            ReferenceInterface::COMMIT_KEY => $commitHash,
-            ReferenceInterface::NAME_KEY => $referenceName,
-        );
-
-        $factory = $this->getFactory();
-
-        $user = $this->prophesize(UserInterface::class);
-        $user->getUsername()->willReturn($username);
-
-        $commit = $this->prophesize(CommitInterface::class);
-        $commit->getHash()->willReturn($commitHash);
-
-        $referenceAdapter = $this->prophesize(ReferenceAdapterInterface::class);
-        $referenceAdapter->fetchReferenceData($user->reveal(), $referenceName)->willReturn($data);
-
-        $commitManager = $this->prophesize(CommitManagerInterface::class);
-        $commitManager->fetchProxy($commitHash)->willReturn($commit->reveal());
-
-        $manager = new ReferenceManager(
-            $referenceAdapter->reveal(),
-            $commitManager->reveal(),
-            $this->getUserProvider(),
-            $factory
-        );
-        $reference = $manager->getForUser($user->reveal(), $referenceName);
-
-        $this->assertEquals($user->reveal(), $reference->getUser());
-        $this->assertEquals($referenceName, $reference->getName());
-        $this->assertEquals($referenceKey, $reference->getKey());
-        $this->assertEquals($commit->reveal(), $reference->getCommit());
-        $this->assertEquals($data, $reference->toArray());
     }
 
     public function testUpdateReference()
@@ -126,17 +86,19 @@ class ReferenceManagerTest extends ProphecyTestCase
         $reference = $this->prophesize(ReferenceInterface::class);
         $reference->update($commitNew->reveal())->shouldBeCalled();
 
-        $referenceAdapter = $this->prophesize(ReferenceAdapterInterface::class);
-        $referenceAdapter->storeReference($reference->reveal())->shouldBeCalled()->willReturn(true);
+        $database = $this->prophesize(DatabaseInterface::class);
+        $database->store($reference->reveal())->shouldBeCalled()->willReturn($reference->reveal());
         $commitManager = $this->prophesize(CommitManagerInterface::class);
 
         $manager = new ReferenceManager(
-            $referenceAdapter->reveal(),
+            $database->reveal(),
             $commitManager->reveal(),
             $this->getUserProvider(),
             $factory
         );
-        $this->assertTrue($manager->update($reference->reveal(), $commitNew->reveal()));
+        $result = $manager->update($reference->reveal(), $commitNew->reveal());
+
+        $this->assertEquals($reference->reveal(), $result);
     }
 
     public function testCreateReference()
@@ -144,12 +106,6 @@ class ReferenceManagerTest extends ProphecyTestCase
         $username = 'johannes';
         $commitHash = 'commit-hash';
         $referenceName = 'HEAD';
-        $referenceKey = sprintf('%s-%s', $username, $referenceName);
-        $data = array(
-            ReferenceInterface::USER_KEY => $username,
-            ReferenceInterface::COMMIT_KEY => $commitHash,
-            ReferenceInterface::NAME_KEY => $referenceName,
-        );
 
         $factory = $this->getFactory();
 
@@ -159,30 +115,20 @@ class ReferenceManagerTest extends ProphecyTestCase
         $commit = $this->prophesize(CommitInterface::class);
         $commit->getHash()->willReturn($commitHash);
 
-        $assertEquals = array($this, 'assertEquals');
-
-        $referenceAdapter = $this->prophesize(ReferenceAdapterInterface::class);
-        $referenceAdapter->storeReference(Argument::type(ReferenceInterface::class))->shouldBeCalled()->will(
-            function ($args) use ($assertEquals, $data, $referenceKey) {
-                call_user_func_array($assertEquals, array($referenceKey, $args[0]->getKey()));
-                call_user_func_array($assertEquals, array($data, $args[0]->toArray()));
-            }
-        );
+        $database = $this->prophesize(DatabaseInterface::class);
         $commitManager = $this->prophesize(CommitManagerInterface::class);
 
         $manager = new ReferenceManager(
-            $referenceAdapter->reveal(),
+            $database->reveal(),
             $commitManager->reveal(),
             $this->getUserProvider(),
             $factory
         );
-        $reference = $manager->create($user->reveal(), $commit->reveal());
+        $reference = $manager->create($referenceName, $user->reveal(), $commit->reveal());
 
         $this->assertEquals($user->reveal(), $reference->getUser());
         $this->assertEquals($referenceName, $reference->getName());
-        $this->assertEquals($referenceKey, $reference->getKey());
         $this->assertEquals($commit->reveal(), $reference->getCommit());
-        $this->assertEquals($data, $reference->toArray());
     }
 
     public function testCreateReferenceWithName()
@@ -190,12 +136,6 @@ class ReferenceManagerTest extends ProphecyTestCase
         $username = 'johannes';
         $commitHash = 'commit-hash';
         $referenceName = 'NEW-HEAD';
-        $referenceKey = sprintf('%s-%s', $username, $referenceName);
-        $data = array(
-            ReferenceInterface::USER_KEY => $username,
-            ReferenceInterface::COMMIT_KEY => $commitHash,
-            ReferenceInterface::NAME_KEY => $referenceName,
-        );
 
         $factory = $this->getFactory();
 
@@ -205,29 +145,20 @@ class ReferenceManagerTest extends ProphecyTestCase
         $commit = $this->prophesize(CommitInterface::class);
         $commit->getHash()->willReturn($commitHash);
 
-        $assertEquals = array($this, 'assertEquals');
-
-        $referenceAdapter = $this->prophesize(ReferenceAdapterInterface::class);
-        $referenceAdapter->storeReference(Argument::type(ReferenceInterface::class))->shouldBeCalled()->will(
-            function ($args) use ($assertEquals, $data, $referenceKey) {
-                call_user_func_array($assertEquals, array($referenceKey, $args[0]->getKey()));
-                call_user_func_array($assertEquals, array($data, $args[0]->toArray()));
-            }
-        );
+        $database = $this->prophesize(DatabaseInterface::class);
         $commitManager = $this->prophesize(CommitManagerInterface::class);
 
         $manager = new ReferenceManager(
-            $referenceAdapter->reveal(),
+            $database->reveal(),
             $commitManager->reveal(),
             $this->getUserProvider(),
             $factory
         );
-        $reference = $manager->create($user->reveal(), $commit->reveal(), $referenceName);
+        $reference = $manager->create($referenceName, $user->reveal(), $commit->reveal());
 
+        $this->assertNotNull($reference);
         $this->assertEquals($user->reveal(), $reference->getUser());
         $this->assertEquals($referenceName, $reference->getName());
-        $this->assertEquals($referenceKey, $reference->getKey());
         $this->assertEquals($commit->reveal(), $reference->getCommit());
-        $this->assertEquals($data, $reference->toArray());
     }
 }
