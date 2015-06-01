@@ -49,7 +49,7 @@ class Serializer
     public function deserialize(ModelInterface $model, $data, $fields, DatabaseInterface $database)
     {
         foreach ($fields as $field) {
-            $value = $data[$field->getName()];
+            $value = array_key_exists($field->getName(), $data) ? $data[$field->getName()] : null;
             if (is_string($value)) {
                 $value = utf8_decode($value);
             }
