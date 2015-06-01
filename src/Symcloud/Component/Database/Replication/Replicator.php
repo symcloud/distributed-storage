@@ -178,7 +178,7 @@ class Replicator implements ReplicatorInterface
             // if it is not on the server search for it (go through list of servers)
             // TODO cache response
             $data = $this->fetchRemote($event->getHash(), $event->getClass());
-            if(is_string($data)){
+            if (is_string($data)) {
                 $data = json_decode($data, true);
             }
             $event->setData($data);
@@ -217,7 +217,7 @@ class Replicator implements ReplicatorInterface
     {
         $classMetadata = $this->metadataManager->loadByClassname($class);
 
-        if (!$this->storageAdapter->contains($hash, $class)) {
+        if (!$this->storageAdapter->contains($hash, $classMetadata->getContext())) {
             throw new ObjectNotFoundException($hash);
         }
 
