@@ -13,6 +13,7 @@ use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\Database\DatabaseInterface;
 use Symcloud\Component\Database\Model\Blob;
 use Symcloud\Component\Database\Model\BlobInterface;
+use Symcloud\Component\Database\Replication\ReplicatorInterface;
 
 class BlobManagerTest extends ProphecyTestCase
 {
@@ -32,7 +33,11 @@ class BlobManagerTest extends ProphecyTestCase
 
         $database = $this->prophesize(DatabaseInterface::class);
 
-        $database->store(Argument::type(BlobInterface::class))->should(new CallPrediction())->willReturn($blob);
+        $database->store(
+            Argument::type(BlobInterface::class),
+            array(ReplicatorInterface::OPTION_NAME => ReplicatorInterface::TYPE_FULL)
+        )->shouldBeCalled()->willReturn($blob);
+
         $database->contains($hash, Blob::class)->should(new CallPrediction())->willReturn(false);
         $database->fetch($hash, Blob::class)->should(new NoCallsPrediction());
 

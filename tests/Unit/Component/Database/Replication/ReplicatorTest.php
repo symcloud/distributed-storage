@@ -43,9 +43,9 @@ class ReplicatorTest extends ProphecyTestCase
 
         $primaryServer = new Server('my.symcloud.lo');
         $servers = array(
-            new Server('your-1.symcloud.lo'),
-            new Server('your-2.symcloud.lo'),
-            new Server('your-3.symcloud.lo'),
+            'your-1.symcloud.lo',
+            'your-2.symcloud.lo',
+            'your-3.symcloud.lo',
         );
 
         $api = $this->prophesize(ApiInterface::class);
@@ -53,7 +53,7 @@ class ReplicatorTest extends ProphecyTestCase
         $api->store(
             $hash,
             Argument::that(
-                function ($argument) use ($model, $primaryServer, $servers) {
+                function ($argument) use ($model, $primaryServer) {
                     $this->assertEquals($argument['type'], 'backup');
                     $this->assertEquals($argument['class'], A::class);
                     $this->assertEquals($argument['data'], array('name' => $model->name));
@@ -74,7 +74,7 @@ class ReplicatorTest extends ProphecyTestCase
             ),
             Argument::that(
                 function ($argument) use ($servers) {
-                    $this->assertContains($argument, $servers);
+                    $this->assertContains($argument->getHost(), $servers);
 
                     return true;
                 }
@@ -97,9 +97,11 @@ class ReplicatorTest extends ProphecyTestCase
             $storageAdapter->reveal(),
             $searchAdapter->reveal(),
             $metadataManager->reveal(),
-            $primaryServer,
-            $servers
+            $primaryServer
         );
+        $replicator->addServer($servers[0]);
+        $replicator->addServer($servers[1]);
+        $replicator->addServer($servers[2]);
         $replicator->onStore($event);
 
         /** @var DistributedModelInterface $model */
@@ -113,8 +115,8 @@ class ReplicatorTest extends ProphecyTestCase
         $this->assertEquals($primaryServer, $policy->getPrimaryServer());
 
         $this->assertCount(2, $policy->getBackupServers());
-        $this->assertContains($policy->getBackupServers()[0], $servers);
-        $this->assertContains($policy->getBackupServers()[1], $servers);
+        $this->assertContains($policy->getBackupServers()[0]->getHost(), $servers);
+        $this->assertContains($policy->getBackupServers()[1]->getHost(), $servers);
     }
 
     public function testOnStoreNone()
@@ -136,11 +138,11 @@ class ReplicatorTest extends ProphecyTestCase
         $api->fetch()->shouldNotBeCalled();
         $api->store()->shouldNotBeCalled();
 
-        $primaryServer = new Server('my.symcloud.lo', 1234);
+        $primaryServer = new Server('my.symcloud.lo');
         $servers = array(
-            new Server('your-1.symcloud.lo', 1234),
-            new Server('your-2.symcloud.lo', 1234),
-            new Server('your-3.symcloud.lo', 1234)
+            'your-1.symcloud.lo',
+            'your-2.symcloud.lo',
+            'your-3.symcloud.lo',
         );
 
         /** @var MetadataManagerInterface $metadataManager */
@@ -159,9 +161,15 @@ class ReplicatorTest extends ProphecyTestCase
             $storageAdapter->reveal(),
             $searchAdapter->reveal(),
             $metadataManager->reveal(),
-            $primaryServer,
+            $primaryServer
+        );
+        array_map(
+            function ($server) use ($replicator) {
+                $replicator->addServer($server);
+            },
             $servers
         );
+
         $replicator->onStore($event);
 
         /** @var DistributedModelInterface $model */
@@ -193,13 +201,13 @@ class ReplicatorTest extends ProphecyTestCase
         $storageAdapter->store($hash, $object, $classMetadata->getContext())->shouldBeCalled()->willReturn(true);
 
         $searchAdapter = $this->prophesize(SearchAdapterInterface::class);
-        $searchAdapter->indexObject($hash, $object, $classMetadata)->shouldBeCalled()->willReturn(true);
+        $searchAdapter->indexObject($hash, $object['data'], $classMetadata)->shouldBeCalled()->willReturn(true);
 
-        $primaryServer = new Server('my.symcloud.lo', 1234);
+        $primaryServer = new Server('my.symcloud.lo');
         $servers = array(
-            new Server('your-1.symcloud.lo', 1234),
-            new Server('your-2.symcloud.lo', 1234),
-            new Server('your-3.symcloud.lo', 1234)
+            'your-1.symcloud.lo',
+            'your-2.symcloud.lo',
+            'your-3.symcloud.lo',
         );
 
         $replicator = new Replicator(
@@ -207,9 +215,15 @@ class ReplicatorTest extends ProphecyTestCase
             $storageAdapter->reveal(),
             $searchAdapter->reveal(),
             $metadataManager->reveal(),
-            $primaryServer,
+            $primaryServer
+        );
+        array_map(
+            function ($server) use ($replicator) {
+                $replicator->addServer($server);
+            },
             $servers
         );
+
         $replicator->store($hash, $object);
     }
 
@@ -234,15 +248,16 @@ class ReplicatorTest extends ProphecyTestCase
         $storageAdapter = $this->prophesize(StorageAdapterInterface::class);
         $storageAdapter->store()->shouldNotBeCalled();
         $storageAdapter->fetch($hash, $classMetadata->getContext())->willReturn($object);
+        $storageAdapter->contains($hash, A::class)->willReturn(true);
 
         $searchAdapter = $this->prophesize(SearchAdapterInterface::class);
         $searchAdapter->indexObject()->shouldNotBeCalled();
 
         $primaryServer = new Server('my.symcloud.lo', 1234);
         $servers = array(
-            new Server('your-1.symcloud.lo', 1234),
-            new Server('your-2.symcloud.lo', 1234),
-            new Server('your-3.symcloud.lo', 1234)
+            'your-1.symcloud.lo',
+            'your-2.symcloud.lo',
+            'your-3.symcloud.lo',
         );
 
         $replicator = new Replicator(
@@ -250,7 +265,12 @@ class ReplicatorTest extends ProphecyTestCase
             $storageAdapter->reveal(),
             $searchAdapter->reveal(),
             $metadataManager->reveal(),
-            $primaryServer,
+            $primaryServer
+        );
+        array_map(
+            function ($server) use ($replicator) {
+                $replicator->addServer($server);
+            },
             $servers
         );
 
@@ -264,9 +284,9 @@ class ReplicatorTest extends ProphecyTestCase
 
         $primaryServer = new Server('my.symcloud.lo');
         $servers = array(
-            new Server('your-1.symcloud.lo'),
-            new Server('your-2.symcloud.lo'),
-            new Server('your-3.symcloud.lo')
+            'your-1.symcloud.lo',
+            'your-2.symcloud.lo',
+            'your-3.symcloud.lo',
         );
 
         $hash = 'my-hash';
@@ -279,7 +299,10 @@ class ReplicatorTest extends ProphecyTestCase
             'policies' => serialize(
                 new PolicyCollection(
                     array(
-                        'replicator' => new ReplicatorPolicy($servers[0], array($primaryServer, $servers[1]))
+                        'replicator' => new ReplicatorPolicy(
+                            new Server($servers[0]),
+                            array($primaryServer, new Server($servers[1]))
+                        )
                     )
                 )
             ),
@@ -295,23 +318,22 @@ class ReplicatorTest extends ProphecyTestCase
         $storageAdapter = $this->prophesize(StorageAdapterInterface::class);
         $storageAdapter->store()->shouldNotBeCalled();
         $storageAdapter->fetch($hash, $classMetadata->getContext())->willReturn($object);
+        $storageAdapter->contains($hash, A::class)->willReturn(true);
 
         $searchAdapter = $this->prophesize(SearchAdapterInterface::class);
         $searchAdapter->indexObject()->shouldNotBeCalled();
-
-        $primaryServer = new Server('my.symcloud.lo', 1234);
-        $servers = array(
-            new Server('your-1.symcloud.lo', 1234),
-            new Server('your-2.symcloud.lo', 1234),
-            new Server('your-3.symcloud.lo', 1234)
-        );
 
         $replicator = new Replicator(
             $api->reveal(),
             $storageAdapter->reveal(),
             $searchAdapter->reveal(),
             $metadataManager->reveal(),
-            $primaryServer,
+            $primaryServer
+        );
+        array_map(
+            function ($server) use ($replicator) {
+                $replicator->addServer($server);
+            },
             $servers
         );
 
@@ -322,9 +344,9 @@ class ReplicatorTest extends ProphecyTestCase
     {
         $primaryServer = new Server('my.symcloud.lo');
         $servers = array(
-            new Server('your-1.symcloud.lo'),
-            new Server('your-2.symcloud.lo'),
-            new Server('your-3.symcloud.lo')
+            'your-1.symcloud.lo',
+            'your-2.symcloud.lo',
+            'your-3.symcloud.lo',
         );
 
         $hash = 'my-hash';
@@ -336,7 +358,10 @@ class ReplicatorTest extends ProphecyTestCase
             'policies' => serialize(
                 new PolicyCollection(
                     array(
-                        'replicator' => new ReplicatorPolicy($servers[0], array($primaryServer, $servers[1]))
+                        'replicator' => new ReplicatorPolicy(
+                            new Server($servers[0]),
+                            array($primaryServer, new Server($servers[1]))
+                        )
                     )
                 )
             ),
@@ -345,9 +370,17 @@ class ReplicatorTest extends ProphecyTestCase
         $request = $this->prophesize(RequestInterface::class);
 
         $api = $this->prophesize(ApiInterface::class);
-        $api->fetch($hash, A::class, $servers[0])->willThrow(new ClientException('Not found 1', $request->reveal()));
-        $api->fetch($hash, A::class, $servers[1])->willThrow(new ClientException('Not found 2', $request->reveal()));
-        $api->fetch($hash, A::class, $servers[2])->willReturn($object);
+        $api->fetch($hash, A::class, new Server($servers[0]))
+            ->shouldBeCalled()
+            ->willThrow(new ClientException('Not found 1', $request->reveal()));
+
+        $api->fetch($hash, A::class, new Server($servers[1]))
+            ->shouldBeCalled()
+            ->willThrow(new ClientException('Not found 2', $request->reveal()));
+
+        $api->fetch($hash, A::class, new Server($servers[2]))
+            ->shouldBeCalled()
+            ->willReturn($object);
 
         $classMetadata = new AClassMetadata();
         $metadataManager = $this->prophesize(MetadataManagerInterface::class);
@@ -361,19 +394,17 @@ class ReplicatorTest extends ProphecyTestCase
         $searchAdapter = $this->prophesize(SearchAdapterInterface::class);
         $searchAdapter->indexObject()->shouldNotBeCalled();
 
-        $primaryServer = new Server('my.symcloud.lo');
-        $servers = array(
-            new Server('your-1.symcloud.lo'),
-            new Server('your-2.symcloud.lo'),
-            new Server('your-3.symcloud.lo'),
-        );
-
         $replicator = new Replicator(
             $api->reveal(),
             $storageAdapter->reveal(),
             $searchAdapter->reveal(),
             $metadataManager->reveal(),
-            $primaryServer,
+            $primaryServer
+        );
+        array_map(
+            function ($server) use ($replicator) {
+                $replicator->addServer($server);
+            },
             $servers
         );
 
