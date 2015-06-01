@@ -381,6 +381,34 @@ class SessionTest extends ProphecyTestCase
         $this->assertEquals($fileHash2, $directory->getChild('test2.txt')->getFileHash());
     }
 
+    public function testCreateBlobFile()
+    {
+        $size = 999;
+        $mimeType = 'application/json';
+
+        /**
+         * setup
+         */
+        list($fileContent1, $fileName1) = $this->generateTestFile(200);
+        $fileHash1 = $this->getFactory()->createFileHash($fileName1);
+        $blobFile1 = $this->session->upload($fileName1, $mimeType, $size);
+
+        /**
+         * do it
+         */
+        $result = $this->session->createBlobFile(
+            $fileHash1,
+            array($blobFile1->getBlobs()[0]->getHash(), $blobFile1->getBlobs()[1]->getHash()),
+            $mimeType,
+            $size
+        );
+
+        $this->assertEquals($fileHash1, $result->getHash());
+        $this->assertEquals($fileContent1, $result->getContent());
+        $this->assertEquals($mimeType, $result->getMimetype());
+        $this->assertEquals($size, $result->getSize());
+    }
+
     protected function createSearchAdapter()
     {
         if (!is_dir(__DIR__ . '/lucene')) {

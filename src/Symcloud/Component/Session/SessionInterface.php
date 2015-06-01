@@ -12,6 +12,7 @@
 namespace Symcloud\Component\Session;
 
 use Symcloud\Component\Database\Model\BlobFileInterface;
+use Symcloud\Component\Database\Model\BlobInterface;
 use Symcloud\Component\Database\Model\Commit\CommitInterface;
 use Symcloud\Component\Database\Model\Tree\TreeFileInterface;
 use Symcloud\Component\Database\Model\Tree\TreeInterface;
@@ -90,4 +91,14 @@ interface SessionInterface
      * @return CommitInterface
      */
     public function getCurrentCommit();
+
+    /**
+     * @param string $hash
+     * @param BlobInterface[] $blobs
+     * @param string $mimetype
+     * @param int $size
+     *
+     * @return BlobFileInterface
+     */
+    public function createBlobFile($hash, array $blobs, $mimetype, $size);
 }

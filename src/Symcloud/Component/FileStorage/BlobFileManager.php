@@ -79,6 +79,25 @@ class BlobFileManager implements BlobFileManagerInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function download($hash, array $blobs, $mimetype, $size)
+    {
+        $file = new BlobFile();
+        $file->setHash($hash);
+        $file->setMimetype($mimetype);
+        $file->setSize($size);
+
+        $result = array();
+        foreach ($blobs as $blobHash) {
+            $result[] = $this->blobManager->downloadProxy($blobHash);
+        }
+        $file->setBlobs($result);
+
+        return $file;
+    }
+
+    /**
      * @param $data
      *
      * @return BlobInterface

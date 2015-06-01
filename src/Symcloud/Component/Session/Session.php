@@ -320,4 +320,12 @@ class Session implements SessionInterface
     {
         return $this->referenceCommit;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createBlobFile($hash, array $blobs, $mimetype, $size)
+    {
+        return $this->blobFileManager->download($hash, $blobs, $mimetype, $size);
+    }
 }

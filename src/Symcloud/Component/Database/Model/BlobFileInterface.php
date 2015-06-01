@@ -13,13 +13,31 @@ namespace Symcloud\Component\Database\Model;
 
 interface BlobFileInterface
 {
+    /**
+     * @return string
+     */
     public function getHash();
 
+    /**
+     * @return BlobInterface[]
+     */
     public function getBlobs();
 
+    /**
+     * @return int
+     */
     public function getSize();
 
+    /**
+     * @return string
+     */
     public function getMimetype();
 
+    /**
+     * @param int $length
+     * @param int $offset
+     *
+     * @return string|resource
+     */
     public function getContent($length = -1, $offset = 0);
 }
