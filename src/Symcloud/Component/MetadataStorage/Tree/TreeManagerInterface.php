@@ -65,18 +65,4 @@ interface TreeManagerInterface
      * @return TreeFileInterface
      */
     public function fetchFile($hash);
-
-    /**
-     * @param string $hash
-     *
-     * @return TreeInterface
-     */
-    public function fetchProxy($hash);
-
-    /**
-     * @param string $hash
-     *
-     * @return TreeFileInterface
-     */
-    public function fetchFileProxy($hash);
 }
