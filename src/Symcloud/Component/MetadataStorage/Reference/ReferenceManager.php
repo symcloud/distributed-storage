@@ -95,4 +95,12 @@ class ReferenceManager implements ReferenceManagerInterface
     {
         return $this->database->fetch($name, Reference::class);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAll(UserInterface $user)
+    {
+        return $this->database->search(sprintf('user:%s', $user->getUsername()), array('reference'));
+    }
 }

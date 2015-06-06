@@ -321,6 +321,11 @@ class Session implements SessionInterface
         return $this->referenceCommit;
     }
 
+    public function getReferences()
+    {
+        return $this->referenceManager->fetchAll($this->user);
+    }
+
     /**
      * {@inheritdoc}
      */

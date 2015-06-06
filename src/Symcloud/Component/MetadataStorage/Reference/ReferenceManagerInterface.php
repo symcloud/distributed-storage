@@ -40,4 +40,11 @@ interface ReferenceManagerInterface
      * @return ReferenceInterface
      */
     public function update(ReferenceInterface $reference, CommitInterface $commit);
+
+    /**
+     * @param UserInterface $user
+     *
+     * @return ReferenceInterface[]
+     */
+    public function fetchAll(UserInterface $user);
 }
