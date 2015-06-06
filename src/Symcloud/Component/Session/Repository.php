@@ -62,15 +62,34 @@ class Repository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function login(UserInterface $user, $reference = 'HEAD')
+    public function loginByName(UserInterface $user, $name)
+    {
+        $hash = $this->referenceManager->createHash($user, $name);
+
+        return new Session(
+            $this->blobFileManager,
+            $this->referenceManager,
+            $this->treeManager,
+            $this->commitManager,
+            $user,
+            $name,
+            $hash
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function loginByHash(UserInterface $user, $hash)
     {
         return new Session(
             $this->blobFileManager,
             $this->referenceManager,
             $this->treeManager,
             $this->commitManager,
-            $reference,
-            $user
+            $user,
+            null,
+            $hash
         );
     }
 }

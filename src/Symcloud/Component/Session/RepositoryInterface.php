@@ -17,9 +17,16 @@ interface RepositoryInterface
 {
     /**
      * @param UserInterface $user
-     * @param string $reference
+     * @param string $name
      *
      * @return SessionInterface
      */
-    public function login(UserInterface $user, $reference = 'HEAD');
+    public function loginByName(UserInterface $user, $name);
+    /**
+     * @param UserInterface $user
+     * @param string $hash
+     *
+     * @return SessionInterface
+     */
+    public function loginByHash(UserInterface $user, $hash);
 }

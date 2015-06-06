@@ -32,11 +32,6 @@ class Reference extends DistributedModel implements ReferenceInterface
      */
     private $user;
 
-    public function getHash()
-    {
-        return $this->name;
-    }
-
     /**
      * @return string
      */

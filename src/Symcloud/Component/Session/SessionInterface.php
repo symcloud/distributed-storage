@@ -27,6 +27,11 @@ interface SessionInterface
     public function init();
 
     /**
+     * @return bool
+     */
+    public function isInit();
+
+    /**
      * @param string $fileName
      * @param $mimeType
      * @param $size
@@ -92,6 +97,11 @@ interface SessionInterface
      * @return CommitInterface
      */
     public function getCurrentCommit();
+
+    /**
+     * @return ReferenceInterface
+     */
+    public function getReference();
 
     /**
      * @return ReferenceInterface[]
