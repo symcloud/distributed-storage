@@ -22,6 +22,7 @@ interface RepositoryInterface
      * @return SessionInterface
      */
     public function loginByName(UserInterface $user, $name);
+
     /**
      * @param UserInterface $user
      * @param string $hash
