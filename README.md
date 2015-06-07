@@ -3,6 +3,7 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/symcloud/distributed-storage/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/symcloud/distributed-storage/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/symcloud/distributed-storage/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/symcloud/distributed-storage/?branch=master)
 [![Build Status](https://travis-ci.org/symcloud/distributed-storage.svg?branch=master)](https://travis-ci.org/symcloud/distributed-storage)
+[![Dependency Status](https://www.versioneye.com/user/projects/5574770c3363340020000074/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5574770c3363340020000074)
 
 Storage System of symcloud application
 
