@@ -17,7 +17,6 @@ use Symcloud\Component\Database\Model\Commit\Commit;
 use Symcloud\Component\Database\Model\Commit\CommitInterface;
 use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Model\Tree\TreeInterface;
-use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -39,28 +38,20 @@ class CommitManager implements CommitManagerInterface
     private $userProvider;
 
     /**
-     * @var TreeManagerInterface
-     */
-    private $treeManager;
-
-    /**
      * CommitManager constructor.
      *
      * @param FactoryInterface       $factory
      * @param DatabaseInterface $database
      * @param UserProviderInterface  $userProvider
-     * @param TreeManagerInterface   $treeManager
      */
     public function __construct(
         FactoryInterface $factory,
         DatabaseInterface $database,
-        UserProviderInterface $userProvider,
-        TreeManagerInterface $treeManager
+        UserProviderInterface $userProvider
     ) {
         $this->factory = $factory;
         $this->database = $database;
         $this->userProvider = $userProvider;
-        $this->treeManager = $treeManager;
     }
 
     /**
@@ -89,20 +80,5 @@ class CommitManager implements CommitManagerInterface
     public function fetch($hash)
     {
         return $this->database->fetch($hash, Commit::class);
-    }
-
-    /**
-     * @param string $hash
-     *
-     * @return CommitInterface
-     */
-    public function fetchProxy($hash)
-    {
-        return $this->factory->createProxy(
-            CommitInterface::class,
-            function () use ($hash) {
-                return $this->fetch($hash);
-            }
-        );
     }
 }

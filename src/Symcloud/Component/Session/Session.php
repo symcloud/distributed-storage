@@ -72,6 +72,10 @@ class Session implements SessionInterface
      * @var UserInterface
      */
     private $user;
+    /**
+     * @var
+     */
+    private $referenceHash;
 
     /**
      * Session constructor.
@@ -80,23 +84,26 @@ class Session implements SessionInterface
      * @param ReferenceManagerInterface $referenceManager
      * @param TreeManagerInterface $treeManager
      * @param CommitManagerInterface $commitManager
-     * @param string $referenceName
      * @param UserInterface $user
+     * @param string $referenceName
+     * @param string $referenceHash
      */
     public function __construct(
         BlobFileManagerInterface $blobFileManager,
         ReferenceManagerInterface $referenceManager,
         TreeManagerInterface $treeManager,
         CommitManagerInterface $commitManager,
-        $referenceName,
-        UserInterface $user
+        UserInterface $user,
+        $referenceName = null,
+        $referenceHash = null
     ) {
         $this->blobFileManager = $blobFileManager;
         $this->referenceManager = $referenceManager;
         $this->treeManager = $treeManager;
         $this->commitManager = $commitManager;
-        $this->referenceName = $referenceName;
         $this->user = $user;
+        $this->referenceHash = $referenceHash;
+        $this->referenceName = $referenceName;
     }
 
     /**
@@ -106,10 +113,25 @@ class Session implements SessionInterface
     {
         $root = $this->treeManager->createRootTree();
         $this->treeManager->store($root);
-        $this->referenceCommit = $this->commitManager->commit($root, $this->user, 'init');
+
+        $this->referenceCommit = $this->commitManager->commit(
+            $root,
+            $this->user,
+            sprintf('init reference "%s" by user "%s"', $this->referenceName, $this->user->getUsername())
+        );
+
         $this->reference = $this->referenceManager->create($this->referenceName, $this->user, $this->referenceCommit);
+        $this->referenceHash = $this->reference->getHash();
 
         return $root;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isInit()
+    {
+        return $this->getRoot() !== null;
     }
 
     /**
@@ -142,7 +164,14 @@ class Session implements SessionInterface
         }
 
         if (!$this->reference) {
-            $this->reference = $this->referenceManager->fetch($this->referenceName);
+            if ($this->referenceHash === null) {
+                return;
+            }
+            try {
+                $this->reference = $this->referenceManager->fetch($this->referenceHash);
+            } catch (\Exception $ex) {
+                return;
+            }
             $this->referenceCommit = $this->reference->getCommit();
         }
 
@@ -319,6 +348,24 @@ class Session implements SessionInterface
     public function getCurrentCommit()
     {
         return $this->referenceCommit;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getReference()
+    {
+        $this->getRoot();
+
+        return $this->reference;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getReferences()
+    {
+        return $this->referenceManager->fetchAll($this->user);
     }
 
     /**

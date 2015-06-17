@@ -18,11 +18,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
 interface ReferenceManagerInterface
 {
     /**
-     * @param string        $name
+     * @param string        $hash
      *
      * @return ReferenceInterface
      */
-    public function fetch($name);
+    public function fetch($hash);
 
     /**
      * @param string $name
@@ -34,10 +34,25 @@ interface ReferenceManagerInterface
     public function create($name, UserInterface $user, CommitInterface $commit);
 
     /**
+     * @param UserInterface $user
+     * @param string $name
+     *
+     * @return string
+     */
+    public function createHash(UserInterface $user, $name);
+
+    /**
      * @param ReferenceInterface $reference
      * @param CommitInterface    $commit
      *
      * @return ReferenceInterface
      */
     public function update(ReferenceInterface $reference, CommitInterface $commit);
+
+    /**
+     * @param UserInterface $user
+     *
+     * @return ReferenceInterface[]
+     */
+    public function fetchAll(UserInterface $user);
 }

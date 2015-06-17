@@ -19,10 +19,8 @@ use Symcloud\Component\Database\Model\BlobFileInterface;
 use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Model\Tree\Tree;
 use Symcloud\Component\Database\Model\Tree\TreeFile;
-use Symcloud\Component\Database\Model\Tree\TreeFileInterface;
 use Symcloud\Component\Database\Model\Tree\TreeInterface;
 use Symcloud\Component\Database\Model\Tree\TreeNodeInterface;
-use Symcloud\Component\FileStorage\BlobFileManagerInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class TreeManager implements TreeManagerInterface
@@ -31,11 +29,6 @@ class TreeManager implements TreeManagerInterface
      * @var DatabaseInterface
      */
     private $database;
-
-    /**
-     * @var BlobFileManagerInterface
-     */
-    private $blobFileManager;
 
     /**
      * @var UserProviderInterface
@@ -56,18 +49,15 @@ class TreeManager implements TreeManagerInterface
      * TreeManager constructor.
      *
      * @param DatabaseInterface $database
-     * @param BlobFileManagerInterface $blobFileManager
      * @param UserProviderInterface $userProvider
      * @param FactoryInterface $factory
      */
     public function __construct(
         DatabaseInterface $database,
-        BlobFileManagerInterface $blobFileManager,
         UserProviderInterface $userProvider,
         FactoryInterface $factory
     ) {
         $this->database = $database;
-        $this->blobFileManager = $blobFileManager;
         $this->userProvider = $userProvider;
         $this->factory = $factory;
 
@@ -184,31 +174,5 @@ class TreeManager implements TreeManagerInterface
         $this->cache->save($hash, $treeFile);
 
         return $treeFile;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchProxy($hash)
-    {
-        return $this->factory->createProxy(
-            TreeInterface::class,
-            function () use ($hash) {
-                return $this->fetch($hash);
-            }
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchFileProxy($hash)
-    {
-        return $this->factory->createProxy(
-            TreeFileInterface::class,
-            function () use ($hash) {
-                return $this->fetchFile($hash);
-            }
-        );
     }
 }

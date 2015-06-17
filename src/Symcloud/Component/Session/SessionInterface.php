@@ -14,6 +14,7 @@ namespace Symcloud\Component\Session;
 use Symcloud\Component\Database\Model\BlobFileInterface;
 use Symcloud\Component\Database\Model\BlobInterface;
 use Symcloud\Component\Database\Model\Commit\CommitInterface;
+use Symcloud\Component\Database\Model\Reference\ReferenceInterface;
 use Symcloud\Component\Database\Model\Tree\TreeFileInterface;
 use Symcloud\Component\Database\Model\Tree\TreeInterface;
 use Symcloud\Component\Session\Exception\NotAFileException;
@@ -24,6 +25,11 @@ interface SessionInterface
      * @return TreeInterface
      */
     public function init();
+
+    /**
+     * @return bool
+     */
+    public function isInit();
 
     /**
      * @param string $fileName
@@ -91,6 +97,16 @@ interface SessionInterface
      * @return CommitInterface
      */
     public function getCurrentCommit();
+
+    /**
+     * @return ReferenceInterface
+     */
+    public function getReference();
+
+    /**
+     * @return ReferenceInterface[]
+     */
+    public function getReferences();
 
     /**
      * @param string $hash
