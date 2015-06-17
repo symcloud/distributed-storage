@@ -248,7 +248,7 @@ class ReplicatorTest extends ProphecyTestCase
         $storageAdapter = $this->prophesize(StorageAdapterInterface::class);
         $storageAdapter->store()->shouldNotBeCalled();
         $storageAdapter->fetch($hash, $classMetadata->getContext())->willReturn($object);
-        $storageAdapter->contains($hash, A::class)->willReturn(true);
+        $storageAdapter->contains($hash, $classMetadata->getContext())->willReturn(true);
 
         $searchAdapter = $this->prophesize(SearchAdapterInterface::class);
         $searchAdapter->indexObject()->shouldNotBeCalled();
@@ -318,7 +318,7 @@ class ReplicatorTest extends ProphecyTestCase
         $storageAdapter = $this->prophesize(StorageAdapterInterface::class);
         $storageAdapter->store()->shouldNotBeCalled();
         $storageAdapter->fetch($hash, $classMetadata->getContext())->willReturn($object);
-        $storageAdapter->contains($hash, A::class)->willReturn(true);
+        $storageAdapter->contains($hash, $classMetadata->getContext())->willReturn(true);
 
         $searchAdapter = $this->prophesize(SearchAdapterInterface::class);
         $searchAdapter->indexObject()->shouldNotBeCalled();
