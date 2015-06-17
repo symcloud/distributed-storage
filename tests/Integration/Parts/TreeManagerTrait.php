@@ -19,7 +19,6 @@ trait TreeManagerTrait
         if (!$this->treeManager) {
             $this->treeManager = new TreeManager(
                 $this->getDatabase(),
-                $this->getBlobFileManager(),
                 $this->getUserProvider(),
                 $this->getFactory()
             );

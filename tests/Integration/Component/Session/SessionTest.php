@@ -56,13 +56,15 @@ class SessionTest extends ProphecyTestCase
             $this->getReferenceManager(),
             $this->getTreeManager(),
             $this->getCommitManager(),
-            $this->referenceName,
-            $this->user
+            $this->user,
+            $this->referenceName
         );
     }
 
     public function testInit()
     {
+        $referenceHash = $this->getReferenceManager()->createHash($this->user, $this->referenceName);
+
         /**
          * do it
          */
@@ -78,7 +80,7 @@ class SessionTest extends ProphecyTestCase
          */
         $database = $this->getDatabase();
         /** @var ReferenceInterface $reference */
-        $reference = $database->fetch($this->referenceName, Reference::class);
+        $reference = $database->fetch($referenceHash, Reference::class);
         $commit = $reference->getCommit();
         $tree = $commit->getTree();
         $this->assertEquals(array(), $tree->getChildren());

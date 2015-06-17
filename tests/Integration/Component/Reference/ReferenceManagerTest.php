@@ -47,61 +47,65 @@ class ReferenceManagerTest extends ProphecyTestCase
 
     /**
      * @dataProvider dataProvider
-     * @param string $hash
+     * @param string $name
      * @param Commit $commit
      * @param Commit $commit2
      * @param Tree $tree
      * @param UserInterface $user
      */
     public function testFetch(
-        $hash,
+        $name,
         Commit $commit,
         Commit $commit2,
         Tree $tree,
         UserInterface $user
     ) {
+        $hash = '123-123-123';
         $database = $this->getDatabase();
 
         $database->store($tree);
         $database->store($commit);
 
         $reference = new Reference();
-        $reference->setPolicyCollection(new PolicyCollection());
+        $reference->setHash($hash);
         $reference->setCommit($commit);
         $reference->setUser($user);
-        $reference->setName($hash);
+        $reference->setName($name);
         $database->store($reference);
 
         $referenceManager = $this->getReferenceManager();
         $reference = $referenceManager->fetch($hash);
 
         $this->assertEquals($hash, $reference->getHash());
+        $this->assertEquals($name, $reference->getName());
         $this->assertEquals($commit->getHash(), $reference->getCommit()->getHash());
         $this->assertEquals($user->getUsername(), $reference->getUser()->getUsername());
 
         /** @var ReferenceInterface $result */
         $result = $database->fetch($hash, Reference::class);
 
-        $this->assertEquals($hash, $result->getHash());
+        $this->assertEquals($hash, $reference->getHash());
+        $this->assertEquals($name, $reference->getName());
         $this->assertEquals($commit->getHash(), $result->getCommit()->getHash());
         $this->assertEquals($user->getUsername(), $result->getUser()->getUsername());
     }
 
     /**
      * @dataProvider dataProvider
-     * @param string $hash
+     * @param string $name
      * @param Commit $commit
      * @param Commit $commit2
      * @param Tree $tree
      * @param UserInterface $user
      */
     public function testUpdateReference(
-        $hash,
+        $name,
         Commit $commit,
         Commit $commit2,
         Tree $tree,
         UserInterface $user
     ) {
+        $hash = '123-123-123';
         $database = $this->getDatabase();
 
         $database->store($tree);
@@ -109,10 +113,10 @@ class ReferenceManagerTest extends ProphecyTestCase
         $database->store($commit2);
 
         $reference = new Reference();
-        $reference->setPolicyCollection(new PolicyCollection());
+        $reference->setHash($hash);
         $reference->setCommit($commit);
         $reference->setUser($user);
-        $reference->setName($hash);
+        $reference->setName($name);
         $database->store($reference);
 
         $referenceManager = $this->getReferenceManager();
@@ -124,20 +128,21 @@ class ReferenceManagerTest extends ProphecyTestCase
         $result = $database->fetch($hash, Reference::class);
 
         $this->assertEquals($hash, $result->getHash());
+        $this->assertEquals($name, $result->getName());
         $this->assertEquals($commit2->getHash(), $result->getCommit()->getHash());
         $this->assertEquals($user->getUsername(), $result->getUser()->getUsername());
     }
 
     /**
      * @dataProvider dataProvider
-     * @param string $hash
+     * @param string $name
      * @param Commit $commit
      * @param Commit $commit2
      * @param Tree $tree
      * @param UserInterface $user
      */
     public function testCreateReference(
-        $hash,
+        $name,
         Commit $commit,
         Commit $commit2,
         Tree $tree,
@@ -149,16 +154,20 @@ class ReferenceManagerTest extends ProphecyTestCase
         $database->store($commit);
 
         $referenceManager = $this->getReferenceManager();
-        $reference = $referenceManager->create($hash, $user, $commit);
+        $reference = $referenceManager->create($name, $user, $commit);
 
-        $this->assertEquals($hash, $reference->getHash());
+        $referenceHash = $referenceManager->createHash($user, $name);
+
+        $this->assertEquals($referenceHash, $reference->getHash());
+        $this->assertEquals($name, $reference->getName());
         $this->assertEquals($commit->getHash(), $reference->getCommit()->getHash());
         $this->assertEquals($user->getUsername(), $reference->getUser()->getUsername());
 
         /** @var ReferenceInterface $result */
-        $result = $database->fetch($hash, Reference::class);
+        $result = $database->fetch($referenceHash, Reference::class);
 
-        $this->assertEquals($hash, $result->getHash());
+        $this->assertEquals($referenceHash, $result->getHash());
+        $this->assertEquals($name, $result->getName());
         $this->assertEquals($commit->getHash(), $result->getCommit()->getHash());
         $this->assertEquals($user->getUsername(), $result->getUser()->getUsername());
     }

@@ -19,9 +19,9 @@ trait ReferenceManagerTrait
         if (!$this->referenceManager) {
             $this->referenceManager = new ReferenceManager(
                 $this->getDatabase(),
-                $this->getCommitManager(),
                 $this->getUserProvider(),
-                $this->getFactory()
+                $this->getFactory(),
+                'http://symcloud.lo'
             );
         }
 

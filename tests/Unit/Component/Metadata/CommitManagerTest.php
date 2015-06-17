@@ -49,8 +49,7 @@ class CommitManagerTest extends ProphecyTestCase
         $commitManager = new CommitManager(
             $factory,
             $database->reveal(),
-            $userProvider->reveal(),
-            $treeManager->reveal()
+            $userProvider->reveal()
         );
         $result = $commitManager->commit($tree->reveal(), $user->reveal(), $message);
 
@@ -97,14 +96,10 @@ class CommitManagerTest extends ProphecyTestCase
         $userProvider = $this->prophesize(UserProviderInterface::class);
         $userProvider->loadUserByUsername($username)->willReturn($user);
 
-        $treeManager = $this->prophesize(TreeManagerInterface::class);
-        $treeManager->fetchProxy($treeHash)->willReturn($tree->reveal());
-
         $commitManager = new CommitManager(
             $factory,
             $database->reveal(),
-            $userProvider->reveal(),
-            $treeManager->reveal()
+            $userProvider->reveal()
         );
         $result = $commitManager->fetch($commitHash);
 

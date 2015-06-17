@@ -55,9 +55,9 @@ class ReferenceManagerTest extends ProphecyTestCase
 
         $manager = new ReferenceManager(
             $database->reveal(),
-            $commitManager->reveal(),
             $this->getUserProvider(),
-            $factory
+            $factory,
+            'http://symcloud.lo'
         );
         $reference = $manager->fetch($referenceName);
 
@@ -88,13 +88,12 @@ class ReferenceManagerTest extends ProphecyTestCase
 
         $database = $this->prophesize(DatabaseInterface::class);
         $database->store($reference->reveal())->shouldBeCalled()->willReturn($reference->reveal());
-        $commitManager = $this->prophesize(CommitManagerInterface::class);
 
         $manager = new ReferenceManager(
             $database->reveal(),
-            $commitManager->reveal(),
             $this->getUserProvider(),
-            $factory
+            $factory,
+            'http://symcloud.lo'
         );
         $result = $manager->update($reference->reveal(), $commitNew->reveal());
 
@@ -116,13 +115,17 @@ class ReferenceManagerTest extends ProphecyTestCase
         $commit->getHash()->willReturn($commitHash);
 
         $database = $this->prophesize(DatabaseInterface::class);
-        $commitManager = $this->prophesize(CommitManagerInterface::class);
+        $database->store(Argument::type(Reference::class))->will(
+            function ($args) {
+                return $args[0];
+            }
+        );
 
         $manager = new ReferenceManager(
             $database->reveal(),
-            $commitManager->reveal(),
             $this->getUserProvider(),
-            $factory
+            $factory,
+            'http://symcloud.lo'
         );
         $reference = $manager->create($referenceName, $user->reveal(), $commit->reveal());
 
@@ -146,13 +149,17 @@ class ReferenceManagerTest extends ProphecyTestCase
         $commit->getHash()->willReturn($commitHash);
 
         $database = $this->prophesize(DatabaseInterface::class);
-        $commitManager = $this->prophesize(CommitManagerInterface::class);
+        $database->store(Argument::type(Reference::class))->will(
+            function ($args) {
+                return $args[0];
+            }
+        );
 
         $manager = new ReferenceManager(
             $database->reveal(),
-            $commitManager->reveal(),
             $this->getUserProvider(),
-            $factory
+            $factory,
+            'http://symcloud.lo'
         );
         $reference = $manager->create($referenceName, $user->reveal(), $commit->reveal());
 

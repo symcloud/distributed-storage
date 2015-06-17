@@ -20,8 +20,7 @@ trait CommitManagerTrait
             $this->commitManager = new CommitManager(
                 $this->getFactory(),
                 $this->getDatabase(),
-                $this->getUserProvider(),
-                $this->getTreeManager()
+                $this->getUserProvider()
             );
         }
 

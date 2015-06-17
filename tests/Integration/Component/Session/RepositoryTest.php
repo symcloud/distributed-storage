@@ -13,7 +13,7 @@ class RepositoryTest extends ProphecyTestCase
 {
     use ReferenceManagerTrait;
 
-    public function testLogin()
+    public function testLoginByHash()
     {
         $repository = new Repository(
             $this->getBlobFileManager(),
@@ -23,12 +23,18 @@ class RepositoryTest extends ProphecyTestCase
         );
 
         $user = $this->getUserProvider()->loadUserByUsername('johannes');
-        $session = $repository->login($user);
+        $session = $repository->loginByHash($user, '123-123-123');
 
         $this->assertInstanceOf(SessionInterface::class, $session);
+
+        $reflectionClass = new \ReflectionClass(get_class($session));
+        $reflectionProperty = $reflectionClass->getProperty('referenceHash');
+        $reflectionProperty->setAccessible(true);
+
+        $this->assertEquals('123-123-123', $reflectionProperty->getValue($session));
     }
 
-    public function testLoginWithReference()
+    public function testLoginByName()
     {
         $repository = new Repository(
             $this->getBlobFileManager(),
@@ -38,7 +44,7 @@ class RepositoryTest extends ProphecyTestCase
         );
 
         $user = $this->getUserProvider()->loadUserByUsername('johannes');
-        $session = $repository->login($user, 'MY-HEAD');
+        $session = $repository->loginByName($user, 'MY-HEAD');
 
         $this->assertInstanceOf(SessionInterface::class, $session);
 
