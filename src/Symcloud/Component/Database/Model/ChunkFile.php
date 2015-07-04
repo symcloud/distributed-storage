@@ -11,7 +11,7 @@
 
 namespace Symcloud\Component\Database\Model;
 
-class BlobFile implements BlobFileInterface
+class ChunkFile implements ChunkFileInterface
 {
     private $hash;
 
@@ -26,9 +26,9 @@ class BlobFile implements BlobFileInterface
     private $mimetype;
 
     /**
-     * @var BlobInterface[]
+     * @var ChunkInterface[]
      */
-    private $blobs;
+    private $chunks;
 
     /**
      * @return mixed
@@ -79,19 +79,19 @@ class BlobFile implements BlobFileInterface
     }
 
     /**
-     * @return BlobInterface[]
+     * @return ChunkInterface[]
      */
-    public function getBlobs()
+    public function getChunks()
     {
-        return $this->blobs;
+        return $this->chunks;
     }
 
     /**
-     * @param BlobInterface[] $blobs
+     * @param ChunkInterface[] $chunks
      */
-    public function setBlobs($blobs)
+    public function setChunks($chunks)
     {
-        $this->blobs = $blobs;
+        $this->chunks = $chunks;
     }
 
     /**
@@ -104,8 +104,8 @@ class BlobFile implements BlobFileInterface
         }
 
         $content = '';
-        foreach ($this->getBlobs() as $blob) {
-            $content .= $blob->getData();
+        foreach ($this->getChunks() as $chunk) {
+            $content .= $chunk->getData();
         }
 
         return $content;

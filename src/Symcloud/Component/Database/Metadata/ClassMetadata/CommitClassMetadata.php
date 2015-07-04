@@ -21,7 +21,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class CommitClassMetadata extends ClassMetadata
 {
     /**
-     * BlobFileClassMetadata constructor.
+     * ChunkFileClassMetadata constructor.
      *
      * @param UserProviderInterface $userProvider
      */

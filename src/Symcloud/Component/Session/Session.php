@@ -11,12 +11,12 @@
 
 namespace Symcloud\Component\Session;
 
-use Symcloud\Component\Database\Model\BlobFileInterface;
+use Symcloud\Component\Database\Model\ChunkFileInterface;
 use Symcloud\Component\Database\Model\Commit\CommitInterface;
 use Symcloud\Component\Database\Model\Reference\ReferenceInterface;
 use Symcloud\Component\Database\Model\Tree\TreeFileInterface;
 use Symcloud\Component\Database\Model\Tree\TreeInterface;
-use Symcloud\Component\FileStorage\BlobFileManagerInterface;
+use Symcloud\Component\FileStorage\ChunkFileManagerInterface;
 use Symcloud\Component\MetadataStorage\Commit\CommitManagerInterface;
 use Symcloud\Component\MetadataStorage\Reference\ReferenceManagerInterface;
 use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
@@ -29,9 +29,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class Session implements SessionInterface
 {
     /**
-     * @var BlobFileManagerInterface
+     * @var ChunkFileManagerInterface
      */
-    private $blobFileManager;
+    private $chunkFileManager;
 
     /**
      * @var ReferenceManagerInterface
@@ -80,7 +80,7 @@ class Session implements SessionInterface
     /**
      * Session constructor.
      *
-     * @param BlobFileManagerInterface $blobFileManager
+     * @param ChunkFileManagerInterface $chunkFileManager
      * @param ReferenceManagerInterface $referenceManager
      * @param TreeManagerInterface $treeManager
      * @param CommitManagerInterface $commitManager
@@ -89,7 +89,7 @@ class Session implements SessionInterface
      * @param string $referenceHash
      */
     public function __construct(
-        BlobFileManagerInterface $blobFileManager,
+        ChunkFileManagerInterface $chunkFileManager,
         ReferenceManagerInterface $referenceManager,
         TreeManagerInterface $treeManager,
         CommitManagerInterface $commitManager,
@@ -97,7 +97,7 @@ class Session implements SessionInterface
         $referenceName = null,
         $referenceHash = null
     ) {
-        $this->blobFileManager = $blobFileManager;
+        $this->chunkFileManager = $chunkFileManager;
         $this->referenceManager = $referenceManager;
         $this->treeManager = $treeManager;
         $this->commitManager = $commitManager;
@@ -139,9 +139,7 @@ class Session implements SessionInterface
      */
     public function upload($fileName, $mimeType, $size)
     {
-        $blobFile = $this->blobFileManager->upload($fileName, $mimeType, $size);
-
-        return $blobFile;
+        return $this->chunkFileManager->upload($fileName, $mimeType, $size);
     }
 
     /**
@@ -199,7 +197,7 @@ class Session implements SessionInterface
     /**
      * {@inheritdoc}
      */
-    public function createOrUpdateFile($filePath, BlobFileInterface $blobFile)
+    public function createOrUpdateFile($filePath, ChunkFileInterface $chunkFile)
     {
         $treeWalker = $this->getTreeWalker(true);
 
@@ -219,7 +217,7 @@ class Session implements SessionInterface
             return $this->treeManager->createTreeFile(
                 $fileName,
                 $parentTree,
-                $blobFile
+                $chunkFile
             );
         }
 
@@ -227,12 +225,12 @@ class Session implements SessionInterface
             throw new NotAFileException($filePath);
         }
 
-        if ($child->getFileHash() === $blobFile->getHash()) {
+        if ($child->getFileHash() === $chunkFile->getHash()) {
             return $child;
         }
 
         $child->increaseVersion();
-        $child->setFile($blobFile);
+        $child->setFile($chunkFile);
 
         return $child;
     }
@@ -371,8 +369,8 @@ class Session implements SessionInterface
     /**
      * {@inheritdoc}
      */
-    public function createBlobFile($hash, array $blobs, $mimetype, $size)
+    public function createChunkFile($hash, array $chunks, $mimetype, $size)
     {
-        return $this->blobFileManager->download($hash, $blobs, $mimetype, $size);
+        return $this->chunkFileManager->download($hash, $chunks, $mimetype, $size);
     }
 }

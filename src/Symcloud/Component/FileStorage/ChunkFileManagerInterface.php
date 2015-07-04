@@ -11,27 +11,27 @@
 
 namespace Symcloud\Component\FileStorage;
 
-use Symcloud\Component\Database\Model\BlobFileInterface;
-use Symcloud\Component\Database\Model\BlobInterface;
+use Symcloud\Component\Database\Model\ChunkFileInterface;
+use Symcloud\Component\Database\Model\ChunkInterface;
 
-interface BlobFileManagerInterface
+interface ChunkFileManagerInterface
 {
     /**
      * @param string $filePath
      * @param $mimeType
      * @param $size
      *
-     * @return BlobFileInterface
+     * @return ChunkFileInterface
      */
     public function upload($filePath, $mimeType, $size);
 
     /**
      * @param string $hash
-     * @param BlobInterface[] $blobs
+     * @param ChunkInterface[] $chunks
      * @param string $mimetype
      * @param int $size
      *
-     * @return BlobFileInterface
+     * @return ChunkFileInterface
      */
-    public function download($hash, array $blobs, $mimetype, $size);
+    public function download($hash, array $chunks, $mimetype, $size);
 }

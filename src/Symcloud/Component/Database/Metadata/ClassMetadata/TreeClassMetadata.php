@@ -16,7 +16,7 @@ use Symcloud\Component\Database\Metadata\Field\ReferenceArrayField;
 class TreeClassMetadata extends TreeNodeClassMetadata
 {
     /**
-     * BlobClassMetadata constructor.
+     * ChunkClassMetadata constructor.
      */
     public function __construct()
     {

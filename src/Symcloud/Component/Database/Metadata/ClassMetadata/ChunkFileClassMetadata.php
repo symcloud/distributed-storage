@@ -12,23 +12,27 @@
 namespace Symcloud\Component\Database\Metadata\ClassMetadata;
 
 use Symcloud\Component\Database\Metadata\Field\AccessorField;
+use Symcloud\Component\Database\Metadata\Field\ReferenceArrayField;
 
-class BlobClassMetadata extends ClassMetadata
+class ChunkFileClassMetadata extends ClassMetadata
 {
     /**
-     * BlobClassMetadata constructor.
+     * ChunkFileClassMetadata constructor.
      */
     public function __construct()
     {
         parent::__construct(
             array(
-                new AccessorField('data'),
+                new ReferenceArrayField('chunks'),
+                new AccessorField('fileHash'),
             ),
             array(
-                new AccessorField('length'),
+                new AccessorField('fileHash'),
+                new AccessorField('size'),
+                new AccessorField('mimetype'),
             ),
-            'blob',
-            false
+            'file',
+            true
         );
     }
 }

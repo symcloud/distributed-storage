@@ -9,30 +9,30 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Symcloud\Component\BlobStorage;
+namespace Symcloud\Component\ChunkStorage;
 
-use Symcloud\Component\Database\Model\BlobInterface;
+use Symcloud\Component\Database\Model\ChunkInterface;
 
-interface BlobManagerInterface
+interface ChunkManagerInterface
 {
     /**
      * @param $data
      *
-     * @return BlobInterface
+     * @return ChunkInterface
      */
     public function upload($data);
 
     /**
      * @param string $hash
      *
-     * @return BlobInterface
+     * @return ChunkInterface
      */
     public function download($hash);
 
     /**
      * @param string $hash
      *
-     * @return BlobInterface
+     * @return ChunkInterface
      */
     public function downloadProxy($hash);
 }

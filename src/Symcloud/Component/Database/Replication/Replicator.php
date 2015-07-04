@@ -118,7 +118,7 @@ class Replicator implements ReplicatorInterface
         // TODO if this is backup server store it as "backup" which is readonly
         // if store called with 'replication' => 'none' (...) then store stubs on all no server (for ???)
         // TODO if store called with 'replication' => 'security' (...) then store stubs on all known servers which are allowed to see (for references)
-        // if store called with 'replication' => 'full' (...) then store backup on 2 (configurable) servers and stubs on all known servers (for blobs)
+        // if store called with 'replication' => 'full' (...) then store backup on 2 (configurable) servers and stubs on all known servers (for chunks)
 
         $option = $event->getOption(self::OPTION_NAME, self::TYPE_NONE);
 

@@ -11,14 +11,14 @@
 
 namespace Symcloud\Component\Database\Metadata;
 
-use Symcloud\Component\Database\Metadata\ClassMetadata\BlobClassMetadata;
-use Symcloud\Component\Database\Metadata\ClassMetadata\BlobFileClassMetadata;
+use Symcloud\Component\Database\Metadata\ClassMetadata\ChunkClassMetadata;
+use Symcloud\Component\Database\Metadata\ClassMetadata\ChunkFileClassMetadata;
 use Symcloud\Component\Database\Metadata\ClassMetadata\CommitClassMetadata;
 use Symcloud\Component\Database\Metadata\ClassMetadata\ReferenceClassMetadata;
 use Symcloud\Component\Database\Metadata\ClassMetadata\TreeClassMetadata;
 use Symcloud\Component\Database\Metadata\ClassMetadata\TreeFileClassMetadata;
-use Symcloud\Component\Database\Model\Blob;
-use Symcloud\Component\Database\Model\BlobFile;
+use Symcloud\Component\Database\Model\Chunk;
+use Symcloud\Component\Database\Model\ChunkFile;
 use Symcloud\Component\Database\Model\Commit\Commit;
 use Symcloud\Component\Database\Model\ModelInterface;
 use Symcloud\Component\Database\Model\Reference\Reference;
@@ -41,8 +41,8 @@ class MetadataManager implements MetadataManagerInterface
     public function __construct(UserProviderInterface $userProvider)
     {
         $this->metadata = array(
-            Blob::class => new BlobClassMetadata(),
-            BlobFile::class => new BlobFileClassMetadata(),
+            Chunk::class => new ChunkClassMetadata(),
+            ChunkFile::class => new ChunkFileClassMetadata(),
             Tree::class => new TreeClassMetadata(),
             TreeFile::class => new TreeFileClassMetadata(),
             Commit::class => new CommitClassMetadata($userProvider),

@@ -38,7 +38,7 @@ parent 1 | message   | string |                     |
                                                                              blobs | 1..n
                                                                                    v
                                                                             +--------------------+
-                                                                            | Blob               |
+                                                                            | Chunk               |
                                                                             +-----------+--------+
                                                                             | hash (id) | string |
                                                                             | data      | string |

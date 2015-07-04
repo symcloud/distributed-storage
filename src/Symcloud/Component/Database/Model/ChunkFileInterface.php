@@ -11,7 +11,7 @@
 
 namespace Symcloud\Component\Database\Model;
 
-interface BlobFileInterface
+interface ChunkFileInterface
 {
     /**
      * @return string
@@ -19,9 +19,9 @@ interface BlobFileInterface
     public function getHash();
 
     /**
-     * @return BlobInterface[]
+     * @return ChunkInterface[]
      */
-    public function getBlobs();
+    public function getChunks();
 
     /**
      * @return int

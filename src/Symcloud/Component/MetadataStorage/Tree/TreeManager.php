@@ -15,7 +15,7 @@ use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\Cache;
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\Database\DatabaseInterface;
-use Symcloud\Component\Database\Model\BlobFileInterface;
+use Symcloud\Component\Database\Model\ChunkFileInterface;
 use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Model\Tree\Tree;
 use Symcloud\Component\Database\Model\Tree\TreeFile;
@@ -103,13 +103,13 @@ class TreeManager implements TreeManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function createTreeFile($name, TreeInterface $parent, BlobFileInterface $blobFile, $metadata = array())
+    public function createTreeFile($name, TreeInterface $parent, ChunkFileInterface $chunkFile, $metadata = array())
     {
         $treeFile = new TreeFile();
         $treeFile->setPolicyCollection(new PolicyCollection());
         $treeFile->setName($name);
         $treeFile->setPath('/' . ltrim(sprintf('%s/%s', $parent->getPath(), $name), '/'));
-        $treeFile->setFile($blobFile);
+        $treeFile->setFile($chunkFile);
         $treeFile->setVersion(1);
         if ($metadata !== null) {
             $treeFile->setMetadata($metadata);

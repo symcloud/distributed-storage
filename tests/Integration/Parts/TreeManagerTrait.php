@@ -7,7 +7,7 @@ use Symcloud\Component\MetadataStorage\Tree\TreeManagerInterface;
 
 trait TreeManagerTrait
 {
-    use BlobFileManagerTrait;
+    use ChunkFileManagerTrait;
 
     /**
      * @var TreeManagerInterface

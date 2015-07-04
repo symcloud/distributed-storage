@@ -2,20 +2,16 @@
 
 namespace Integration\Component\FileStorage;
 
-use Integration\Parts\BlobFileManagerTrait;
+use Integration\Parts\ChunkFileManagerTrait;
 use Integration\Parts\TestFileTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
-use Symcloud\Component\Database\Model\Blob;
-use Symcloud\Component\Database\Model\BlobFile;
-use Symcloud\Component\Database\Model\BlobFileInterface;
-use Symcloud\Component\Database\Model\BlobInterface;
-use Symcloud\Component\Database\Model\PolicyCollection;
-use Symcloud\Component\Database\Search\Hit\Hit;
+use Symcloud\Component\Database\Model\Chunk;
+use Symcloud\Component\Database\Model\ChunkInterface;
 use Symcloud\Component\Database\Search\SearchAdapterInterface;
 
 class FileStorageTest extends ProphecyTestCase
 {
-    use TestFileTrait, BlobFileManagerTrait;
+    use TestFileTrait, ChunkFileManagerTrait;
 
     private $searchAdapterMock;
 
@@ -26,17 +22,17 @@ class FileStorageTest extends ProphecyTestCase
         $size = 200;
         $mimeType = 'application/json';
         list($data, $fileName) = $this->generateTestFile($size);
-        $blob1 = new Blob();
-        $blob1->setData(substr($data, 0, 100));
-        $blob1->setHash($factory->createHash($blob1->getData()));
-        $blob1->setLength(strlen($blob1->getData()));
+        $chunk1 = new Chunk();
+        $chunk1->setData(substr($data, 0, 100));
+        $chunk1->setHash($factory->createHash($chunk1->getData()));
+        $chunk1->setLength(strlen($chunk1->getData()));
 
-        $blob2 = new Blob();
-        $blob2->setData(substr($data, 100, 100));
-        $blob2->setHash($factory->createHash($blob2->getData()));
-        $blob2->setLength(strlen($blob2->getData()));
+        $chunk2 = new Chunk();
+        $chunk2->setData(substr($data, 100, 100));
+        $chunk2->setHash($factory->createHash($chunk2->getData()));
+        $chunk2->setLength(strlen($chunk2->getData()));
 
-        $blobs = array($blob1, $blob2);
+        $chunks = array($chunk1, $chunk2);
         $fileHash = $factory->createFileHash($fileName);
 
         return array(
@@ -44,7 +40,7 @@ class FileStorageTest extends ProphecyTestCase
                 $fileName,
                 $data,
                 $fileHash,
-                $blobs,
+                $chunks,
                 $mimeType,
                 $size
             )
@@ -57,7 +53,7 @@ class FileStorageTest extends ProphecyTestCase
      * @param string $fileName
      * @param string $data
      * @param string $fileHash
-     * @param BlobInterface[] $blobs
+     * @param ChunkInterface[] $chunks
      * @param $mimeType
      * @param $size
      */
@@ -65,12 +61,11 @@ class FileStorageTest extends ProphecyTestCase
         $fileName,
         $data,
         $fileHash,
-        $blobs,
+        $chunks,
         $mimeType,
         $size
-    )
-    {
-        $manager = $this->getBlobFileManager();
+    ) {
+        $manager = $this->getChunkFileManager();
         $database = $this->getDatabase();
         $factory = $this->getFactory();
 
@@ -78,24 +73,24 @@ class FileStorageTest extends ProphecyTestCase
 
         $this->assertNotNull($result->getHash());
         $this->assertEquals($factory->createHash($data), $result->getHash());
-        $this->assertEquals($blobs[0]->getHash(), $result->getBlobs()[0]->getHash());
-        $this->assertEquals($blobs[0]->getData(), $result->getBlobs()[0]->getData());
-        $this->assertEquals($blobs[1]->getHash(), $result->getBlobs()[1]->getHash());
-        $this->assertEquals($blobs[1]->getData(), $result->getBlobs()[1]->getData());
+        $this->assertEquals($chunks[0]->getHash(), $result->getChunks()[0]->getHash());
+        $this->assertEquals($chunks[0]->getData(), $result->getChunks()[0]->getData());
+        $this->assertEquals($chunks[1]->getHash(), $result->getChunks()[1]->getHash());
+        $this->assertEquals($chunks[1]->getData(), $result->getChunks()[1]->getData());
         $this->assertEquals($mimeType, $result->getMimeType());
         $this->assertEquals($size, $result->getSize());
         $this->assertEquals($data, $result->getContent());
 
-        $this->assertTrue($database->contains($result->getBlobs()[0]->getHash(), Blob::class));
-        $this->assertTrue($database->contains($result->getBlobs()[1]->getHash(), Blob::class));
+        $this->assertTrue($database->contains($result->getChunks()[0]->getHash(), Chunk::class));
+        $this->assertTrue($database->contains($result->getChunks()[1]->getHash(), Chunk::class));
 
         $this->assertEquals(
-            $blobs[0]->getData(),
-            $database->fetch($blobs[0]->getHash(), Blob::class)->getData()
+            $chunks[0]->getData(),
+            $database->fetch($chunks[0]->getHash(), Chunk::class)->getData()
         );
         $this->assertEquals(
-            $blobs[1]->getData(),
-            $database->fetch($blobs[1]->getHash(), Blob::class)->getData()
+            $chunks[1]->getData(),
+            $database->fetch($chunks[1]->getHash(), Chunk::class)->getData()
         );
     }
 

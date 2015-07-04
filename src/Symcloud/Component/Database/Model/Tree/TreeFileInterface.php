@@ -11,8 +11,8 @@
 
 namespace Symcloud\Component\Database\Model\Tree;
 
-use Symcloud\Component\Database\Model\BlobFileInterface;
-use Symcloud\Component\Database\Model\BlobInterface;
+use Symcloud\Component\Database\Model\ChunkFileInterface;
+use Symcloud\Component\Database\Model\ChunkInterface;
 
 interface TreeFileInterface extends TreeNodeInterface
 {
@@ -22,14 +22,14 @@ interface TreeFileInterface extends TreeNodeInterface
     public function getFileHash();
 
     /**
-     * @param BlobFileInterface $file
+     * @param ChunkFileInterface $file
      */
-    public function setFile(BlobFileInterface $file);
+    public function setFile(ChunkFileInterface $file);
 
     /**
-     * @return BlobInterface[]
+     * @return ChunkInterface[]
      */
-    public function getBlobs();
+    public function getChunks();
 
     /**
      * @return int

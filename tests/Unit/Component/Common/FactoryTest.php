@@ -2,10 +2,7 @@
 
 namespace Unit\Component\Common;
 
-use Symcloud\Component\BlobStorage\Model\BlobModel;
 use Symcloud\Component\Common\Factory;
-use Symcloud\Component\MetadataStorage\Model\CommitInterface;
-use Symcloud\Component\MetadataStorage\Model\TreeInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class FactoryTest extends \PHPUnit_Framework_TestCase

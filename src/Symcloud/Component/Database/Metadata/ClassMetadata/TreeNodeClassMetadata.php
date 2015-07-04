@@ -17,7 +17,7 @@ use Symcloud\Component\Database\Metadata\Field\ReadonlyAccessorField;
 class TreeNodeClassMetadata extends ClassMetadata
 {
     /**
-     * BlobFileClassMetadata constructor.
+     * ChunkFileClassMetadata constructor.
      *
      * @param array $dataFields
      * @param array $metadataFields

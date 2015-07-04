@@ -5,7 +5,7 @@ namespace Integration\Component\Session;
 use Integration\Parts\ReferenceManagerTrait;
 use Integration\Parts\TestFileTrait;
 use Prophecy\PhpUnit\ProphecyTestCase;
-use Symcloud\Component\Database\Model\Blob;
+use Symcloud\Component\Database\Model\Chunk;
 use Symcloud\Component\Database\Model\Reference\Reference;
 use Symcloud\Component\Database\Model\Reference\ReferenceInterface;
 use Symcloud\Component\Database\Model\Tree\TreeInterface;
@@ -52,7 +52,7 @@ class SessionTest extends ProphecyTestCase
         $this->user = $this->getUserProvider()->loadUserByUsername($this->username);
 
         $this->session = new Session(
-            $this->getBlobFileManager(),
+            $this->getChunkFileManager(),
             $this->getReferenceManager(),
             $this->getTreeManager(),
             $this->getCommitManager(),
@@ -99,27 +99,27 @@ class SessionTest extends ProphecyTestCase
         /**
          * do it
          */
-        $blobFile = $this->session->upload($fileName, 'application/json', 999);
-        $this->assertNotNull($blobFile->getHash());
-        $this->assertEquals($fileHash, $blobFile->getHash());
-        $this->assertEquals($this->getFactory()->createHash($fileContent), $blobFile->getHash());
-        $this->assertEquals($fileContent, $blobFile->getContent());
-        $this->assertEquals('application/json', $blobFile->getMimeType());
-        $this->assertEquals(999, $blobFile->getSize());
+        $chunkFile = $this->session->upload($fileName, 'application/json', 999);
+        $this->assertNotNull($chunkFile->getHash());
+        $this->assertEquals($fileHash, $chunkFile->getHash());
+        $this->assertEquals($this->getFactory()->createHash($fileContent), $chunkFile->getHash());
+        $this->assertEquals($fileContent, $chunkFile->getContent());
+        $this->assertEquals('application/json', $chunkFile->getMimeType());
+        $this->assertEquals(999, $chunkFile->getSize());
 
         /**
          * asserts on database
          */
         $database = $this->getDatabase();
-        $blob1 = substr($fileContent, 0, 100);
-        $hash1 = $this->getFactory()->createHash($blob1);
-        $blob2 = substr($fileContent, 100, 100);
-        $hash2 = $this->getFactory()->createHash($blob2);
+        $chunk1 = substr($fileContent, 0, 100);
+        $hash1 = $this->getFactory()->createHash($chunk1);
+        $chunk2 = substr($fileContent, 100, 100);
+        $hash2 = $this->getFactory()->createHash($chunk2);
 
-        $this->assertEquals($blob1, $database->fetch($hash1, Blob::class)->getData());
-        $this->assertEquals($blob2, $database->fetch($hash2, Blob::class)->getData());
-        $this->assertEquals($hash1, $database->fetch($hash1, Blob::class)->getHash());
-        $this->assertEquals($hash2, $database->fetch($hash2, Blob::class)->getHash());
+        $this->assertEquals($chunk1, $database->fetch($hash1, Chunk::class)->getData());
+        $this->assertEquals($chunk2, $database->fetch($hash2, Chunk::class)->getData());
+        $this->assertEquals($hash1, $database->fetch($hash1, Chunk::class)->getHash());
+        $this->assertEquals($hash2, $database->fetch($hash2, Chunk::class)->getHash());
     }
 
     public function testCreateOrUpdateFile()
@@ -149,8 +149,8 @@ class SessionTest extends ProphecyTestCase
         $fileHash = $this->getFactory()->createFileHash($fileName);
 
         $this->session->init();
-        $blobFile = $this->session->upload($fileName, $mimeType, $size);
-        $this->session->createOrUpdateFile('/test.txt', $blobFile);
+        $chunkFile = $this->session->upload($fileName, $mimeType, $size);
+        $this->session->createOrUpdateFile('/test.txt', $chunkFile);
         $this->session->commit('added test.txt');
 
         /**
@@ -186,15 +186,15 @@ class SessionTest extends ProphecyTestCase
         $fileHash2 = $this->getFactory()->createFileHash($fileName2);
 
         $this->session->init();
-        $blobFile1 = $this->session->upload($fileName1, $mimeType, $size);
-        $this->session->createOrUpdateFile('/test1.txt', $blobFile1);
+        $chunkFile1 = $this->session->upload($fileName1, $mimeType, $size);
+        $this->session->createOrUpdateFile('/test1.txt', $chunkFile1);
         $this->session->commit('added test1.txt');
 
         /**
          * do it
          */
         $result = $this->session->download('/test1.txt');
-        $this->assertEquals($blobFile1->getHash(), $result->getFileHash());
+        $this->assertEquals($chunkFile1->getHash(), $result->getFileHash());
         $this->assertEquals($fileHash1, $result->getFileHash());
         $this->assertEquals($fileHash1, $this->getFactory()->createHash($result->getContent()));
         $this->assertEquals($fileContent1, $result->getContent());
@@ -202,21 +202,21 @@ class SessionTest extends ProphecyTestCase
         /**
          * setup second test
          */
-        $blobFile2 = $this->session->upload($fileName2, $mimeType, $size);
-        $this->session->createOrUpdateFile('/test2.txt', $blobFile2);
+        $chunkFile2 = $this->session->upload($fileName2, $mimeType, $size);
+        $this->session->createOrUpdateFile('/test2.txt', $chunkFile2);
         $this->session->commit('added test2.txt');
 
         /**
          * do it
          */
         $result = $this->session->download('/test1.txt');
-        $this->assertEquals($blobFile1->getHash(), $result->getFileHash());
+        $this->assertEquals($chunkFile1->getHash(), $result->getFileHash());
         $this->assertEquals($fileHash1, $result->getFileHash());
         $this->assertEquals($fileHash1, $this->getFactory()->createHash($result->getContent()));
         $this->assertEquals($fileContent1, $result->getContent());
 
         $result = $this->session->download('/test2.txt');
-        $this->assertEquals($blobFile2->getHash(), $result->getFileHash());
+        $this->assertEquals($chunkFile2->getHash(), $result->getFileHash());
         $this->assertEquals($fileHash2, $result->getFileHash());
         $this->assertEquals($fileHash2, $this->getFactory()->createHash($result->getContent()));
         $this->assertEquals($fileContent2, $result->getContent());
@@ -244,8 +244,8 @@ class SessionTest extends ProphecyTestCase
         $fileHash2 = $this->getFactory()->createFileHash($fileName2);
 
         $this->session->init();
-        $blobFile1 = $this->session->upload($fileName1, $mimeType, $size);
-        $this->session->createOrUpdateFile('/test.txt', $blobFile1);
+        $chunkFile1 = $this->session->upload($fileName1, $mimeType, $size);
+        $this->session->createOrUpdateFile('/test.txt', $chunkFile1);
         $commit1 = $this->session->commit('added test.txt');
 
         /**
@@ -259,8 +259,8 @@ class SessionTest extends ProphecyTestCase
         /**
          * setup second part
          */
-        $blobFile2 = $this->session->upload($fileName2, $mimeType, $size);
-        $this->session->createOrUpdateFile('/test.txt', $blobFile2);
+        $chunkFile2 = $this->session->upload($fileName2, $mimeType, $size);
+        $this->session->createOrUpdateFile('/test.txt', $chunkFile2);
         $commit2 = $this->session->commit('updated test.txt');
 
         /**
@@ -277,11 +277,11 @@ class SessionTest extends ProphecyTestCase
         $result1 = $this->session->download('/test.txt', $commit1);
         $result2 = $this->session->download('/test.txt', $commit2);
 
-        $this->assertEquals($blobFile1->getHash(), $result1->getFileHash());
+        $this->assertEquals($chunkFile1->getHash(), $result1->getFileHash());
         $this->assertEquals($fileHash1, $result1->getFileHash());
         $this->assertEquals($fileContent1, $result1->getContent());
 
-        $this->assertEquals($blobFile2->getHash(), $result2->getFileHash());
+        $this->assertEquals($chunkFile2->getHash(), $result2->getFileHash());
         $this->assertEquals($fileHash2, $result2->getFileHash());
         $this->assertEquals($fileContent2, $result2->getContent());
     }
@@ -303,15 +303,15 @@ class SessionTest extends ProphecyTestCase
         $fileHash = $this->getFactory()->createFileHash($fileName);
 
         $this->session->init();
-        $blobFile = $this->session->upload($fileName, $mimeType, $size);
-        $this->session->createOrUpdateFile('/test/test.txt', $blobFile);
+        $chunkFile = $this->session->upload($fileName, $mimeType, $size);
+        $this->session->createOrUpdateFile('/test/test.txt', $chunkFile);
         $this->session->commit('added test.txt');
 
         /**
          * do it
          */
         $result = $this->session->download('/test/test.txt');
-        $this->assertEquals($blobFile->getHash(), $result->getFileHash());
+        $this->assertEquals($chunkFile->getHash(), $result->getFileHash());
         $this->assertEquals($fileHash, $result->getFileHash());
         $this->assertEquals($fileHash, $this->getFactory()->createHash($result->getContent()));
         $this->assertEquals($fileContent, $result->getContent());
@@ -338,8 +338,8 @@ class SessionTest extends ProphecyTestCase
         $fileHash = $this->getFactory()->createFileHash($fileName);
 
         $this->session->init();
-        $blobFile = $this->session->upload($fileName, $mimeType, $size);
-        $this->session->createOrUpdateFile('/test.txt', $blobFile);
+        $chunkFile = $this->session->upload($fileName, $mimeType, $size);
+        $this->session->createOrUpdateFile('/test.txt', $chunkFile);
         $commit1 = $this->session->commit('added test.txt');
 
         /**
@@ -372,10 +372,10 @@ class SessionTest extends ProphecyTestCase
         $fileHash2 = $this->getFactory()->createFileHash($fileName2);
 
         $this->session->init();
-        $blobFile1 = $this->session->upload($fileName1, $mimeType, $size);
-        $blobFile2 = $this->session->upload($fileName2, $mimeType, $size);
-        $this->session->createOrUpdateFile('/test/test1.txt', $blobFile1);
-        $this->session->createOrUpdateFile('/test/test2.txt', $blobFile2);
+        $chunkFile1 = $this->session->upload($fileName1, $mimeType, $size);
+        $chunkFile2 = $this->session->upload($fileName2, $mimeType, $size);
+        $this->session->createOrUpdateFile('/test/test1.txt', $chunkFile1);
+        $this->session->createOrUpdateFile('/test/test2.txt', $chunkFile2);
         $this->session->commit('init test data');
 
         $directory = $this->session->getDirectory('/test');
@@ -383,7 +383,7 @@ class SessionTest extends ProphecyTestCase
         $this->assertEquals($fileHash2, $directory->getChild('test2.txt')->getFileHash());
     }
 
-    public function testCreateBlobFile()
+    public function testCreateChunkFile()
     {
         $size = 999;
         $mimeType = 'application/json';
@@ -393,14 +393,14 @@ class SessionTest extends ProphecyTestCase
          */
         list($fileContent1, $fileName1) = $this->generateTestFile(200);
         $fileHash1 = $this->getFactory()->createFileHash($fileName1);
-        $blobFile1 = $this->session->upload($fileName1, $mimeType, $size);
+        $chunkFile1 = $this->session->upload($fileName1, $mimeType, $size);
 
         /**
          * do it
          */
-        $result = $this->session->createBlobFile(
+        $result = $this->session->createChunkFile(
             $fileHash1,
-            array($blobFile1->getBlobs()[0]->getHash(), $blobFile1->getBlobs()[1]->getHash()),
+            array($chunkFile1->getChunks()[0]->getHash(), $chunkFile1->getChunks()[1]->getHash()),
             $mimeType,
             $size
         );

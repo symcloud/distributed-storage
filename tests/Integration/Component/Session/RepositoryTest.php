@@ -16,7 +16,7 @@ class RepositoryTest extends ProphecyTestCase
     public function testLoginByHash()
     {
         $repository = new Repository(
-            $this->getBlobFileManager(),
+            $this->getChunkFileManager(),
             $this->getReferenceManager(),
             $this->getTreeManager(),
             $this->getCommitManager()
@@ -37,7 +37,7 @@ class RepositoryTest extends ProphecyTestCase
     public function testLoginByName()
     {
         $repository = new Repository(
-            $this->getBlobFileManager(),
+            $this->getChunkFileManager(),
             $this->getReferenceManager(),
             $this->getTreeManager(),
             $this->getCommitManager()

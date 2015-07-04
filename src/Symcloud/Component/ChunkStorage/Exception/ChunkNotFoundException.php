@@ -9,9 +9,9 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Symcloud\Component\BlobStorage\Exception;
+namespace Symcloud\Component\ChunkStorage\Exception;
 
-class BlobNotFoundException extends \Exception
+class ChunkNotFoundException extends \Exception
 {
     /**
      * @var string
@@ -19,7 +19,7 @@ class BlobNotFoundException extends \Exception
     private $hash;
 
     /**
-     * BlobNotFoundException constructor.
+     * ChunkNotFoundException constructor.
      *
      * @param $hash
      */

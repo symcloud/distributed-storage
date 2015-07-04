@@ -9,16 +9,16 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Symcloud\Component\BlobStorage;
+namespace Symcloud\Component\ChunkStorage;
 
 use Symcloud\Component\Common\FactoryInterface;
 use Symcloud\Component\Database\DatabaseInterface;
-use Symcloud\Component\Database\Model\Blob;
-use Symcloud\Component\Database\Model\BlobInterface;
+use Symcloud\Component\Database\Model\Chunk;
+use Symcloud\Component\Database\Model\ChunkInterface;
 use Symcloud\Component\Database\Model\PolicyCollection;
 use Symcloud\Component\Database\Replication\ReplicatorInterface;
 
-class BlobManager implements BlobManagerInterface
+class ChunkManager implements ChunkManagerInterface
 {
     /**
      * @var FactoryInterface
@@ -31,7 +31,7 @@ class BlobManager implements BlobManagerInterface
     private $database;
 
     /**
-     * BlobManager constructor.
+     * ChunkManager constructor.
      *
      * @param FactoryInterface $factory
      * @param DatabaseInterface $database
@@ -45,37 +45,37 @@ class BlobManager implements BlobManagerInterface
     /**
      * @param $data
      *
-     * @return BlobInterface
+     * @return ChunkInterface
      */
     public function upload($data)
     {
-        $blob = new Blob();
-        $blob->setData($data);
-        $blob->setLength(strlen($data));
-        $blob->setPolicyCollection(new PolicyCollection());
-        $blob->setHash($this->factory->createHash($data));
+        $chunk = new Chunk();
+        $chunk->setData($data);
+        $chunk->setLength(strlen($data));
+        $chunk->setPolicyCollection(new PolicyCollection());
+        $chunk->setHash($this->factory->createHash($data));
 
-        if ($this->database->contains($blob->getHash(), Blob::class)) {
-            return $blob;
+        if ($this->database->contains($chunk->getHash(), Chunk::class)) {
+            return $chunk;
         }
 
-        return $this->database->store($blob, array(ReplicatorInterface::OPTION_NAME => ReplicatorInterface::TYPE_FULL));
+        return $this->database->store($chunk, array(ReplicatorInterface::OPTION_NAME => ReplicatorInterface::TYPE_FULL));
     }
 
     /**
      * @param string $hash
      *
-     * @return BlobInterface
+     * @return ChunkInterface
      */
     public function download($hash)
     {
-        return $this->database->fetch($hash, Blob::class);
+        return $this->database->fetch($hash, Chunk::class);
     }
 
     public function downloadProxy($hash)
     {
         return $this->factory->createProxy(
-            BlobInterface::class,
+            ChunkInterface::class,
             function () use ($hash) {
                 return $this->download($hash);
             }

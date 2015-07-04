@@ -11,8 +11,8 @@
 
 namespace Symcloud\Component\Session;
 
-use Symcloud\Component\Database\Model\BlobFileInterface;
-use Symcloud\Component\Database\Model\BlobInterface;
+use Symcloud\Component\Database\Model\ChunkFileInterface;
+use Symcloud\Component\Database\Model\ChunkInterface;
 use Symcloud\Component\Database\Model\Commit\CommitInterface;
 use Symcloud\Component\Database\Model\Reference\ReferenceInterface;
 use Symcloud\Component\Database\Model\Tree\TreeFileInterface;
@@ -36,7 +36,7 @@ interface SessionInterface
      * @param $mimeType
      * @param $size
      *
-     * @return BlobFileInterface
+     * @return ChunkFileInterface
      */
     public function upload($fileName, $mimeType, $size);
 
@@ -57,11 +57,11 @@ interface SessionInterface
 
     /**
      * @param string $filePath
-     * @param BlobFileInterface $blobFile
+     * @param ChunkFileInterface $chunkFile
      *
      * @return TreeFileInterface
      */
-    public function createOrUpdateFile($filePath, BlobFileInterface $blobFile);
+    public function createOrUpdateFile($filePath, ChunkFileInterface $chunkFile);
 
     /**
      * @param string $filePath
@@ -110,11 +110,11 @@ interface SessionInterface
 
     /**
      * @param string $hash
-     * @param BlobInterface[] $blobs
+     * @param ChunkInterface[] $chunks
      * @param string $mimetype
      * @param int $size
      *
-     * @return BlobFileInterface
+     * @return ChunkFileInterface
      */
-    public function createBlobFile($hash, array $blobs, $mimetype, $size);
+    public function createChunkFile($hash, array $chunks, $mimetype, $size);
 }

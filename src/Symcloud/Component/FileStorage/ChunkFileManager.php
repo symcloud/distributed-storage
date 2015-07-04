@@ -11,12 +11,12 @@
 
 namespace Symcloud\Component\FileStorage;
 
-use Symcloud\Component\BlobStorage\BlobManagerInterface;
+use Symcloud\Component\ChunkStorage\ChunkManagerInterface;
 use Symcloud\Component\Common\FactoryInterface;
-use Symcloud\Component\Database\Model\BlobFile;
-use Symcloud\Component\Database\Model\BlobInterface;
+use Symcloud\Component\Database\Model\ChunkFile;
+use Symcloud\Component\Database\Model\ChunkInterface;
 
-class BlobFileManager implements BlobFileManagerInterface
+class ChunkFileManager implements ChunkFileManagerInterface
 {
     /**
      * @var FileSplitterInterface
@@ -24,9 +24,9 @@ class BlobFileManager implements BlobFileManagerInterface
     private $fileSplitter;
 
     /**
-     * @var BlobManagerInterface
+     * @var ChunkManagerInterface
      */
-    private $blobManager;
+    private $chunkManager;
 
     /**
      * @var FactoryInterface
@@ -34,19 +34,19 @@ class BlobFileManager implements BlobFileManagerInterface
     private $factory;
 
     /**
-     * BlobFileManager constructor.
+     * ChunkFileManager constructor.
      *
      * @param FileSplitterInterface         $fileSplitter
-     * @param BlobManagerInterface          $blobManager
+     * @param ChunkManagerInterface          $chunkManager
      * @param FactoryInterface              $factory
      */
     public function __construct(
         FileSplitterInterface $fileSplitter,
-        BlobManagerInterface $blobManager,
+        ChunkManagerInterface $chunkManager,
         FactoryInterface $factory
     ) {
         $this->fileSplitter = $fileSplitter;
-        $this->blobManager = $blobManager;
+        $this->chunkManager = $chunkManager;
         $this->factory = $factory;
     }
 
@@ -57,23 +57,23 @@ class BlobFileManager implements BlobFileManagerInterface
     {
         $fileHash = $this->factory->createFileHash($filePath);
 
-        $blobs = array();
+        $chunks = array();
         $this->fileSplitter->split(
             $filePath,
-            function ($index, $data) use (&$blobs) {
-                $blob = $this->uploadChunk($data);
-                $blobs[$index] = $this->blobManager->downloadProxy($blob->getHash());
+            function ($index, $data) use (&$chunks) {
+                $chunk = $this->uploadChunk($data);
+                $chunks[$index] = $this->chunkManager->downloadProxy($chunk->getHash());
 
-                // unset blob to save memory
-                unset($blob);
+                // unset chunk to save memory
+                unset($chunk);
             }
         );
 
-        $file = new BlobFile();
+        $file = new ChunkFile();
         $file->setHash($fileHash);
         $file->setSize($size);
         $file->setMimetype($mimeType);
-        $file->setBlobs($blobs);
+        $file->setChunks($chunks);
 
         return $file;
     }
@@ -81,18 +81,18 @@ class BlobFileManager implements BlobFileManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function download($hash, array $blobs, $mimetype, $size)
+    public function download($hash, array $chunks, $mimetype, $size)
     {
-        $file = new BlobFile();
+        $file = new ChunkFile();
         $file->setHash($hash);
         $file->setMimetype($mimetype);
         $file->setSize($size);
 
         $result = array();
-        foreach ($blobs as $blobHash) {
-            $result[] = $this->blobManager->downloadProxy($blobHash);
+        foreach ($chunks as $chunkHash) {
+            $result[] = $this->chunkManager->downloadProxy($chunkHash);
         }
-        $file->setBlobs($result);
+        $file->setChunks($result);
 
         return $file;
     }
@@ -100,10 +100,10 @@ class BlobFileManager implements BlobFileManagerInterface
     /**
      * @param $data
      *
-     * @return BlobInterface
+     * @return ChunkInterface
      */
     private function uploadChunk($data)
     {
-        return $this->blobManager->upload($data);
+        return $this->chunkManager->upload($data);
     }
 }
