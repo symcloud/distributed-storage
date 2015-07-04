@@ -60,6 +60,7 @@ class ZendLuceneAdapter implements SearchAdapterInterface
 
         // check to see if the subject already exists
         $this->removeExisting($index, $hash);
+        $index->commit();
 
         $document = new Lucene\Document();
         $document->addField(Lucene\Document\Field::text(self::HASH_FIELDNAME, $hash));
